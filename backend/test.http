@@ -1,0 +1,31 @@
+### Obtener información de la API
+GET http://localhost:3000
+
+### Obtener todas las tareas
+GET http://localhost:3000/tareas
+
+### Obtener tarea específica
+GET http://localhost:3000/tareas/1
+
+### Obtener tareas completadas
+GET http://localhost:3000/tareas/completadas
+
+### Crear nueva tarea
+POST http://localhost:3000/tareas
+Content-Type: application/json
+
+{
+    "titulo": "Aprender Express"
+}
+
+### Actualizar tarea
+PUT http://localhost:3000/tareas/1
+Content-Type: application/json
+
+{
+    "titulo": "Aprender Node.js - COMPLETADO",
+    "completada": true
+}
+
+### Eliminar tarea
+DELETE http://localhost:3000/tareas/3
