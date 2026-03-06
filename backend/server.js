@@ -200,7 +200,7 @@ app.use((req, res) => {
 const PORT = 3000;
 
 app.listen(PORT, () => {
-  console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`✨ Servidor corriendo en http://localhost:${PORT}`); // Cambié el emoji
   console.log(`📝 Endpoints disponibles:`);
   console.log(`   GET    http://localhost:${PORT}/tareas`);
   console.log(`   GET    http://localhost:${PORT}/tareas/:id`);
