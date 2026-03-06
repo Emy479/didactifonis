@@ -183,6 +183,24 @@ app.delete("/tareas/:id", (req, res) => {
   });
 });
 
+// ──────────────────────────────────────────
+// RUTA: GET /estadisticas (nueva funcionalidad)
+// ──────────────────────────────────────────
+app.get("/estadisticas", (req, res) => {
+  const totalTareas = tareas.length;
+  const completadas = tareas.filter((t) => t.completada).length;
+  const pendientes = totalTareas - completadas;
+  const porcentajeCompletado =
+    totalTareas > 0 ? ((completadas / totalTareas) * 100).toFixed(2) : 0;
+
+  res.json({
+    total: totalTareas,
+    completadas: completadas,
+    pendientes: pendientes,
+    porcentajeCompletado: `${porcentajeCompletado}%`,
+  });
+});
+
 // ============================================
 // MANEJO DE RUTAS NO ENCONTRADAS (404)
 // ============================================
