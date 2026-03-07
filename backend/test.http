@@ -1,31 +1,113 @@
-### Obtener información de la API
-GET http://localhost:3000
+### Variables
+@baseUrl = http://localhost:3000
+
+### ==========================================
+### INFORMACIÓN DE LA API
+### ==========================================
+
+### Obtener información general
+GET {{baseUrl}}/
+
+### Health check
+GET {{baseUrl}}/health
+
+### ==========================================
+### TAREAS - LISTAR
+### ==========================================
 
 ### Obtener todas las tareas
-GET http://localhost:3000/tareas
-
-### Obtener tarea específica
-GET http://localhost:3000/tareas/1
+GET {{baseUrl}}/api/tareas
 
 ### Obtener tareas completadas
-GET http://localhost:3000/tareas/completadas
+GET {{baseUrl}}/api/tareas/completadas
 
-### Crear nueva tarea
-POST http://localhost:3000/tareas
+### Obtener estadísticas
+GET {{baseUrl}}/api/tareas/estadisticas
+
+### Obtener tarea específica
+GET {{baseUrl}}/api/tareas/1
+
+### Obtener tarea inexistente (404)
+GET {{baseUrl}}/api/tareas/999
+
+### ==========================================
+### TAREAS - CREAR
+### ==========================================
+
+### Crear nueva tarea (válida)
+POST {{baseUrl}}/api/tareas
 Content-Type: application/json
 
 {
-    "titulo": "Aprender Express"
+    "titulo": "Aprender MongoDB"
 }
 
-### Actualizar tarea
-PUT http://localhost:3000/tareas/1
+### Crear tarea sin título (error 400)
+POST {{baseUrl}}/api/tareas
 Content-Type: application/json
 
 {
-    "titulo": "Aprender Node.js - COMPLETADO",
+    "titulo": ""
+}
+
+### Crear tarea con título muy largo (error 400)
+POST {{baseUrl}}/api/tareas
+Content-Type: application/json
+
+{
+    "titulo": "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim ad minim veniam quis nostrud"
+}
+
+### ==========================================
+### TAREAS - ACTUALIZAR
+### ==========================================
+
+### Actualizar título
+PUT {{baseUrl}}/api/tareas/1
+Content-Type: application/json
+
+{
+    "titulo": "Aprender Node.js - COMPLETADO"
+}
+
+### Marcar como completada
+PUT {{baseUrl}}/api/tareas/1
+Content-Type: application/json
+
+{
     "completada": true
 }
 
+### Actualizar título y estado
+PUT {{baseUrl}}/api/tareas/2
+Content-Type: application/json
+
+{
+    "titulo": "Crear API REST - En progreso",
+    "completada": false
+}
+
+### Actualizar tarea inexistente (404)
+PUT {{baseUrl}}/api/tareas/999
+Content-Type: application/json
+
+{
+    "titulo": "No existe"
+}
+
+### ==========================================
+### TAREAS - ELIMINAR
+### ==========================================
+
 ### Eliminar tarea
-DELETE http://localhost:3000/tareas/3
+DELETE {{baseUrl}}/api/tareas/3
+
+### Eliminar tarea inexistente (404)
+DELETE {{baseUrl}}/api/tareas/999
+
+### ==========================================
+### ERRORES
+### ==========================================
+
+### Ruta no encontrada (404)
+GET {{baseUrl}}/api/ruta-inexistente
