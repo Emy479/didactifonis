@@ -13,13 +13,9 @@ module.exports = {
     env: process.env.NODE_ENV || "development",
   },
 
-  // Configuración de base de datos (para MongoDB después)
+  // Configuración de base de datos
   database: {
-    uri: process.env.DB_URI || "",
-    options: {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    },
+    uri: process.env.DB_URI || "mongodb://localhost:27017/didactifonis",
   },
 
   // Configuración de JWT (para autenticación después)

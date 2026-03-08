@@ -15,7 +15,7 @@ GET {{baseUrl}}/health
 ### TAREAS - LISTAR
 ### ==========================================
 
-### Obtener todas las tareas
+### Obtener todas las tareas (inicialmente vacío)
 GET {{baseUrl}}/api/tareas
 
 ### Obtener tareas completadas
@@ -24,90 +24,109 @@ GET {{baseUrl}}/api/tareas/completadas
 ### Obtener estadísticas
 GET {{baseUrl}}/api/tareas/estadisticas
 
-### Obtener tarea específica
-GET {{baseUrl}}/api/tareas/1
+### ==========================================
+### TAREAS - CREAR (MongoDB)
+### ==========================================
+
+### Crear primera tarea
+POST {{baseUrl}}/api/tareas
+Content-Type: application/json
+
+{
+    "titulo": "Aprender MongoDB",
+    "prioridad": "alta",
+    "descripcion": "Dominar operaciones CRUD con Mongoose"
+}
+
+### Crear segunda tarea
+POST {{baseUrl}}/api/tareas
+Content-Type: application/json
+
+{
+    "titulo": "Crear sistema de autenticación",
+    "prioridad": "media"
+}
+
+### Crear tercera tarea
+POST {{baseUrl}}/api/tareas
+Content-Type: application/json
+
+{
+    "titulo": "Integrar Unity con la API"
+}
+
+### Crear tarea sin título (ERROR - validación)
+POST {{baseUrl}}/api/tareas
+Content-Type: application/json
+
+{
+    "descripcion": "Esta fallará porque no tiene título"
+}
+
+### Crear tarea con título muy largo (ERROR - validación)
+POST {{baseUrl}}/api/tareas
+Content-Type: application/json
+
+{
+    "titulo": "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco"
+}
+
+### ==========================================
+### TAREAS - OBTENER POR ID
+### ==========================================
+
+### IMPORTANTE: Después de crear tareas, copia un _id de la respuesta
+### y reemplaza el ID de ejemplo abajo
+
+### Obtener tarea específica (reemplaza con un ID real)
+GET {{baseUrl}}/api/tareas/679d1234567890abcdef1234
+
+### Obtener tarea con ID inválido (ERROR)
+GET {{baseUrl}}/api/tareas/id-invalido
 
 ### Obtener tarea inexistente (404)
-GET {{baseUrl}}/api/tareas/999
-
-### ==========================================
-### TAREAS - CREAR
-### ==========================================
-
-### Crear nueva tarea (válida)
-POST {{baseUrl}}/api/tareas
-Content-Type: application/json
-
-{
-    "titulo": "Aprender MongoDB"
-}
-
-### Crear tarea sin título (error 400)
-POST {{baseUrl}}/api/tareas
-Content-Type: application/json
-
-{
-    "titulo": ""
-}
-
-### Crear tarea con título muy largo (error 400)
-POST {{baseUrl}}/api/tareas
-Content-Type: application/json
-
-{
-    "titulo": "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim ad minim veniam quis nostrud"
-}
+GET {{baseUrl}}/api/tareas/679d1234567890abcdef9999
 
 ### ==========================================
 ### TAREAS - ACTUALIZAR
 ### ==========================================
 
-### Actualizar título
-PUT {{baseUrl}}/api/tareas/1
+### Actualizar título y prioridad (reemplaza el ID)
+PUT {{baseUrl}}/api/tareas/679d1234567890abcdef1234
 Content-Type: application/json
 
 {
-    "titulo": "Aprender Node.js - COMPLETADO"
+    "titulo": "Aprender MongoDB - COMPLETADO",
+    "prioridad": "baja"
 }
 
-### Marcar como completada
-PUT {{baseUrl}}/api/tareas/1
+### Marcar como completada (reemplaza el ID)
+PUT {{baseUrl}}/api/tareas/679d1234567890abcdef1234
 Content-Type: application/json
 
 {
     "completada": true
 }
 
-### Actualizar título y estado
-PUT {{baseUrl}}/api/tareas/2
+### Actualizar solo descripción (reemplaza el ID)
+PUT {{baseUrl}}/api/tareas/679d1234567890abcdef1234
 Content-Type: application/json
 
 {
-    "titulo": "Crear API REST - En progreso",
-    "completada": false
-}
-
-### Actualizar tarea inexistente (404)
-PUT {{baseUrl}}/api/tareas/999
-Content-Type: application/json
-
-{
-    "titulo": "No existe"
+    "descripcion": "Ya domino Mongoose y sus operaciones"
 }
 
 ### ==========================================
 ### TAREAS - ELIMINAR
 ### ==========================================
 
-### Eliminar tarea
-DELETE {{baseUrl}}/api/tareas/3
-
-### Eliminar tarea inexistente (404)
-DELETE {{baseUrl}}/api/tareas/999
+### Eliminar tarea (reemplaza el ID)
+DELETE {{baseUrl}}/api/tareas/679d1234567890abcdef1234
 
 ### ==========================================
-### ERRORES
+### VERIFICAR PERSISTENCIA
 ### ==========================================
 
-### Ruta no encontrada (404)
-GET {{baseUrl}}/api/ruta-inexistente
+### Después de crear varias tareas, REINICIA el servidor
+### y vuelve a hacer esta petición. Las tareas seguirán ahí!
+GET {{baseUrl}}/api/tareas

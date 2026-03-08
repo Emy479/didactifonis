@@ -1,139 +1,84 @@
 /**
- * Modelo de Tarea
+ * Modelo de Tarea - MongoDB
  *
- * Por ahora usa un array en memoria.
- * Más adelante lo reemplazaremos con MongoDB.
+ * Define el esquema y métodos para interactuar con la colección de tareas.
  */
 
+const mongoose = require("mongoose");
+
 // ============================================
-// BASE DE DATOS TEMPORAL
+// DEFINIR ESQUEMA
 // ============================================
-let tareas = [
+const tareaSchema = new mongoose.Schema(
   {
-    id: 1,
-    titulo: "Aprender Node.js",
-    completada: false,
-    createdAt: new Date(),
+    titulo: {
+      type: String,
+      required: [true, "El título es obligatorio"],
+      trim: true, // Elimina espacios al inicio/final
+      maxlength: [100, "El título no puede exceder 100 caracteres"],
+    },
+    completada: {
+      type: Boolean,
+      default: false,
+    },
+    // Campos adicionales que podemos agregar:
+    prioridad: {
+      type: String,
+      enum: ["baja", "media", "alta"], // Solo acepta estos valores
+      default: "media",
+    },
+    descripcion: {
+      type: String,
+      maxlength: 500,
+    },
   },
-  { id: 2, titulo: "Crear API REST", completada: false, createdAt: new Date() },
   {
-    id: 3,
-    titulo: "Estudiar async/await",
-    completada: true,
-    createdAt: new Date(),
+    // Opciones del schema
+    timestamps: true, // Agrega createdAt y updatedAt automáticamente
+    versionKey: false, // Desactiva el campo __v
   },
-];
-
-let siguienteId = 4;
+);
 
 // ============================================
-// CLASE MODELO
+// MÉTODOS PERSONALIZADOS (Opcional)
 // ============================================
-class Tarea {
-  /**
-   * Obtener todas las tareas
-   */
-  static getAll() {
-    return tareas;
-  }
 
-  /**
-   * Obtener tareas completadas
-   */
-  static getCompletadas() {
-    return tareas.filter((t) => t.completada === true);
-  }
+/**
+ * Método de instancia: marcar como completada
+ */
+tareaSchema.methods.marcarCompletada = function () {
+  this.completada = true;
+  return this.save();
+};
 
-  /**
-   * Obtener tareas pendientes
-   */
-  static getPendientes() {
-    return tareas.filter((t) => t.completada === false);
-  }
+/**
+ * Método estático: obtener tareas completadas
+ */
+tareaSchema.statics.obtenerCompletadas = function () {
+  return this.find({ completada: true });
+};
 
-  /**
-   * Buscar tarea por ID
-   * @param {number} id
-   * @returns {object|null}
-   */
-  static getById(id) {
-    return tareas.find((t) => t.id === id) || null;
-  }
+/**
+ * Método estático: obtener estadísticas
+ */
+tareaSchema.statics.obtenerEstadisticas = async function () {
+  const total = await this.countDocuments();
+  const completadas = await this.countDocuments({ completada: true });
+  const pendientes = total - completadas;
+  const porcentaje = total > 0 ? ((completadas / total) * 100).toFixed(2) : 0;
 
-  /**
-   * Crear nueva tarea
-   * @param {object} data - { titulo }
-   * @returns {object} Nueva tarea creada
-   */
-  static create(data) {
-    const nuevaTarea = {
-      id: siguienteId++,
-      titulo: data.titulo.trim(),
-      completada: false,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+  return {
+    total,
+    completadas,
+    pendientes,
+    porcentajeCompletado: `${porcentaje}%`,
+  };
+};
 
-    tareas.push(nuevaTarea);
-    return nuevaTarea;
-  }
-
-  /**
-   * Actualizar tarea
-   * @param {number} id
-   * @param {object} data - { titulo?, completada? }
-   * @returns {object|null} Tarea actualizada o null
-   */
-  static update(id, data) {
-    const index = tareas.findIndex((t) => t.id === id);
-
-    if (index === -1) {
-      return null;
-    }
-
-    // Actualizar solo los campos proporcionados
-    tareas[index] = {
-      ...tareas[index],
-      ...data,
-      id: id, // Mantener el ID original
-      updatedAt: new Date(),
-    };
-
-    return tareas[index];
-  }
-
-  /**
-   * Eliminar tarea
-   * @param {number} id
-   * @returns {object|null} Tarea eliminada o null
-   */
-  static delete(id) {
-    const index = tareas.findIndex((t) => t.id === id);
-
-    if (index === -1) {
-      return null;
-    }
-
-    const tareaEliminada = tareas.splice(index, 1)[0];
-    return tareaEliminada;
-  }
-
-  /**
-   * Obtener estadísticas
-   */
-  static getEstadisticas() {
-    const total = tareas.length;
-    const completadas = tareas.filter((t) => t.completada).length;
-    const pendientes = total - completadas;
-    const porcentaje = total > 0 ? ((completadas / total) * 100).toFixed(2) : 0;
-
-    return {
-      total,
-      completadas,
-      pendientes,
-      porcentajeCompletado: `${porcentaje}%`,
-    };
-  }
-}
+// ============================================
+// CREAR Y EXPORTAR MODELO
+// ============================================
+// El modelo es la interfaz para interactuar con la colección
+const Tarea = mongoose.model("Tarea", tareaSchema);
 
 module.exports = Tarea;

@@ -16,9 +16,15 @@
 // IMPORTAR DEPENDENCIAS
 // ============================================
 const express = require("express");
+const connectDB = require("./src/config/database");
 const config = require("./src/config/config");
 const logger = require("./src/middleware/logger");
 const { notFound, errorHandler } = require("./src/middleware/errorHandler");
+
+// ============================================
+// CONECTAR A BASE DE DATOS
+// ============================================
+connectDB();
 
 // ============================================
 // IMPORTAR RUTAS

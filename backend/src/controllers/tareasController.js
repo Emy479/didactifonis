@@ -1,5 +1,5 @@
 /**
- * Controlador de Tareas
+ * Controlador de Tareas - MongoDB
  *
  * Maneja la lógica de negocio para operaciones CRUD de tareas.
  */
@@ -12,9 +12,10 @@ const Tarea = require("../models/Tarea");
 /**
  * GET /api/tareas
  */
-const obtenerTodas = (req, res) => {
+const obtenerTodas = async (req, res) => {
   try {
-    const tareas = Tarea.getAll();
+    // find() sin parámetros obtiene todos los documentos
+    const tareas = await Tarea.find();
 
     res.json({
       success: true,
@@ -35,19 +36,12 @@ const obtenerTodas = (req, res) => {
 /**
  * GET /api/tareas/:id
  */
-const obtenerPorId = (req, res) => {
+const obtenerPorId = async (req, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const { id } = req.params;
 
-    // Validar que el ID sea un número
-    if (isNaN(id)) {
-      return res.status(400).json({
-        success: false,
-        error: "ID inválido",
-      });
-    }
-
-    const tarea = Tarea.getById(id);
+    // findById() busca por _id
+    const tarea = await Tarea.findById(id);
 
     if (!tarea) {
       return res.status(404).json({
@@ -61,6 +55,14 @@ const obtenerPorId = (req, res) => {
       data: tarea,
     });
   } catch (error) {
+    // Si el ID no es válido, Mongoose lanza un error
+    if (error.kind === "ObjectId") {
+      return res.status(400).json({
+        success: false,
+        error: "ID inválido",
+      });
+    }
+
     res.status(500).json({
       success: false,
       error: "Error al obtener tarea",
@@ -74,9 +76,10 @@ const obtenerPorId = (req, res) => {
 /**
  * GET /api/tareas/completadas
  */
-const obtenerCompletadas = (req, res) => {
+const obtenerCompletadas = async (req, res) => {
   try {
-    const tareas = Tarea.getCompletadas();
+    // Usar el método estático que definimos
+    const tareas = await Tarea.obtenerCompletadas();
 
     res.json({
       success: true,
@@ -96,35 +99,37 @@ const obtenerCompletadas = (req, res) => {
 // ============================================
 /**
  * POST /api/tareas
- * Body: { titulo }
+ * Body: { titulo, prioridad?, descripcion? }
  */
-const crear = (req, res) => {
+const crear = async (req, res) => {
   try {
-    const { titulo } = req.body;
+    const { titulo, prioridad, descripcion } = req.body;
 
-    // Validación
-    if (!titulo || titulo.trim() === "") {
-      return res.status(400).json({
-        success: false,
-        error: "El título es obligatorio",
-      });
-    }
+    // Crear instancia del modelo
+    const nuevaTarea = new Tarea({
+      titulo,
+      prioridad,
+      descripcion,
+    });
 
-    if (titulo.length > 100) {
-      return res.status(400).json({
-        success: false,
-        error: "El título no puede exceder 100 caracteres",
-      });
-    }
-
-    const nuevaTarea = Tarea.create({ titulo });
+    // Guardar en la base de datos
+    const tareaGuardada = await nuevaTarea.save();
 
     res.status(201).json({
       success: true,
       message: "Tarea creada exitosamente",
-      data: nuevaTarea,
+      data: tareaGuardada,
     });
   } catch (error) {
+    // Mongoose devuelve errores de validación detallados
+    if (error.name === "ValidationError") {
+      const messages = Object.values(error.errors).map((err) => err.message);
+      return res.status(400).json({
+        success: false,
+        error: messages.join(", "),
+      });
+    }
+
     res.status(500).json({
       success: false,
       error: "Error al crear tarea",
@@ -137,38 +142,22 @@ const crear = (req, res) => {
 // ============================================
 /**
  * PUT /api/tareas/:id
- * Body: { titulo?, completada? }
+ * Body: { titulo?, completada?, prioridad?, descripcion? }
  */
-const actualizar = (req, res) => {
+const actualizar = async (req, res) => {
   try {
-    const id = parseInt(req.params.id);
-    const { titulo, completada } = req.body;
+    const { id } = req.params;
+    const { titulo, completada, prioridad, descripcion } = req.body;
 
-    // Validar ID
-    if (isNaN(id)) {
-      return res.status(400).json({
-        success: false,
-        error: "ID inválido",
-      });
-    }
-
-    // Validar que al menos un campo venga
-    if (titulo === undefined && completada === undefined) {
-      return res.status(400).json({
-        success: false,
-        error: "Debe proporcionar al menos un campo para actualizar",
-      });
-    }
-
-    // Validar título si viene
-    if (titulo !== undefined && titulo.trim() === "") {
-      return res.status(400).json({
-        success: false,
-        error: "El título no puede estar vacío",
-      });
-    }
-
-    const tareaActualizada = Tarea.update(id, { titulo, completada });
+    // findByIdAndUpdate actualiza y devuelve el documento actualizado
+    const tareaActualizada = await Tarea.findByIdAndUpdate(
+      id,
+      { titulo, completada, prioridad, descripcion },
+      {
+        new: true, // Devolver el documento actualizado
+        runValidators: true, // Ejecutar validaciones del schema
+      },
+    );
 
     if (!tareaActualizada) {
       return res.status(404).json({
@@ -183,6 +172,21 @@ const actualizar = (req, res) => {
       data: tareaActualizada,
     });
   } catch (error) {
+    if (error.kind === "ObjectId") {
+      return res.status(400).json({
+        success: false,
+        error: "ID inválido",
+      });
+    }
+
+    if (error.name === "ValidationError") {
+      const messages = Object.values(error.errors).map((err) => err.message);
+      return res.status(400).json({
+        success: false,
+        error: messages.join(", "),
+      });
+    }
+
     res.status(500).json({
       success: false,
       error: "Error al actualizar tarea",
@@ -196,18 +200,12 @@ const actualizar = (req, res) => {
 /**
  * DELETE /api/tareas/:id
  */
-const eliminar = (req, res) => {
+const eliminar = async (req, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const { id } = req.params;
 
-    if (isNaN(id)) {
-      return res.status(400).json({
-        success: false,
-        error: "ID inválido",
-      });
-    }
-
-    const tareaEliminada = Tarea.delete(id);
+    // findByIdAndDelete elimina y devuelve el documento eliminado
+    const tareaEliminada = await Tarea.findByIdAndDelete(id);
 
     if (!tareaEliminada) {
       return res.status(404).json({
@@ -222,6 +220,13 @@ const eliminar = (req, res) => {
       data: tareaEliminada,
     });
   } catch (error) {
+    if (error.kind === "ObjectId") {
+      return res.status(400).json({
+        success: false,
+        error: "ID inválido",
+      });
+    }
+
     res.status(500).json({
       success: false,
       error: "Error al eliminar tarea",
@@ -235,9 +240,10 @@ const eliminar = (req, res) => {
 /**
  * GET /api/tareas/estadisticas
  */
-const obtenerEstadisticas = (req, res) => {
+const obtenerEstadisticas = async (req, res) => {
   try {
-    const stats = Tarea.getEstadisticas();
+    // Usar el método estático que definimos
+    const stats = await Tarea.obtenerEstadisticas();
 
     res.json({
       success: true,
