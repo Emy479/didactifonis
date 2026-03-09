@@ -14,8 +14,10 @@ const Tarea = require("../models/Tarea");
  */
 const obtenerTodas = async (req, res) => {
   try {
-    // find() sin parámetros obtiene todos los documentos
-    const tareas = await Tarea.find();
+    // Obtener solo las tareas del usuario autenticado
+    const tareas = await Tarea.find({ usuario: req.user.userId })
+      .populate("usuario", "nombre email") // Incluir datos del usuario
+      .sort({ createdAt: -1 }); // Más recientes primero
 
     res.json({
       success: true,
@@ -40,8 +42,11 @@ const obtenerPorId = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // findById() busca por _id
-    const tarea = await Tarea.findById(id);
+    // Buscar la tarea Y verificar que pertenezca al usuario
+    const tarea = await Tarea.findOne({
+      _id: id,
+      usuario: req.user.userId,
+    }).populate("usuario", "nombre email");
 
     if (!tarea) {
       return res.status(404).json({
@@ -55,7 +60,6 @@ const obtenerPorId = async (req, res) => {
       data: tarea,
     });
   } catch (error) {
-    // Si el ID no es válido, Mongoose lanza un error
     if (error.kind === "ObjectId") {
       return res.status(400).json({
         success: false,
@@ -78,8 +82,10 @@ const obtenerPorId = async (req, res) => {
  */
 const obtenerCompletadas = async (req, res) => {
   try {
-    // Usar el método estático que definimos
-    const tareas = await Tarea.obtenerCompletadas();
+    const tareas = await Tarea.find({
+      usuario: req.user.userId,
+      completada: true,
+    }).populate("usuario", "nombre email");
 
     res.json({
       success: true,
@@ -105,15 +111,18 @@ const crear = async (req, res) => {
   try {
     const { titulo, prioridad, descripcion } = req.body;
 
-    // Crear instancia del modelo
+    // Crear tarea asociada al usuario autenticado
     const nuevaTarea = new Tarea({
       titulo,
       prioridad,
       descripcion,
+      usuario: req.user.userId, // ← IMPORTANTE
     });
 
-    // Guardar en la base de datos
     const tareaGuardada = await nuevaTarea.save();
+
+    // Poblar datos del usuario
+    await tareaGuardada.populate("usuario", "nombre email");
 
     res.status(201).json({
       success: true,
@@ -121,7 +130,6 @@ const crear = async (req, res) => {
       data: tareaGuardada,
     });
   } catch (error) {
-    // Mongoose devuelve errores de validación detallados
     if (error.name === "ValidationError") {
       const messages = Object.values(error.errors).map((err) => err.message);
       return res.status(400).json({
@@ -149,20 +157,23 @@ const actualizar = async (req, res) => {
     const { id } = req.params;
     const { titulo, completada, prioridad, descripcion } = req.body;
 
-    // findByIdAndUpdate actualiza y devuelve el documento actualizado
-    const tareaActualizada = await Tarea.findByIdAndUpdate(
-      id,
+    // Buscar Y verificar que pertenezca al usuario
+    const tareaActualizada = await Tarea.findOneAndUpdate(
+      {
+        _id: id,
+        usuario: req.user.userId, // ← IMPORTANTE
+      },
       { titulo, completada, prioridad, descripcion },
       {
-        new: true, // Devolver el documento actualizado
-        runValidators: true, // Ejecutar validaciones del schema
+        new: true,
+        runValidators: true,
       },
-    );
+    ).populate("usuario", "nombre email");
 
     if (!tareaActualizada) {
       return res.status(404).json({
         success: false,
-        error: "Tarea no encontrada",
+        error: "Tarea no encontrada o no tienes permiso",
       });
     }
 
@@ -204,13 +215,16 @@ const eliminar = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // findByIdAndDelete elimina y devuelve el documento eliminado
-    const tareaEliminada = await Tarea.findByIdAndDelete(id);
+    // Buscar Y verificar que pertenezca al usuario
+    const tareaEliminada = await Tarea.findOneAndDelete({
+      _id: id,
+      usuario: req.user.userId, // ← IMPORTANTE
+    });
 
     if (!tareaEliminada) {
       return res.status(404).json({
         success: false,
-        error: "Tarea no encontrada",
+        error: "Tarea no encontrada o no tienes permiso",
       });
     }
 
@@ -242,12 +256,23 @@ const eliminar = async (req, res) => {
  */
 const obtenerEstadisticas = async (req, res) => {
   try {
-    // Usar el método estático que definimos
-    const stats = await Tarea.obtenerEstadisticas();
+    // Estadísticas solo de las tareas del usuario
+    const total = await Tarea.countDocuments({ usuario: req.user.userId });
+    const completadas = await Tarea.countDocuments({
+      usuario: req.user.userId,
+      completada: true,
+    });
+    const pendientes = total - completadas;
+    const porcentaje = total > 0 ? ((completadas / total) * 100).toFixed(2) : 0;
 
     res.json({
       success: true,
-      data: stats,
+      data: {
+        total,
+        completadas,
+        pendientes,
+        porcentajeCompletado: `${porcentaje}%`,
+      },
     });
   } catch (error) {
     res.status(500).json({

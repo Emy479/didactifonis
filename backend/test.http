@@ -124,9 +124,145 @@ Content-Type: application/json
 DELETE {{baseUrl}}/api/tareas/679d1234567890abcdef1234
 
 ### ==========================================
+### TAREAS - AHORA REQUIEREN AUTENTICACIÓN
+### ==========================================
+
+### Intentar obtener tareas SIN token (debe fallar 401)
+GET {{baseUrl}}/api/tareas
+
+### Obtener tareas CON token (debe funcionar)
+GET {{baseUrl}}/api/tareas
+Authorization: Bearer {{token}}
+
+### Crear tarea CON token
+POST {{baseUrl}}/api/tareas
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "titulo": "Tarea creada por usuario autenticado",
+    "prioridad": "alta"
+}
+
+### Crear tarea SIN token (debe fallar 401)
+POST {{baseUrl}}/api/tareas
+Content-Type: application/json
+
+{
+    "titulo": "Esto no debería funcionar"
+}
+
+### ==========================================
 ### VERIFICAR PERSISTENCIA
 ### ==========================================
 
 ### Después de crear varias tareas, REINICIA el servidor
 ### y vuelve a hacer esta petición. Las tareas seguirán ahí!
 GET {{baseUrl}}/api/tareas
+
+### ==========================================
+### AUTENTICACIÓN
+### ==========================================
+
+### Registrar un tutor
+POST {{baseUrl}}/api/auth/registro
+Content-Type: application/json
+
+{
+    "nombre": "María González",
+    "email": "maria@ejemplo.com",
+    "password": "password123",
+    "role": "tutor",
+    "telefono": "912345678"
+}
+
+### Registrar un profesional
+POST {{baseUrl}}/api/auth/registro
+Content-Type: application/json
+
+{
+    "nombre": "Dr. Carlos Pérez",
+    "email": "carlos@ejemplo.com",
+    "password": "password123",
+    "role": "profesional",
+    "telefono": "987654321",
+    "especialidad": "fonoaudiología",
+    "numeroRegistro": "FN-12345"
+}
+
+### Login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "maria@ejemplo.com",
+    "password": "password123"
+}
+
+### IMPORTANTE: Copia el token de la respuesta del login
+### y reemplázalo en la variable de abajo
+
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+###maria @token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWFlM2UxMDhiNTgxMThjNTVlODBjYmUiLCJlbWFpbCI6Im1hcmlhQGVqZW1wbG8uY29tIiwicm9sZSI6InR1dG9yIiwiaWF0IjoxNzczMDI4NDIzLCJleHAiOjE3NzM2MzMyMjN9.3IPGkgEIA5C1p8N43XtqMMbMUcx0aUnSazUSwPyelFg
+
+### Obtener perfil (requiere token)
+GET {{baseUrl}}/api/auth/perfil
+Authorization: Bearer {{token}}
+
+### Actualizar perfil
+PUT {{baseUrl}}/api/auth/perfil
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "nombre": "María González Actualizado",
+    "telefono": "999888777"
+}
+
+### Cambiar contraseña
+PUT {{baseUrl}}/api/auth/cambiar-password
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "passwordActual": "password123",
+    "passwordNuevo": "nuevopassword456"
+}
+
+### Listar profesionales (público)
+GET {{baseUrl}}/api/auth/profesionales
+
+### ==========================================
+### PRUEBAS DE VALIDACIÓN
+### ==========================================
+
+### Registro sin email (error)
+POST {{baseUrl}}/api/auth/registro
+Content-Type: application/json
+
+{
+    "nombre": "Juan Pérez",
+    "password": "123456"
+}
+
+### Registro con email duplicado (error)
+POST {{baseUrl}}/api/auth/registro
+Content-Type: application/json
+
+{
+    "nombre": "Otro Usuario",
+    "email": "maria@ejemplo.com",
+    "password": "password123"
+}
+
+### Login con credenciales incorrectas (error)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "maria@ejemplo.com",
+    "password": "passwordincorrecto"
+}
+
+### Acceder a ruta protegida sin token (error 401)
+GET {{baseUrl}}/api/auth/perfil

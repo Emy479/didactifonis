@@ -14,22 +14,29 @@ const tareaSchema = new mongoose.Schema(
     titulo: {
       type: String,
       required: [true, "El título es obligatorio"],
-      trim: true, // Elimina espacios al inicio/final
+      trim: true,
       maxlength: [100, "El título no puede exceder 100 caracteres"],
     },
     completada: {
       type: Boolean,
       default: false,
     },
-    // Campos adicionales que podemos agregar:
     prioridad: {
       type: String,
-      enum: ["baja", "media", "alta"], // Solo acepta estos valores
+      enum: ["baja", "media", "alta"],
       default: "media",
     },
     descripcion: {
       type: String,
       maxlength: 500,
+    },
+    // ============================================
+    // NUEVO: RELACIÓN CON USUARIO
+    // ============================================
+    usuario: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User", // Referencia al modelo User
+      required: true,
     },
   },
   {
@@ -79,6 +86,4 @@ tareaSchema.statics.obtenerEstadisticas = async function () {
 // CREAR Y EXPORTAR MODELO
 // ============================================
 // El modelo es la interfaz para interactuar con la colección
-const Tarea = mongoose.model("Tarea", tareaSchema);
-
-module.exports = Tarea;
+module.exports = mongoose.model("Tarea", tareaSchema);

@@ -30,7 +30,7 @@ connectDB();
 // IMPORTAR RUTAS
 // ============================================
 const tareasRoutes = require("./src/routes/tareasRoutes");
-const autoresRoutes = require("./src/routes/autoresRoutes");
+const authRoutes = require("./src/routes/authRoutes");
 
 // ============================================
 // CREAR APLICACIÓN EXPRESS
@@ -82,7 +82,7 @@ app.get("/health", (req, res) => {
 // MONTAR RUTAS DE RECURSOS
 // ============================================
 app.use("/api/tareas", tareasRoutes);
-app.use("/api/autores", autoresRoutes);
+app.use("/api/auth", authRoutes);
 
 // Aquí montaremos más rutas después:
 // app.use('/api/users', usersRoutes);
@@ -117,6 +117,9 @@ app.listen(PORT, () => {
   console.log("📋 Endpoints disponibles:");
   console.log(`   GET    http://localhost:${PORT}/`);
   console.log(`   GET    http://localhost:${PORT}/health`);
+  console.log(`   POST   http://localhost:${PORT}/api/auth/registro`);
+  console.log(`   POST   http://localhost:${PORT}/api/auth/login`);
+  console.log(`   GET    http://localhost:${PORT}/api/auth/perfil`);
   console.log(`   GET    http://localhost:${PORT}/api/tareas`);
   console.log(`   GET    http://localhost:${PORT}/api/tareas/completadas`);
   console.log(`   GET    http://localhost:${PORT}/api/tareas/estadisticas`);
@@ -124,13 +127,6 @@ app.listen(PORT, () => {
   console.log(`   POST   http://localhost:${PORT}/api/tareas`);
   console.log(`   PUT    http://localhost:${PORT}/api/tareas/:id`);
   console.log(`   DELETE http://localhost:${PORT}/api/tareas/:id`);
-  console.log(`   GET    http://localhost:${PORT}/api/autores`);
-  console.log(`   GET    http://localhost:${PORT}/api/autores/completadas`);
-  console.log(`   GET    http://localhost:${PORT}/api/autores/estadisticas`);
-  console.log(`   GET    http://localhost:${PORT}/api/autores/:id`);
-  console.log(`   POST   http://localhost:${PORT}/api/autores`);
-  console.log(`   PUT    http://localhost:${PORT}/api/autores/:id`);
-  console.log(`   DELETE http://localhost:${PORT}/api/autores/:id`);
   console.log("");
 });
 

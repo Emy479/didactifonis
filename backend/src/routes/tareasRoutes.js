@@ -1,12 +1,19 @@
 /**
  * Rutas de Tareas
  *
- * Define todos los endpoints relacionados con tareas.
+ * Ahora protegidas con autenticación.
  */
 
 const express = require("express");
 const router = express.Router();
 const tareasController = require("../controllers/tareasController");
+const { verificarToken } = require("../middleware/auth");
+
+// ============================================
+// TODAS LAS RUTAS REQUIEREN AUTENTICACIÓN
+// ============================================
+// Aplicar middleware a todas las rutas de este router
+router.use(verificarToken);
 
 // ============================================
 // RUTAS ESPECÍFICAS (van primero)
@@ -15,14 +22,14 @@ const tareasController = require("../controllers/tareasController");
 /**
  * @route   GET /api/tareas/completadas
  * @desc    Obtener todas las tareas completadas
- * @access  Public (por ahora)
+ * @access  Private
  */
 router.get("/completadas", tareasController.obtenerCompletadas);
 
 /**
  * @route   GET /api/tareas/estadisticas
  * @desc    Obtener estadísticas de tareas
- * @access  Public
+ * @access  Private
  */
 router.get("/estadisticas", tareasController.obtenerEstadisticas);
 
@@ -33,14 +40,14 @@ router.get("/estadisticas", tareasController.obtenerEstadisticas);
 /**
  * @route   GET /api/tareas
  * @desc    Obtener todas las tareas
- * @access  Public
+ * @access  Private
  */
 router.get("/", tareasController.obtenerTodas);
 
 /**
  * @route   POST /api/tareas
  * @desc    Crear nueva tarea
- * @access  Public
+ * @access  Private
  */
 router.post("/", tareasController.crear);
 
@@ -51,25 +58,22 @@ router.post("/", tareasController.crear);
 /**
  * @route   GET /api/tareas/:id
  * @desc    Obtener tarea por ID
- * @access  Public
+ * @access  Private
  */
 router.get("/:id", tareasController.obtenerPorId);
 
 /**
  * @route   PUT /api/tareas/:id
  * @desc    Actualizar tarea
- * @access  Public
+ * @access  Private
  */
 router.put("/:id", tareasController.actualizar);
 
 /**
  * @route   DELETE /api/tareas/:id
  * @desc    Eliminar tarea
- * @access  Public
+ * @access  Private
  */
 router.delete("/:id", tareasController.eliminar);
 
-// ============================================
-// EXPORTAR ROUTER
-// ============================================
 module.exports = router;
