@@ -202,8 +202,8 @@ Content-Type: application/json
 ### IMPORTANTE: Copia el token de la respuesta del login
 ### y reemplázalo en la variable de abajo
 
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-###maria @token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWFlM2UxMDhiNTgxMThjNTVlODBjYmUiLCJlbWFpbCI6Im1hcmlhQGVqZW1wbG8uY29tIiwicm9sZSI6InR1dG9yIiwiaWF0IjoxNzczMDI4NDIzLCJleHAiOjE3NzM2MzMyMjN9.3IPGkgEIA5C1p8N43XtqMMbMUcx0aUnSazUSwPyelFg
+### @token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWFlM2UxMDhiNTgxMThjNTVlODBjYmUiLCJlbWFpbCI6Im1hcmlhQGVqZW1wbG8uY29tIiwicm9sZSI6InR1dG9yIiwiaWF0IjoxNzczMDg5ODYwLCJleHAiOjE3NzM2OTQ2NjB9.6IgczniSS7bd3OIBos5jIiMJbGcnPijSbNm762WbNnE
 
 ### Obtener perfil (requiere token)
 GET {{baseUrl}}/api/auth/perfil
@@ -266,3 +266,310 @@ Content-Type: application/json
 
 ### Acceder a ruta protegida sin token (error 401)
 GET {{baseUrl}}/api/auth/perfil
+
+### ==========================================
+### PACIENTES
+### ==========================================
+
+### VARIABLES PARA PACIENTES
+# Después de crear un paciente, copia su _id aquí
+### @pacienteId = 69ae4567890abcdef1234567
+@pacienteId = 69af34b79f50b2fa92e4dc6e
+
+# Después de registrar un profesional, copia su _id aquí
+@profesionalId = 69ae9876543210fedcba9876
+
+### ==========================================
+### CREAR PACIENTES (COMO TUTOR)
+### ==========================================
+
+### Crear primer paciente (niño)
+POST {{baseUrl}}/api/patients
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "nombre": "Mateo",
+    "apellido": "González",
+    "fechaNacimiento": "2020-05-15",
+    "genero": "masculino",
+    "diagnostico": "Retraso del lenguaje expresivo",
+    "observaciones": "Muestra interés en los juegos interactivos",
+    "areasTrabajar": ["fonologia", "semantica"]
+}
+
+### Crear segundo paciente (niña)
+POST {{baseUrl}}/api/patients
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "nombre": "Sofía",
+    "apellido": "González",
+    "fechaNacimiento": "2018-08-22",
+    "genero": "femenino",
+    "diagnostico": "Dificultades en pragmática",
+    "areasTrabajar": ["pragmatica", "lenguaje"]
+}
+
+### Crear paciente con datos mínimos
+POST {{baseUrl}}/api/patients
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "nombre": "Lucas",
+    "apellido": "Rodríguez",
+    "fechaNacimiento": "2021-03-10"
+}
+
+### ==========================================
+### VALIDACIONES - CREAR PACIENTE
+### ==========================================
+
+### Error: Nombre vacío
+POST {{baseUrl}}/api/patients
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "nombre": "",
+    "apellido": "Test",
+    "fechaNacimiento": "2020-01-01"
+}
+
+### Error: Fecha futura
+POST {{baseUrl}}/api/patients
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "nombre": "Test",
+    "apellido": "Test",
+    "fechaNacimiento": "2030-01-01"
+}
+
+### Error: Género inválido
+POST {{baseUrl}}/api/patients
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "nombre": "Test",
+    "apellido": "Test",
+    "fechaNacimiento": "2020-01-01",
+    "genero": "invalido"
+}
+
+### Error: Sin token (401)
+POST {{baseUrl}}/api/patients
+Content-Type: application/json
+
+{
+    "nombre": "Test",
+    "apellido": "Test",
+    "fechaNacimiento": "2020-01-01"
+}
+
+### ==========================================
+### OBTENER PACIENTES
+### ==========================================
+
+### Obtener todos los pacientes del tutor
+GET {{baseUrl}}/api/patients
+Authorization: Bearer {{token}}
+
+### Obtener paciente específico por ID (reemplaza con un ID real)
+GET {{baseUrl}}/api/patients/{{pacienteId}}
+Authorization: Bearer {{token}}
+
+### Error: Paciente inexistente (404)
+GET {{baseUrl}}/api/patients/69ae1111111111111111111
+Authorization: Bearer {{token}}
+
+### Error: ID inválido (400)
+GET {{baseUrl}}/api/patients/id-invalido
+Authorization: Bearer {{token}}
+
+### ==========================================
+### ACTUALIZAR PACIENTE
+### ==========================================
+
+### Actualizar datos básicos (como tutor)
+PUT {{baseUrl}}/api/patients/{{pacienteId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "nombre": "Mateo Actualizado",
+    "observaciones": "Ha mostrado gran progreso en las últimas sesiones"
+}
+
+### Actualizar áreas de trabajo
+PUT {{baseUrl}}/api/patients/{{pacienteId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "areasTrabajar": ["fonologia", "semantica", "morfosintaxis"],
+    "diagnostico": "Retraso del lenguaje expresivo - En progreso"
+}
+
+### Actualizar avatar
+PUT {{baseUrl}}/api/patients/{{pacienteId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "avatar": "avatar-dinosaurio.png"
+}
+
+### ==========================================
+### GESTIÓN DE PROFESIONALES
+### ==========================================
+
+### Primero: Registrar un profesional para las pruebas
+POST {{baseUrl}}/api/auth/registro
+Content-Type: application/json
+
+{
+    "nombre": "Dra. Ana López",
+    "email": "ana.lopez@ejemplo.com",
+    "password": "password123",
+    "role": "profesional",
+    "telefono": "987654321",
+    "especialidad": "fonoaudiología",
+    "numeroRegistro": "FN-67890"
+}
+
+### Login como profesional (copia el token y el userId)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "ana.lopez@ejemplo.com",
+    "password": "password123"
+}
+
+### Asignar profesional a paciente (como tutor)
+# Importante: Usa el token del TUTOR y el userId del PROFESIONAL
+POST {{baseUrl}}/api/patients/{{pacienteId}}/asignar-profesional
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "profesionalId": "{{profesionalId}}"
+}
+
+### Remover profesional de paciente (como tutor)
+DELETE {{baseUrl}}/api/patients/{{pacienteId}}/profesional/{{profesionalId}}
+Authorization: Bearer {{token}}
+
+### ==========================================
+### TOKEN DE ACCESO (PARA QUE EL NIÑO JUEGUE)
+### ==========================================
+
+### Renovar token de acceso del paciente
+POST {{baseUrl}}/api/patients/{{pacienteId}}/renovar-token
+Authorization: Bearer {{token}}
+
+### Obtener paciente por token (SIN autenticación - público)
+# Copia el accessToken de la respuesta anterior
+@accessToken = abc123def456ghi789...
+
+GET {{baseUrl}}/api/patients/token/{{accessToken}}
+
+### ==========================================
+### DESACTIVAR PACIENTE
+### ==========================================
+
+### Desactivar paciente (soft delete - solo tutor)
+DELETE {{baseUrl}}/api/patients/{{pacienteId}}
+Authorization: Bearer {{token}}
+
+### Verificar que ya no aparece en la lista
+GET {{baseUrl}}/api/patients
+Authorization: Bearer {{token}}
+
+### ==========================================
+### ESTADÍSTICAS
+### ==========================================
+
+### Obtener estadísticas de pacientes (como tutor)
+GET {{baseUrl}}/api/patients/estadisticas
+Authorization: Bearer {{token}}
+
+### ==========================================
+### FLUJO COMPLETO: PROFESIONAL
+### ==========================================
+
+### 1. Login como profesional (usa el token del profesional)
+@tokenProfesional = eyJhbGci...
+
+### 2. Ver pacientes asignados (como profesional)
+GET {{baseUrl}}/api/patients
+Authorization: Bearer {{tokenProfesional}}
+
+### 3. Ver detalle de un paciente asignado
+GET {{baseUrl}}/api/patients/{{pacienteId}}
+Authorization: Bearer {{tokenProfesional}}
+
+### 4. Actualizar observaciones clínicas (como profesional)
+PUT {{baseUrl}}/api/patients/{{pacienteId}}
+Authorization: Bearer {{tokenProfesional}}
+Content-Type: application/json
+
+{
+    "observaciones": "Sesión del 10/03/2026: Paciente muestra avances significativos en articulación",
+    "diagnostico": "Dislalia funcional - Mejoría notable"
+}
+
+### 5. Crear paciente especificando tutor (como profesional)
+# El profesional DEBE especificar el tutorId
+POST {{baseUrl}}/api/patients
+Authorization: Bearer {{tokenProfesional}}
+Content-Type: application/json
+
+{
+    "nombre": "Emma",
+    "apellido": "Martínez",
+    "fechaNacimiento": "2019-11-20",
+    "genero": "femenino",
+    "tutorId": "{{userId}}",
+    "diagnostico": "Evaluación inicial pendiente",
+    "areasTrabajar": ["habla"]
+}
+
+### ==========================================
+### PRUEBAS DE PERMISOS
+### ==========================================
+
+### Error: Intentar ver paciente de otro tutor (403)
+# Login con otro tutor diferente primero, luego:
+GET {{baseUrl}}/api/patients/{{pacienteId}}
+Authorization: Bearer {{token}}
+
+### Error: Intentar actualizar paciente sin permiso (403)
+# Como usuario que no es tutor ni profesional asignado:
+PUT {{baseUrl}}/api/patients/{{pacienteId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "nombre": "Intento no autorizado"
+}
+
+### Error: Profesional intenta asignar otro profesional (403)
+# Solo el tutor puede asignar profesionales
+POST {{baseUrl}}/api/patients/{{pacienteId}}/asignar-profesional
+Authorization: Bearer {{tokenProfesional}}
+Content-Type: application/json
+
+{
+    "profesionalId": "otroProfesionalId"
+}
+
+### Error: Profesional intenta eliminar paciente (403)
+# Solo el tutor puede eliminar
+DELETE {{baseUrl}}/api/patients/{{pacienteId}}
+Authorization: Bearer {{tokenProfesional}}

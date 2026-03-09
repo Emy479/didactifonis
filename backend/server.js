@@ -31,6 +31,7 @@ connectDB();
 // ============================================
 const tareasRoutes = require("./src/routes/tareasRoutes");
 const authRoutes = require("./src/routes/authRoutes");
+const patientsRoutes = require("./src/routes/patientsRoutes");
 
 // ============================================
 // CREAR APLICACIÓN EXPRESS
@@ -83,10 +84,10 @@ app.get("/health", (req, res) => {
 // ============================================
 app.use("/api/tareas", tareasRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/patients", patientsRoutes);
 
 // Aquí montaremos más rutas después:
 // app.use('/api/users', usersRoutes);
-// app.use('/api/patients', patientsRoutes);
 // app.use('/api/games', gamesRoutes);
 
 // ============================================
@@ -120,6 +121,9 @@ app.listen(PORT, () => {
   console.log(`   POST   http://localhost:${PORT}/api/auth/registro`);
   console.log(`   POST   http://localhost:${PORT}/api/auth/login`);
   console.log(`   GET    http://localhost:${PORT}/api/auth/perfil`);
+  console.log(`   GET    http://localhost:${PORT}/api/patients`);
+  console.log(`   POST   http://localhost:${PORT}/api/patients`);
+  console.log(`   GET    http://localhost:${PORT}/api/patients/:id`);
   console.log(`   GET    http://localhost:${PORT}/api/tareas`);
   console.log(`   GET    http://localhost:${PORT}/api/tareas/completadas`);
   console.log(`   GET    http://localhost:${PORT}/api/tareas/estadisticas`);

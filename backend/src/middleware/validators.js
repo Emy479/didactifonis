@@ -94,10 +94,85 @@ const validarLogin = [
 ];
 
 // ============================================
-// EXPORTAR
+// VALIDACIONES DE PACIENTE
+// ============================================
+const validarPaciente = [
+  body("nombre")
+    .trim()
+    .notEmpty()
+    .withMessage("El nombre es obligatorio")
+    .isLength({ max: 50 })
+    .withMessage("El nombre no puede exceder 50 caracteres"),
+
+  body("apellido")
+    .trim()
+    .notEmpty()
+    .withMessage("El apellido es obligatorio")
+    .isLength({ max: 50 })
+    .withMessage("El apellido no puede exceder 50 caracteres"),
+
+  body("fechaNacimiento")
+    .notEmpty()
+    .withMessage("La fecha de nacimiento es obligatoria")
+    .isISO8601()
+    .withMessage("Formato de fecha inválido")
+    .custom((fecha) => {
+      const fechaNac = new Date(fecha);
+      const hoy = new Date();
+      if (fechaNac > hoy) {
+        throw new Error("La fecha de nacimiento no puede ser futura");
+      }
+      return true;
+    }),
+
+  body("genero")
+    .optional()
+    .isIn(["masculino", "femenino", "otro", "prefiero_no_decir"])
+    .withMessage("Género inválido"),
+
+  body("diagnostico")
+    .optional()
+    .isLength({ max: 500 })
+    .withMessage("El diagnóstico no puede exceder 500 caracteres"),
+
+  body("observaciones")
+    .optional()
+    .isLength({ max: 1000 })
+    .withMessage("Las observaciones no pueden exceder 1000 caracteres"),
+
+  body("areasTrabajar")
+    .optional()
+    .isArray()
+    .withMessage("areasTrabajar debe ser un array"),
+
+  body("areasTrabajar.*")
+    .optional()
+    .isIn([
+      "fonologia",
+      "semantica",
+      "morfosintaxis",
+      "pragmatica",
+      "habla",
+      "lenguaje",
+    ])
+    .withMessage("Área de trabajo inválida"),
+
+  body("tutorId")
+    .if(body("role").equals("profesional"))
+    .notEmpty()
+    .withMessage("El ID del tutor es obligatorio para profesionales")
+    .isMongoId()
+    .withMessage("ID de tutor inválido"),
+
+  validarCampos,
+];
+
+// ============================================
+// EXPORTAR (ACTUALIZAR)
 // ============================================
 module.exports = {
   validarRegistro,
   validarLogin,
   validarCampos,
+  validarPaciente,
 };
