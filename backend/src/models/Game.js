@@ -185,7 +185,6 @@ gameSchema.pre("validate", function (next) {
       "La edad máxima debe ser mayor que la mínima",
     );
   }
-  next();
 });
 
 // ============================================

@@ -280,7 +280,7 @@ GET {{baseUrl}}/api/auth/perfil
 
 # Después de registrar un profesional, copia su _id aquí
 ###@profesionalId = 69ae9876543210fedcba9876
-@profesionalID = 69b08c9c0eb20c188078e69a
+@profesionalID = 69b0c06a7a656d75470d4229
 
 ### ==========================================
 ### CREAR PACIENTES (COMO TUTOR)
@@ -461,7 +461,7 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-    "profesionalId": "69b08cf30eb20c188078e69d"
+    "profesionalId": "69b0c06a7a656d75470d4229"
 }
 
 ### Remover profesional de paciente (como tutor)
@@ -508,18 +508,18 @@ Authorization: Bearer {{token}}
 
 ### 1. Login como profesional (usa el token del profesional)
 ###@tokenProfesional = eyJhbGci...
-@tokenProfesional = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWIwOGNmMzBlYjIwYzE4ODA3OGU2OWQiLCJlbWFpbCI6ImNhcmxvc0BlamVtcGxvLmNvbSIsInJvbGUiOiJwcm9mZXNpb25hbCIsImlhdCI6MTc3MzE3ODczOCwiZXhwIjoxNzczNzgzNTM4fQ.92h3G8p9ISbkvshr6B7gqpV1QnBl14htqqtSS1WY5zc
+@tokenProfesional = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWIwYzA2YTdhNjU2ZDc1NDcwZDQyMjkiLCJlbWFpbCI6ImNhcmxvc0BlamVtcGxvLmNvbSIsInJvbGUiOiJwcm9mZXNpb25hbCIsImlhdCI6MTc3MzE5NTgwNSwiZXhwIjoxNzczODAwNjA1fQ.E2dXy0_c5s7zPls7QCfRVDp5gtcZqqmZFFndrHw7BOs
 
 ### 2. Ver pacientes asignados (como profesional)
 GET {{baseUrl}}/api/patients
 Authorization: Bearer {{tokenProfesional}}
 
 ### 3. Ver detalle de un paciente asignado
-GET {{baseUrl}}/api/patients/69b04b8d8f75c15b661f29a7
+GET {{baseUrl}}/api/patients/{{pacienteId}}
 Authorization: Bearer {{tokenProfesional}}
 
 ### 4. Actualizar observaciones clínicas (como profesional)
-PUT {{baseUrl}}/api/patients/69b04b8d8f75c15b661f29a7
+PUT {{baseUrl}}/api/patients/{{pacienteId}}
 Authorization: Bearer {{tokenProfesional}}
 Content-Type: application/json
 
@@ -603,7 +603,8 @@ Authorization: Bearer {{tokenProfesional}}
 ### ==========================================
 
 ### VARIABLES
-@juegoId = ACTUALIZAR_DESPUES_DE_CREAR_JUEGO
+###@juegoId = ACTUALIZAR_DESPUES_DE_CREAR_JUEGO
+@juegoId = 69b0cce852b22f9c602e9eb3
 @asignacionId = ACTUALIZAR_DESPUES_DE_CREAR_ASIGNACION
 
 ### ==========================================
@@ -757,11 +758,11 @@ Content-Type: application/json
 
 ### Asignar juego a paciente (como tutor)
 POST {{baseUrl}}/api/assignments
-Authorization: Bearer {{token}}
+Authorization: Bearer {{tokenProfesional}}
 Content-Type: application/json
 
 {
-    "pacienteId": "{{pacienteId}}",
+    "pacienteId": "69b0c1767a656d75470d4237",
     "juegoId": "{{juegoId}}",
     "configuracion": {
         "nivelDificultad": "basico",
@@ -899,7 +900,7 @@ Content-Type: application/json
 ### PRUEBAS DUALES
 ### ==========================================
 @token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWIwYzAxMjdhNjU2ZDc1NDcwZDQyMjQiLCJlbWFpbCI6Im1hcmlhQGVqZW1wbG8uY29tIiwicm9sZSI6InR1dG9yIiwiaWF0IjoxNzczMTkxNDI0LCJleHAiOjE3NzM3OTYyMjR9.1tK9qn-5J8TdlPX4t7-u6aFyGFYOZutjLrIIPD-ElNA
-@tokenProfesional = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWIwYzA2YTdhNjU2ZDc1NDcwZDQyMjkiLCJlbWFpbCI6ImNhcmxvc0BlamVtcGxvLmNvbSIsInJvbGUiOiJwcm9mZXNpb25hbCIsImlhdCI6MTc3MzE5MjAyNSwiZXhwIjoxNzczNzk2ODI1fQ.L8ISSD7ndkGP24jw7-9OfHmimcnSmzPDUSzagOJd3jw
+###@tokenProfesional = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWIwYzA2YTdhNjU2ZDc1NDcwZDQyMjkiLCJlbWFpbCI6ImNhcmxvc0BlamVtcGxvLmNvbSIsInJvbGUiOiJwcm9mZXNpb25hbCIsImlhdCI6MTc3MzE5MjAyNSwiZXhwIjoxNzczNzk2ODI1fQ.L8ISSD7ndkGP24jw7-9OfHmimcnSmzPDUSzagOJd3jw
 @pacienteIdMateo = 69b0c12e7a656d75470d4232
 @pacienteIdEmma = 69b0c1767a656d75470d4237
 @tutorIdAna = 69b0c1a47a656d75470d423d

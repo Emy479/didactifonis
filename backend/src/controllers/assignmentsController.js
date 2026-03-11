@@ -2,6 +2,7 @@
  * Controlador de Asignaciones
  *
  * Maneja la asignación de juegos a pacientes.
+ * ACTUALIZADO: Soporta modelo dual (Plan Familiar y Plan Profesional)
  */
 
 const Assignment = require("../models/Assignment");
@@ -45,13 +46,30 @@ const crear = async (req, res) => {
       });
     }
 
-    // Verificar permisos: tutor del paciente o profesional asignado
-    const esTutor = paciente.tutor.toString() === req.user.userId;
-    const esProfesionalAsignado = paciente.profesionalesAsignados.some(
-      (prof) => prof.toString() === req.user.userId,
-    );
+    // ============================================
+    // VERIFICAR PERMISOS (MODELO DUAL)
+    // ============================================
+    // Tutor puede ser null en Plan Profesional
+    const esTutor =
+      paciente.tutor && paciente.tutor.toString() === req.user.userId;
 
-    if (!esTutor && !esProfesionalAsignado && req.user.role !== "admin") {
+    // Creador (quien paga la suscripción)
+    const esCreador =
+      paciente.creadoPor && paciente.creadoPor.toString() === req.user.userId;
+
+    // Profesional asignado
+    const esProfesionalAsignado =
+      paciente.profesionalesAsignados &&
+      paciente.profesionalesAsignados.some(
+        (prof) => prof.toString() === req.user.userId,
+      );
+
+    if (
+      !esTutor &&
+      !esCreador &&
+      !esProfesionalAsignado &&
+      req.user.role !== "admin"
+    ) {
       return res.status(403).json({
         success: false,
         error: "No tienes permiso para asignar juegos a este paciente",
@@ -131,13 +149,27 @@ const obtenerPorPaciente = async (req, res) => {
       });
     }
 
-    // Verificar permisos
-    const esTutor = paciente.tutor.toString() === req.user.userId;
-    const esProfesionalAsignado = paciente.profesionalesAsignados.some(
-      (prof) => prof.toString() === req.user.userId,
-    );
+    // ============================================
+    // VERIFICAR PERMISOS (MODELO DUAL)
+    // ============================================
+    const esTutor =
+      paciente.tutor && paciente.tutor.toString() === req.user.userId;
 
-    if (!esTutor && !esProfesionalAsignado && req.user.role !== "admin") {
+    const esCreador =
+      paciente.creadoPor && paciente.creadoPor.toString() === req.user.userId;
+
+    const esProfesionalAsignado =
+      paciente.profesionalesAsignados &&
+      paciente.profesionalesAsignados.some(
+        (prof) => prof.toString() === req.user.userId,
+      );
+
+    if (
+      !esTutor &&
+      !esCreador &&
+      !esProfesionalAsignado &&
+      req.user.role !== "admin"
+    ) {
       return res.status(403).json({
         success: false,
         error: "No tienes permiso para ver las asignaciones de este paciente",
@@ -186,16 +218,28 @@ const obtenerPorJuego = async (req, res) => {
     // Filtrar según el rol del usuario
     if (req.user.role === "tutor") {
       // Tutores solo ven sus pacientes
-      asignaciones = asignaciones.filter(
-        (a) => a.paciente.tutor.toString() === req.user.userId,
-      );
+      asignaciones = asignaciones.filter((a) => {
+        // Puede ser tutor O creador
+        const esTutor =
+          a.paciente.tutor && a.paciente.tutor.toString() === req.user.userId;
+        const esCreador =
+          a.paciente.creadoPor &&
+          a.paciente.creadoPor.toString() === req.user.userId;
+        return esTutor || esCreador;
+      });
     } else if (req.user.role === "profesional") {
-      // Profesionales solo ven pacientes asignados a ellos
-      asignaciones = asignaciones.filter((a) =>
-        a.paciente.profesionalesAsignados.some(
-          (prof) => prof.toString() === req.user.userId,
-        ),
-      );
+      // Profesionales solo ven pacientes asignados a ellos O creados por ellos
+      asignaciones = asignaciones.filter((a) => {
+        const esCreador =
+          a.paciente.creadoPor &&
+          a.paciente.creadoPor.toString() === req.user.userId;
+        const esProfAsignado =
+          a.paciente.profesionalesAsignados &&
+          a.paciente.profesionalesAsignados.some(
+            (prof) => prof.toString() === req.user.userId,
+          );
+        return esCreador || esProfAsignado;
+      });
     }
 
     res.json({
@@ -234,14 +278,29 @@ const obtenerPorId = async (req, res) => {
       });
     }
 
-    // Verificar permisos
-    const esTutor = asignacion.paciente.tutor.toString() === req.user.userId;
+    // ============================================
+    // VERIFICAR PERMISOS (MODELO DUAL)
+    // ============================================
+    const esTutor =
+      asignacion.paciente.tutor &&
+      asignacion.paciente.tutor.toString() === req.user.userId;
+
+    const esCreador =
+      asignacion.paciente.creadoPor &&
+      asignacion.paciente.creadoPor.toString() === req.user.userId;
+
     const esProfesionalAsignado =
+      asignacion.paciente.profesionalesAsignados &&
       asignacion.paciente.profesionalesAsignados.some(
         (prof) => prof.toString() === req.user.userId,
       );
 
-    if (!esTutor && !esProfesionalAsignado && req.user.role !== "admin") {
+    if (
+      !esTutor &&
+      !esCreador &&
+      !esProfesionalAsignado &&
+      req.user.role !== "admin"
+    ) {
       return res.status(403).json({
         success: false,
         error: "No tienes permiso para ver esta asignación",
@@ -291,14 +350,29 @@ const actualizar = async (req, res) => {
       });
     }
 
-    // Verificar permisos
-    const esTutor = asignacion.paciente.tutor.toString() === req.user.userId;
+    // ============================================
+    // VERIFICAR PERMISOS (MODELO DUAL)
+    // ============================================
+    const esTutor =
+      asignacion.paciente.tutor &&
+      asignacion.paciente.tutor.toString() === req.user.userId;
+
+    const esCreador =
+      asignacion.paciente.creadoPor &&
+      asignacion.paciente.creadoPor.toString() === req.user.userId;
+
     const esProfesionalAsignado =
+      asignacion.paciente.profesionalesAsignados &&
       asignacion.paciente.profesionalesAsignados.some(
         (prof) => prof.toString() === req.user.userId,
       );
 
-    if (!esTutor && !esProfesionalAsignado && req.user.role !== "admin") {
+    if (
+      !esTutor &&
+      !esCreador &&
+      !esProfesionalAsignado &&
+      req.user.role !== "admin"
+    ) {
       return res.status(403).json({
         success: false,
         error: "No tienes permiso para actualizar esta asignación",
@@ -378,14 +452,29 @@ const desactivar = async (req, res) => {
       });
     }
 
-    // Verificar permisos
-    const esTutor = asignacion.paciente.tutor.toString() === req.user.userId;
+    // ============================================
+    // VERIFICAR PERMISOS (MODELO DUAL)
+    // ============================================
+    const esTutor =
+      asignacion.paciente.tutor &&
+      asignacion.paciente.tutor.toString() === req.user.userId;
+
+    const esCreador =
+      asignacion.paciente.creadoPor &&
+      asignacion.paciente.creadoPor.toString() === req.user.userId;
+
     const esProfesionalAsignado =
+      asignacion.paciente.profesionalesAsignados &&
       asignacion.paciente.profesionalesAsignados.some(
         (prof) => prof.toString() === req.user.userId,
       );
 
-    if (!esTutor && !esProfesionalAsignado && req.user.role !== "admin") {
+    if (
+      !esTutor &&
+      !esCreador &&
+      !esProfesionalAsignado &&
+      req.user.role !== "admin"
+    ) {
       return res.status(403).json({
         success: false,
         error: "No tienes permiso para desactivar esta asignación",
@@ -475,18 +564,21 @@ const obtenerEstadisticas = async (req, res) => {
     let filtro = {};
 
     if (req.user.role === "tutor") {
-      // Obtener pacientes del tutor
+      // Obtener pacientes del tutor (como tutor O como creador)
       const pacientes = await Patient.find({
-        tutor: req.user.userId,
+        $or: [{ tutor: req.user.userId }, { creadoPor: req.user.userId }],
         activo: true,
       }).select("_id");
 
       const pacienteIds = pacientes.map((p) => p._id);
       filtro.paciente = { $in: pacienteIds };
     } else if (req.user.role === "profesional") {
-      // Obtener pacientes del profesional
+      // Obtener pacientes del profesional (creados O asignados)
       const pacientes = await Patient.find({
-        profesionalesAsignados: req.user.userId,
+        $or: [
+          { profesionalesAsignados: req.user.userId },
+          { creadoPor: req.user.userId },
+        ],
         activo: true,
       }).select("_id");
 
