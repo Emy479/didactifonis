@@ -32,6 +32,8 @@ connectDB();
 const tareasRoutes = require("./src/routes/tareasRoutes");
 const authRoutes = require("./src/routes/authRoutes");
 const patientsRoutes = require("./src/routes/patientsRoutes");
+const assignmentsRoutes = require("./src/routes/assignmentsRoutes");
+const gamesRoutes = require("./src/routes/gamesRoutes");
 
 // ============================================
 // CREAR APLICACIÓN EXPRESS
@@ -85,10 +87,11 @@ app.get("/health", (req, res) => {
 app.use("/api/tareas", tareasRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/patients", patientsRoutes);
+app.use("/api/assignments", assignmentsRoutes);
+app.use("/api/games", gamesRoutes);
 
 // Aquí montaremos más rutas después:
 // app.use('/api/users', usersRoutes);
-// app.use('/api/games', gamesRoutes);
 
 // ============================================
 // MIDDLEWARE DE MANEJO DE ERRORES
@@ -121,6 +124,9 @@ app.listen(PORT, () => {
   console.log(`   POST   http://localhost:${PORT}/api/auth/registro`);
   console.log(`   POST   http://localhost:${PORT}/api/auth/login`);
   console.log(`   GET    http://localhost:${PORT}/api/auth/perfil`);
+  console.log(`   GET    http://localhost:${PORT}/api/games`);
+  console.log(`   POST   http://localhost:${PORT}/api/games`);
+  console.log(`   GET    http://localhost:${PORT}/api/assignments`);
   console.log(`   GET    http://localhost:${PORT}/api/patients`);
   console.log(`   POST   http://localhost:${PORT}/api/patients`);
   console.log(`   GET    http://localhost:${PORT}/api/patients/:id`);

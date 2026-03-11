@@ -195,7 +195,7 @@ POST {{baseUrl}}/api/auth/login
 Content-Type: application/json
 
 {
-    "email": "maria@ejemplo.com",
+    "email": "carlos@ejemplo.com",
     "password": "password123"
 }
 
@@ -203,8 +203,10 @@ Content-Type: application/json
 ### y reemplázalo en la variable de abajo
 
 ### @token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWFlM2UxMDhiNTgxMThjNTVlODBjYmUiLCJlbWFpbCI6Im1hcmlhQGVqZW1wbG8uY29tIiwicm9sZSI6InR1dG9yIiwiaWF0IjoxNzczMDg5ODYwLCJleHAiOjE3NzM2OTQ2NjB9.6IgczniSS7bd3OIBos5jIiMJbGcnPijSbNm762WbNnE
+### tutor 
+###@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWIwOGM5YzBlYjIwYzE4ODA3OGU2OWEiLCJlbWFpbCI6Im1hcmlhQGVqZW1wbG8uY29tIiwicm9sZSI6InR1dG9yIiwiaWF0IjoxNzczMTc4MTcxLCJleHAiOjE3NzM3ODI5NzF9.PYxqWH-qMwv3vW0DWcw4Ks5QQCtfC3Gsz5Zd0F2HQFc
 
+### profesional @tokenProfesional = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWIwOGNmMzBlYjIwYzE4ODA3OGU2OWQiLCJlbWFpbCI6ImNhcmxvc0BlamVtcGxvLmNvbSIsInJvbGUiOiJwcm9mZXNpb25hbCIsImlhdCI6MTc3MzE3ODI2MiwiZXhwIjoxNzczNzgzMDYyfQ.7ttZcPBjmR9ARS3ROTFVwngOXOqAldzTm19dMg97SOw
 ### Obtener perfil (requiere token)
 GET {{baseUrl}}/api/auth/perfil
 Authorization: Bearer {{token}}
@@ -274,10 +276,11 @@ GET {{baseUrl}}/api/auth/perfil
 ### VARIABLES PARA PACIENTES
 # Después de crear un paciente, copia su _id aquí
 ### @pacienteId = 69ae4567890abcdef1234567
-@pacienteId = 69af34b79f50b2fa92e4dc6e
+@pacienteId = 69b04b8d8f75c15b661f29a7
 
 # Después de registrar un profesional, copia su _id aquí
-@profesionalId = 69ae9876543210fedcba9876
+###@profesionalId = 69ae9876543210fedcba9876
+@profesionalID = 69b08c9c0eb20c188078e69a
 
 ### ==========================================
 ### CREAR PACIENTES (COMO TUTOR)
@@ -447,7 +450,7 @@ POST {{baseUrl}}/api/auth/login
 Content-Type: application/json
 
 {
-    "email": "ana.lopez@ejemplo.com",
+    "email": "carlos@ejemplo.com",
     "password": "password123"
 }
 
@@ -458,11 +461,11 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-    "profesionalId": "{{profesionalId}}"
+    "profesionalId": "69b08cf30eb20c188078e69d"
 }
 
 ### Remover profesional de paciente (como tutor)
-DELETE {{baseUrl}}/api/patients/{{pacienteId}}/profesional/{{profesionalId}}
+DELETE {{baseUrl}}/api/patients/{{pacienteId}}/profesional/69b086f8b0414710ae30c213
 Authorization: Bearer {{token}}
 
 ### ==========================================
@@ -475,7 +478,7 @@ Authorization: Bearer {{token}}
 
 ### Obtener paciente por token (SIN autenticación - público)
 # Copia el accessToken de la respuesta anterior
-@accessToken = abc123def456ghi789...
+@accessToken = b1eb64c6b3d6d6a130df912835067e112da1e7777bdafecd2da95c5cc7d828bf
 
 GET {{baseUrl}}/api/patients/token/{{accessToken}}
 
@@ -504,18 +507,19 @@ Authorization: Bearer {{token}}
 ### ==========================================
 
 ### 1. Login como profesional (usa el token del profesional)
-@tokenProfesional = eyJhbGci...
+###@tokenProfesional = eyJhbGci...
+@tokenProfesional = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWIwOGNmMzBlYjIwYzE4ODA3OGU2OWQiLCJlbWFpbCI6ImNhcmxvc0BlamVtcGxvLmNvbSIsInJvbGUiOiJwcm9mZXNpb25hbCIsImlhdCI6MTc3MzE3ODczOCwiZXhwIjoxNzczNzgzNTM4fQ.92h3G8p9ISbkvshr6B7gqpV1QnBl14htqqtSS1WY5zc
 
 ### 2. Ver pacientes asignados (como profesional)
 GET {{baseUrl}}/api/patients
 Authorization: Bearer {{tokenProfesional}}
 
 ### 3. Ver detalle de un paciente asignado
-GET {{baseUrl}}/api/patients/{{pacienteId}}
+GET {{baseUrl}}/api/patients/69b04b8d8f75c15b661f29a7
 Authorization: Bearer {{tokenProfesional}}
 
 ### 4. Actualizar observaciones clínicas (como profesional)
-PUT {{baseUrl}}/api/patients/{{pacienteId}}
+PUT {{baseUrl}}/api/patients/69b04b8d8f75c15b661f29a7
 Authorization: Bearer {{tokenProfesional}}
 Content-Type: application/json
 
@@ -535,9 +539,29 @@ Content-Type: application/json
     "apellido": "Martínez",
     "fechaNacimiento": "2019-11-20",
     "genero": "femenino",
-    "tutorId": "{{userId}}",
+    "tutorId": "69b08cf30eb20c188078e69d",
     "diagnostico": "Evaluación inicial pendiente",
     "areasTrabajar": ["habla"]
+}
+
+### 5. Crear paciente como profesional
+POST {{baseUrl}}/api/patients
+Authorization: Bearer {{tokenProfesional}}
+Content-Type: application/json
+
+{
+    "nombre": "Emma",
+    "apellido": "Martínez",
+    "fechaNacimiento": "2019-11-20",
+    "genero": "femenino",
+    "tutorInfo": {
+        "nombre": "Lucía Martínez",
+        "email": "lucia@ejemplo.com",
+        "telefono": "987654321",
+        "relacion": "madre"
+    },
+    "diagnostico": "Retraso del lenguaje expresivo",
+    "areasTrabajar": ["habla", "lenguaje"]
 }
 
 ### ==========================================
@@ -573,3 +597,491 @@ Content-Type: application/json
 # Solo el tutor puede eliminar
 DELETE {{baseUrl}}/api/patients/{{pacienteId}}
 Authorization: Bearer {{tokenProfesional}}
+
+### ==========================================
+### JUEGOS
+### ==========================================
+
+### VARIABLES
+@juegoId = ACTUALIZAR_DESPUES_DE_CREAR_JUEGO
+@asignacionId = ACTUALIZAR_DESPUES_DE_CREAR_ASIGNACION
+
+### ==========================================
+### CREAR JUEGOS
+### ==========================================
+
+### Crear juego de Onomatopeyas (como profesional)
+POST {{baseUrl}}/api/games
+Authorization: Bearer {{tokenProfesional}}
+Content-Type: application/json
+
+{
+    "nombre": "Onomatopeyas de Animales",
+    "descripcion": "Juego educativo donde los niños identifican sonidos de animales",
+    "instrucciones": "Escucha el sonido y selecciona el animal correcto",
+    "codigo": "ONOMATOPEYAS_ANIMALES",
+    "areaTerapeutica": "fonologia",
+    "nivelDificultad": "basico",
+    "rangoEdad": {
+        "min": 3,
+        "max": 7
+    },
+    "objetivos": [
+        "Identificar sonidos de animales",
+        "Asociar imagen con sonido",
+        "Mejorar discriminación auditiva"
+    ],
+    "palabrasClave": ["onomatopeyas", "animales", "sonidos"],
+    "duracionEstimada": 10,
+    "numeroRondas": 10,
+    "puntuacionMaxima": 100,
+    "porcentajeAprobacion": 70,
+    "thumbnail": "onomatopeyas-thumb.png",
+    "urlJuego": "/games/unity/onomatopeyas/index.html",
+    "publicado": true
+}
+
+### Crear juego de Memoria (HTML5)
+POST {{baseUrl}}/api/games
+Authorization: Bearer {{tokenProfesional}}
+Content-Type: application/json
+
+{
+    "nombre": "Memoria de Palabras",
+    "descripcion": "Juego de memoria con palabras y conceptos",
+    "instrucciones": "Encuentra los pares de palabras iguales",
+    "codigo": "MEMORIA_PALABRAS",
+    "areaTerapeutica": "semantica",
+    "nivelDificultad": "intermedio",
+    "rangoEdad": {
+        "min": 5,
+        "max": 10
+    },
+    "objetivos": [
+        "Mejorar memoria visual",
+        "Reconocer palabras",
+        "Asociar conceptos"
+    ],
+    "palabrasClave": ["memoria", "palabras", "concentración"],
+    "duracionEstimada": 5,
+    "numeroRondas": 1,
+    "puntuacionMaxima": 100,
+    "porcentajeAprobacion": 60,
+    "thumbnail": "memoria-thumb.png",
+    "urlJuego": "/games/html5/memoria/index.html",
+    "publicado": true
+}
+
+### Crear juego de Articulación
+POST {{baseUrl}}/api/games
+Authorization: Bearer {{tokenProfesional}}
+Content-Type: application/json
+
+{
+    "nombre": "Práctica de Fonemas",
+    "descripcion": "Ejercicios de articulación de fonemas específicos",
+    "codigo": "PRACTICA_FONEMAS",
+    "areaTerapeutica": "habla",
+    "nivelDificultad": "avanzado",
+    "rangoEdad": {
+        "min": 4,
+        "max": 12
+    },
+    "objetivos": [
+        "Mejorar articulación",
+        "Practicar fonemas difíciles"
+    ],
+    "palabrasClave": ["fonemas", "articulación", "pronunciación"],
+    "duracionEstimada": 15,
+    "numeroRondas": 20,
+    "puntuacionMaxima": 100,
+    "porcentajeAprobacion": 75,
+    "urlJuego": "/games/unity/fonemas/index.html",
+    "publicado": false
+}
+
+### ==========================================
+### OBTENER JUEGOS
+### ==========================================
+
+### Obtener todos los juegos
+GET {{baseUrl}}/api/games
+Authorization: Bearer {{token}}
+
+### Obtener juegos solo publicados (como tutor)
+GET {{baseUrl}}/api/games?publicado=true
+Authorization: Bearer {{token}}
+
+### Obtener juegos por área
+GET {{baseUrl}}/api/games/area/fonologia
+Authorization: Bearer {{token}}
+
+### Obtener juegos apropiados para edad 5
+GET {{baseUrl}}/api/games/edad/5
+Authorization: Bearer {{token}}
+
+### Obtener juego por código
+GET {{baseUrl}}/api/games/codigo/ONOMATOPEYAS_ANIMALES
+Authorization: Bearer {{token}}
+
+### Obtener juego por ID (reemplaza con ID real)
+GET {{baseUrl}}/api/games/{{juegoId}}
+Authorization: Bearer {{token}}
+
+### ==========================================
+### ACTUALIZAR JUEGOS
+### ==========================================
+
+### Actualizar juego
+PUT {{baseUrl}}/api/games/{{juegoId}}
+Authorization: Bearer {{tokenProfesional}}
+Content-Type: application/json
+
+{
+    "descripcion": "Juego educativo MEJORADO donde los niños identifican sonidos",
+    "publicado": true
+}
+
+### Publicar juego
+PUT {{baseUrl}}/api/games/{{juegoId}}
+Authorization: Bearer {{tokenProfesional}}
+Content-Type: application/json
+
+{
+    "publicado": true
+}
+
+### ==========================================
+### ASIGNACIONES
+### ==========================================
+
+### Asignar juego a paciente (como tutor)
+POST {{baseUrl}}/api/assignments
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "pacienteId": "{{pacienteId}}",
+    "juegoId": "{{juegoId}}",
+    "configuracion": {
+        "nivelDificultad": "basico",
+        "numeroRondas": 5,
+        "puntuacionObjetivo": 80
+    },
+    "objetivosPersonalizados": [
+        "Identificar al menos 8 de 10 sonidos correctamente",
+        "Completar en menos de 10 minutos"
+    ],
+    "notas": "Mateo tiene dificultades con sonidos de aves. Revisar progreso semanalmente.",
+    "fechaFin": "2026-04-30"
+}
+
+### Ver juegos asignados a un paciente
+GET {{baseUrl}}/api/assignments/paciente/{{pacienteId}}
+Authorization: Bearer {{token}}
+
+### Ver pacientes con un juego asignado
+GET {{baseUrl}}/api/assignments/juego/{{juegoId}}
+Authorization: Bearer {{token}}
+
+### Ver estadísticas de asignaciones
+GET {{baseUrl}}/api/assignments/estadisticas
+Authorization: Bearer {{token}}
+
+### Actualizar asignación
+PUT {{baseUrl}}/api/assignments/{{asignacionId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "configuracion": {
+        "numeroRondas": 8
+    },
+    "notas": "Progreso excelente. Aumentar dificultad."
+}
+
+### Desactivar asignación
+DELETE {{baseUrl}}/api/assignments/{{asignacionId}}
+Authorization: Bearer {{token}}
+
+### ==========================================
+### FLUJO COMPLETO: PACIENTE JUEGA
+### ==========================================
+
+### 1. Paciente obtiene sus juegos con token (SIN autenticación)
+GET {{baseUrl}}/api/assignments/token/{{accessToken}}/games
+
+### Respuesta esperada:
+# {
+#   "success": true,
+#   "paciente": {
+#     "_id": "...",
+#     "nombre": "Mateo",
+#     "edad": 5
+#   },
+#   "count": 2,
+#   "juegos": [
+#     {
+#       "asignacionId": "...",
+#       "juego": {
+#         "nombre": "Onomatopeyas de Animales",
+#         "urlJuego": "/games/unity/onomatopeyas/index.html",
+#         ...
+#       },
+#       "configuracion": {
+#         "numeroRondas": 5
+#       },
+#       "estadisticas": {
+#         "vecesJugado": 3,
+#         "mejorPuntuacion": 85
+#       }
+#     }
+#   ]
+# }
+
+### ==========================================
+### VALIDACIONES
+### ==========================================
+
+### Error: Código duplicado
+POST {{baseUrl}}/api/games
+Authorization: Bearer {{tokenProfesional}}
+Content-Type: application/json
+
+{
+    "nombre": "Otro juego",
+    "descripcion": "Test",
+    "codigo": "ONOMATOPEYAS_ANIMALES",
+    "areaTerapeutica": "fonologia",
+    "rangoEdad": { "min": 3, "max": 6 },
+    "urlJuego": "/test"
+}
+
+### Error: Edad máxima menor que mínima
+POST {{baseUrl}}/api/games
+Authorization: Bearer {{tokenProfesional}}
+Content-Type: application/json
+
+{
+    "nombre": "Test",
+    "descripcion": "Test",
+    "codigo": "TEST",
+    "areaTerapeutica": "fonologia",
+    "rangoEdad": { "min": 10, "max": 5 },
+    "urlJuego": "/test"
+}
+
+### Error: Tutor intenta crear juego (403)
+POST {{baseUrl}}/api/games
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "nombre": "Test",
+    "descripcion": "Test",
+    "codigo": "TEST_TUTOR",
+    "areaTerapeutica": "fonologia",
+    "rangoEdad": { "min": 3, "max": 6 },
+    "urlJuego": "/test"
+}
+
+### Error: Asignar juego ya asignado
+POST {{baseUrl}}/api/assignments
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "pacienteId": "{{pacienteId}}",
+    "juegoId": "{{juegoId}}"
+}
+
+### ==========================================
+### PRUEBAS DUALES
+### ==========================================
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWIwYzAxMjdhNjU2ZDc1NDcwZDQyMjQiLCJlbWFpbCI6Im1hcmlhQGVqZW1wbG8uY29tIiwicm9sZSI6InR1dG9yIiwiaWF0IjoxNzczMTkxNDI0LCJleHAiOjE3NzM3OTYyMjR9.1tK9qn-5J8TdlPX4t7-u6aFyGFYOZutjLrIIPD-ElNA
+@tokenProfesional = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWIwYzA2YTdhNjU2ZDc1NDcwZDQyMjkiLCJlbWFpbCI6ImNhcmxvc0BlamVtcGxvLmNvbSIsInJvbGUiOiJwcm9mZXNpb25hbCIsImlhdCI6MTc3MzE5MjAyNSwiZXhwIjoxNzczNzk2ODI1fQ.L8ISSD7ndkGP24jw7-9OfHmimcnSmzPDUSzagOJd3jw
+@pacienteIdMateo = 69b0c12e7a656d75470d4232
+@pacienteIdEmma = 69b0c1767a656d75470d4237
+@tutorIdAna = 69b0c1a47a656d75470d423d
+@tokenAna = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWIwYzFhNDdhNjU2ZDc1NDcwZDQyM2QiLCJlbWFpbCI6ImFuYS5sb3Blei50dXRvckBlamVtcGxvLmNvbSIsInJvbGUiOiJ0dXRvciIsImlhdCI6MTc3MzE5MTcwOCwiZXhwIjoxNzczNzk2NTA4fQ.fgeWVwWuBa5zipENjQiLBu6EUhcxtQvpeKG5K9KRPh4
+@profesionalId = 69b0c06a7a656d75470d4229
+### ==========================================
+
+### Login como Tutor
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "maria@ejemplo.com",
+    "password": "password123"
+}
+
+###@token = 
+
+### Login como Profesional
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "carlos@ejemplo.com",
+    "password": "password123"
+}
+
+### @tokenProfesional =
+
+### PLAN FAMILIAR - Tutor crea a su hijo/a
+POST {{baseUrl}}/api/patients
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "nombre": "Mateo",
+    "apellido": "González",
+    "fechaNacimiento": "2020-05-15",
+    "genero": "masculino",
+    "diagnostico": "Evaluación inicial",
+    "areasTrabajar": ["fonologia"]
+}
+
+### _id =
+### @pacienteIdMateo = 
+
+### PLAN PROFESIONAL - Profesional crea paciente con tutorInfo (sin tutor registrado)
+POST {{baseUrl}}/api/patients
+Authorization: Bearer {{tokenProfesional}}
+Content-Type: application/json
+
+{
+    "nombre": "Emma",
+    "apellido": "Martínez",
+    "fechaNacimiento": "2019-11-20",
+    "genero": "femenino",
+    "tutorInfo": {
+        "nombre": "Lucía Martínez",
+        "email": "lucia@ejemplo.com",
+        "telefono": "987654321",
+        "relacion": "madre"
+    },
+    "diagnostico": "Retraso del lenguaje expresivo",
+    "areasTrabajar": ["habla", "lenguaje"]
+}
+
+### _id =
+### @pacienteIdEmma = 
+
+### PLAN PROFESIONAL - Profesional crea paciente con tutorInfo (con tutor registrado)
+### 1.1 Primero, registrar un tutor nuevo
+POST {{baseUrl}}/api/auth/registro
+Content-Type: application/json
+
+{
+    "nombre": "Ana López",
+    "email": "ana.lopez.tutor@ejemplo.com",
+    "password": "password123",
+    "role": "tutor",
+    "telefono": "956789123"
+}
+
+### _id =
+### @tutorIdAna =
+
+### 1.2 Profesional crea paciente especificando tutorId
+POST {{baseUrl}}/api/patients
+Authorization: Bearer {{tokenProfesional}}
+Content-Type: application/json
+
+{
+    "nombre": "Sofía",
+    "apellido": "López",
+    "fechaNacimiento": "2018-08-22",
+    "genero": "femenino",
+    "tutorId": "{{tutorIdAna}}",
+    "diagnostico": "Dislalia funcional",
+    "areasTrabajar": ["fonologia", "habla"]
+}
+
+### VERIFICAR PERMISOS DE ACCESO
+### Tutor ve sus pacientes (Plan Familiar)
+GET {{baseUrl}}/api/patients
+Authorization: Bearer {{token}}
+
+### Login como Ana (nueva tutora)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "ana.lopez.tutor@ejemplo.com",
+    "password": "password123"
+}
+
+### @tokenAna = 
+
+### Ana ve sus pacientes
+GET {{baseUrl}}/api/patients
+Authorization: Bearer {{tokenAna}}
+
+### Profesional ve sus pacientes (No ve a Mateo)
+GET {{baseUrl}}/api/patients
+Authorization: Bearer {{tokenProfesional}}
+
+### ASIGNAR PROFESIONAL A PACIENTE DE PLAN FAMILIAR
+### María asigna al Dr. Pérez para Mateo
+
+POST {{baseUrl}}/api/patients/{{pacienteIdMateo}}/asignar-profesional
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "profesionalId": "{{profesionalId}}"
+}
+
+### Nota: Necesitas el ID del profesional. Obtenerlo así:
+GET {{baseUrl}}/api/auth/profesionales
+Authorization: Bearer {{token}}
+
+### _id =
+
+### Ahora el profesional ve a Mateo
+GET {{baseUrl}}/api/patients
+Authorization: Bearer {{tokenProfesional}}
+
+### VALIDACIONES
+### Tutor intenta usar tutorInfo (ERROR 400)
+POST {{baseUrl}}/api/patients
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "nombre": "Test",
+    "apellido": "Error",
+    "fechaNacimiento": "2020-01-01",
+    "tutorInfo": {
+        "nombre": "Alguien",
+        "telefono": "123456789"
+    }
+}
+
+### Profesional sin tutorId ni tutorInfo (ERROR 400)
+POST {{baseUrl}}/api/patients
+Authorization: Bearer {{tokenProfesional}}
+Content-Type: application/json
+
+{
+    "nombre": "Test",
+    "apellido": "Error",
+    "fechaNacimiento": "2020-01-01"
+}
+
+### Profesional con tutorInfo incompleto (ERROR 400)
+POST {{baseUrl}}/api/patients
+Authorization: Bearer {{tokenProfesional}}
+Content-Type: application/json
+
+{
+    "nombre": "Test",
+    "apellido": "Error",
+    "fechaNacimiento": "2020-01-01",
+    "tutorInfo": {
+        "nombre": "Solo nombre"
+    }
+}

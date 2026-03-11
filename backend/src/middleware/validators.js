@@ -168,6 +168,178 @@ const validarPaciente = [
 ];
 
 // ============================================
+// VALIDACIONES DE ASIGNACIÓN
+// ============================================
+const validarAsignacion = [
+  body("pacienteId")
+    .notEmpty()
+    .withMessage("El ID del paciente es obligatorio")
+    .isMongoId()
+    .withMessage("ID de paciente inválido"),
+
+  body("juegoId")
+    .notEmpty()
+    .withMessage("El ID del juego es obligatorio")
+    .isMongoId()
+    .withMessage("ID de juego inválido"),
+
+  body("configuracion")
+    .optional()
+    .isObject()
+    .withMessage("La configuración debe ser un objeto"),
+
+  body("configuracion.nivelDificultad")
+    .optional()
+    .isIn(["basico", "intermedio", "avanzado"])
+    .withMessage("Nivel de dificultad inválido"),
+
+  body("configuracion.numeroRondas")
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage("El número de rondas debe ser al menos 1"),
+
+  body("configuracion.puntuacionObjetivo")
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage("La puntuación objetivo no puede ser negativa"),
+
+  body("configuracion.tiempoLimite")
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage("El tiempo límite no puede ser negativo"),
+
+  body("objetivosPersonalizados")
+    .optional()
+    .isArray()
+    .withMessage("Los objetivos deben ser un array"),
+
+  body("notas")
+    .optional()
+    .isLength({ max: 1000 })
+    .withMessage("Las notas no pueden exceder 1000 caracteres"),
+
+  body("fechaInicio")
+    .optional()
+    .isISO8601()
+    .withMessage("Formato de fecha de inicio inválido"),
+
+  body("fechaFin")
+    .optional()
+    .isISO8601()
+    .withMessage("Formato de fecha de fin inválido"),
+
+  validarCampos,
+];
+
+// ============================================
+// VALIDACIONES DE JUEGO
+// ============================================
+const validarJuego = [
+  body("nombre")
+    .trim()
+    .notEmpty()
+    .withMessage("El nombre es obligatorio")
+    .isLength({ max: 100 })
+    .withMessage("El nombre no puede exceder 100 caracteres"),
+
+  body("descripcion")
+    .trim()
+    .notEmpty()
+    .withMessage("La descripción es obligatoria")
+    .isLength({ max: 500 })
+    .withMessage("La descripción no puede exceder 500 caracteres"),
+
+  body("instrucciones")
+    .optional()
+    .isLength({ max: 1000 })
+    .withMessage("Las instrucciones no pueden exceder 1000 caracteres"),
+
+  body("codigo")
+    .trim()
+    .notEmpty()
+    .withMessage("El código es obligatorio")
+    .matches(/^[A-Z0-9_]+$/)
+    .withMessage(
+      "El código solo puede contener letras mayúsculas, números y guiones bajos",
+    ),
+
+  body("areaTerapeutica")
+    .notEmpty()
+    .withMessage("El área terapéutica es obligatoria")
+    .isIn([
+      "fonologia",
+      "semantica",
+      "morfosintaxis",
+      "pragmatica",
+      "habla",
+      "lenguaje",
+    ])
+    .withMessage("Área terapéutica inválida"),
+
+  body("nivelDificultad")
+    .optional()
+    .isIn(["basico", "intermedio", "avanzado"])
+    .withMessage("Nivel de dificultad inválido"),
+
+  body("rangoEdad")
+    .notEmpty()
+    .withMessage("El rango de edad es obligatorio")
+    .isObject()
+    .withMessage("El rango de edad debe ser un objeto"),
+
+  body("rangoEdad.min")
+    .isInt({ min: 2, max: 18 })
+    .withMessage("La edad mínima debe estar entre 2 y 18"),
+
+  body("rangoEdad.max")
+    .isInt({ min: 2, max: 18 })
+    .withMessage("La edad máxima debe estar entre 2 y 18")
+    .custom((value, { req }) => {
+      if (value < req.body.rangoEdad.min) {
+        throw new Error("La edad máxima debe ser mayor que la mínima");
+      }
+      return true;
+    }),
+
+  body("objetivos")
+    .optional()
+    .isArray()
+    .withMessage("Los objetivos deben ser un array"),
+
+  body("palabrasClave")
+    .optional()
+    .isArray()
+    .withMessage("Las palabras clave deben ser un array"),
+
+  body("duracionEstimada")
+    .optional()
+    .isInt({ min: 1, max: 60 })
+    .withMessage("La duración debe estar entre 1 y 60 minutos"),
+
+  body("numeroRondas")
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage("Debe tener al menos 1 ronda"),
+
+  body("puntuacionMaxima")
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage("La puntuación máxima debe ser al menos 1"),
+
+  body("porcentajeAprobacion")
+    .optional()
+    .isInt({ min: 0, max: 100 })
+    .withMessage("El porcentaje debe estar entre 0 y 100"),
+
+  body("urlJuego")
+    .trim()
+    .notEmpty()
+    .withMessage("La URL del juego es obligatoria"),
+
+  validarCampos,
+];
+
+// ============================================
 // EXPORTAR (ACTUALIZAR)
 // ============================================
 module.exports = {
@@ -175,4 +347,6 @@ module.exports = {
   validarLogin,
   validarCampos,
   validarPaciente,
+  validarAsignacion,
+  validarJuego,
 };

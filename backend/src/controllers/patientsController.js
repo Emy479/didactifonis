@@ -10,9 +10,16 @@ const User = require("../models/User");
 // ============================================
 // CREAR PACIENTE
 // ============================================
+// ============================================
+// CREAR PACIENTE - MODELO DUAL
+// ============================================
 /**
  * POST /api/patients
- * Body: { nombre, apellido, fechaNacimiento, genero?, diagnostico?, observaciones?, areasTrabajar? }
+ * Body: {
+ *   nombre, apellido, fechaNacimiento, genero?,
+ *   tutorId?, tutorInfo?,
+ *   diagnostico?, observaciones?, areasTrabajar?
+ * }
  */
 const crear = async (req, res) => {
   try {
@@ -21,57 +28,118 @@ const crear = async (req, res) => {
       apellido,
       fechaNacimiento,
       genero,
+      tutorId,
+      tutorInfo,
       diagnostico,
       observaciones,
       areasTrabajar,
     } = req.body;
 
-    // Verificar que el usuario autenticado sea tutor o profesional
-    if (req.user.role !== "tutor" && req.user.role !== "profesional") {
+    // Verificar que el usuario tenga permiso
+    if (
+      req.user.role !== "tutor" &&
+      req.user.role !== "profesional" &&
+      req.user.role !== "admin"
+    ) {
       return res.status(403).json({
         success: false,
-        error: "Solo tutores y profesionales pueden crear pacientes",
+        error: "No tienes permiso para crear pacientes",
       });
     }
 
-    // Si es tutor, se asigna a sí mismo
-    // Si es profesional, debe especificar el tutor (lo haremos después)
-    let tutorId;
+    let tipoCuenta;
+    let tutor = null;
     let profesionalesAsignados = [];
 
+    // ============================================
+    // CASO 1: TUTOR CREA A SU HIJO/A (Plan Familiar)
+    // ============================================
     if (req.user.role === "tutor") {
-      tutorId = req.user.userId;
-    } else {
-      // Profesional: requiere tutorId en el body
-      tutorId = req.body.tutorId;
+      tipoCuenta = "familiar";
+      tutor = req.user.userId; // El tutor se asigna a sí mismo
 
-      if (!tutorId) {
+      // No se permite tutorInfo cuando el tutor crea el paciente
+      if (tutorInfo) {
         return res.status(400).json({
           success: false,
-          error: "Los profesionales deben especificar el ID del tutor",
+          error:
+            "No debes proporcionar tutorInfo cuando creas tu propio paciente",
         });
       }
+    }
 
-      // Verificar que el tutor existe
-      const tutor = await User.findOne({ _id: tutorId, role: "tutor" });
-      if (!tutor) {
-        return res.status(404).json({
+    // ============================================
+    // CASO 2: PROFESIONAL CREA PACIENTE (Plan Profesional)
+    // ============================================
+    else if (req.user.role === "profesional") {
+      tipoCuenta = "profesional";
+
+      // Opción A: El tutor tiene cuenta en Didactifonis
+      if (tutorId) {
+        const tutorUsuario = await User.findOne({
+          _id: tutorId,
+          role: "tutor",
+          activo: true,
+        });
+
+        if (!tutorUsuario) {
+          return res.status(404).json({
+            success: false,
+            error: "Tutor no encontrado o inactivo",
+          });
+        }
+
+        tutor = tutorId;
+      }
+      // Opción B: El tutor NO tiene cuenta (datos de contacto)
+      else if (tutorInfo) {
+        // Validar que tutorInfo tenga los datos mínimos
+        if (!tutorInfo.nombre || !tutorInfo.telefono) {
+          return res.status(400).json({
+            success: false,
+            error: "tutorInfo debe incluir al menos nombre y teléfono",
+          });
+        }
+        // tutor queda null, guardamos tutorInfo
+      } else {
+        return res.status(400).json({
           success: false,
-          error: "Tutor no encontrado",
+          error:
+            "Debes proporcionar tutorId (si tiene cuenta) o tutorInfo (si no tiene cuenta)",
         });
       }
 
-      // Asignar al profesional
+      // El profesional se asigna automáticamente
       profesionalesAsignados = [req.user.userId];
     }
 
-    // Crear paciente
+    // ============================================
+    // CASO 3: ADMIN
+    // ============================================
+    else if (req.user.role === "admin") {
+      tipoCuenta = req.body.tipoCuenta || "profesional";
+
+      if (tutorId) {
+        tutor = tutorId;
+      }
+
+      if (req.body.profesionalesAsignados) {
+        profesionalesAsignados = req.body.profesionalesAsignados;
+      }
+    }
+
+    // ============================================
+    // CREAR PACIENTE
+    // ============================================
     const nuevoPaciente = new Patient({
       nombre,
       apellido,
       fechaNacimiento,
       genero,
-      tutor: tutorId,
+      tipoCuenta,
+      creadoPor: req.user.userId,
+      tutor,
+      tutorInfo,
       profesionalesAsignados,
       diagnostico,
       observaciones,
@@ -79,17 +147,20 @@ const crear = async (req, res) => {
     });
 
     // Generar token de acceso
-    nuevoPaciente.generarTokenAcceso(30); // Válido por 30 días
+    nuevoPaciente.generarTokenAcceso(30);
 
     // Guardar
     await nuevoPaciente.save();
 
     // Poblar datos
-    await nuevoPaciente.populate("tutor", "nombre email");
+    if (nuevoPaciente.tutor) {
+      await nuevoPaciente.populate("tutor", "nombre email");
+    }
     await nuevoPaciente.populate(
       "profesionalesAsignados",
       "nombre email especialidad",
     );
+    await nuevoPaciente.populate("creadoPor", "nombre email");
 
     res.status(201).json({
       success: true,
@@ -119,20 +190,23 @@ const crear = async (req, res) => {
 // ============================================
 // OBTENER PACIENTES DEL USUARIO
 // ============================================
-/**
- * GET /api/patients
- * Retorna pacientes según el rol del usuario
- */
 const obtenerTodos = async (req, res) => {
   try {
     let pacientes;
 
     if (req.user.role === "tutor") {
-      // Tutores ven solo sus pacientes
+      // Tutores ven pacientes donde son tutor
       pacientes = await Patient.buscarPorTutor(req.user.userId);
     } else if (req.user.role === "profesional") {
-      // Profesionales ven los que tienen asignados
+      // Profesionales ven pacientes creados O asignados
       pacientes = await Patient.buscarPorProfesional(req.user.userId);
+    } else if (req.user.role === "admin") {
+      // Admin ve todos
+      pacientes = await Patient.find({ activo: true })
+        .populate("tutor", "nombre email")
+        .populate("profesionalesAsignados", "nombre email especialidad")
+        .populate("creadoPor", "nombre email")
+        .sort({ createdAt: -1 });
     } else {
       return res.status(403).json({
         success: false,
@@ -166,7 +240,8 @@ const obtenerPorId = async (req, res) => {
 
     const paciente = await Patient.findById(id)
       .populate("tutor", "nombre email telefono")
-      .populate("profesionalesAsignados", "nombre email especialidad");
+      .populate("profesionalesAsignados", "nombre email especialidad")
+      .populate("creadoPor", "nombre email");
 
     if (!paciente) {
       return res.status(404).json({
@@ -175,13 +250,20 @@ const obtenerPorId = async (req, res) => {
       });
     }
 
-    // Verificar permisos: solo el tutor o profesionales asignados
-    const esTutor = paciente.tutor._id.toString() === req.user.userId;
+    // Verificar permisos
+    const esTutor =
+      paciente.tutor && paciente.tutor._id.toString() === req.user.userId;
+    const esCreador = paciente.creadoPor._id.toString() === req.user.userId;
     const esProfesionalAsignado = paciente.profesionalesAsignados.some(
       (prof) => prof._id.toString() === req.user.userId,
     );
 
-    if (!esTutor && !esProfesionalAsignado && req.user.role !== "admin") {
+    if (
+      !esTutor &&
+      !esCreador &&
+      !esProfesionalAsignado &&
+      req.user.role !== "admin"
+    ) {
       return res.status(403).json({
         success: false,
         error: "No tienes permiso para ver este paciente",
@@ -491,15 +573,22 @@ const renovarToken = async (req, res) => {
     }
 
     // Verificar permisos
-    const esTutor = paciente.tutor.toString() === req.user.userId;
+    const esTutor =
+      paciente.tutor && paciente.tutor.toString() === req.user.userId;
+    const esCreador = paciente.creadoPor.toString() === req.user.userId;
     const esProfesionalAsignado = paciente.profesionalesAsignados.some(
       (prof) => prof.toString() === req.user.userId,
     );
 
-    if (!esTutor && !esProfesionalAsignado) {
+    if (
+      !esTutor &&
+      !esCreador &&
+      !esProfesionalAsignado &&
+      req.user.role !== "admin"
+    ) {
       return res.status(403).json({
         success: false,
-        error: "No tienes permiso para renovar el token",
+        error: "No tienes permiso",
       });
     }
 

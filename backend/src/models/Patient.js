@@ -1,7 +1,8 @@
 /**
- * Modelo de Paciente
+ * Modelo de Paciente - MODELO DUAL
  *
  * Representa a los niños/as que recibirán terapia fonoaudiológica.
+ * Soporta Plan Familiar (tutor paga) y Plan Profesional (profesional paga)
  */
 
 const mongoose = require("mongoose");
@@ -32,7 +33,6 @@ const patientSchema = new mongoose.Schema(
       required: [true, "La fecha de nacimiento es obligatoria"],
       validate: {
         validator: function (fecha) {
-          // No puede ser fecha futura
           return fecha <= new Date();
         },
         message: "La fecha de nacimiento no puede ser en el futuro",
@@ -54,21 +54,55 @@ const patientSchema = new mongoose.Schema(
       default: "prefiero_no_decir",
     },
 
-    // Relaciones
+    // ============================================
+    // MODELO DE NEGOCIO DUAL
+    // ============================================
+
+    // Tipo de cuenta (quién paga)
+    tipoCuenta: {
+      type: String,
+      enum: {
+        values: ["familiar", "profesional", "clinica"],
+        message: "{VALUE} no es un tipo de cuenta válido",
+      },
+      required: [true, "El tipo de cuenta es obligatorio"],
+    },
+
+    // Quién creó el paciente (quién paga la suscripción)
+    creadoPor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: [true, "Debe especificar quién creó al paciente"],
+    },
+
+    // Tutor (opcional - solo si tiene cuenta)
     tutor: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: [true, "El paciente debe tener un tutor asignado"],
-      validate: {
-        validator: async function (tutorId) {
-          const User = mongoose.model("User");
-          const user = await User.findById(tutorId);
-          return user && user.role === "tutor";
-        },
-        message: 'El tutor debe ser un usuario con rol "tutor"',
+    },
+
+    // Información del tutor (si NO tiene cuenta)
+    tutorInfo: {
+      nombre: {
+        type: String,
+        trim: true,
+      },
+      email: {
+        type: String,
+        lowercase: true,
+        trim: true,
+      },
+      telefono: {
+        type: String,
+        match: [/^[0-9]{9,15}$/, "Teléfono inválido"],
+      },
+      relacion: {
+        type: String,
+        enum: ["madre", "padre", "abuelo/a", "tutor_legal", "otro"],
       },
     },
 
+    // Profesionales asignados
     profesionalesAsignados: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -88,7 +122,7 @@ const patientSchema = new mongoose.Schema(
     accessToken: {
       type: String,
       unique: true,
-      sparse: true, // Permite múltiples null
+      sparse: true,
     },
 
     tokenExpiracion: {
@@ -120,7 +154,7 @@ const patientSchema = new mongoose.Schema(
       },
     ],
 
-    // Avatar (opcional - para personalizar)
+    // Avatar
     avatar: {
       type: String,
       default: "default-avatar.png",
@@ -137,6 +171,19 @@ const patientSchema = new mongoose.Schema(
     versionKey: false,
   },
 );
+
+// ============================================
+// VALIDACIÓN CONDICIONAL
+// ============================================
+
+/**
+ * Validar que si no hay tutor, al menos haya tutorInfo
+ */
+patientSchema.pre("validate", function () {
+  if (!this.tutor && (!this.tutorInfo || !this.tutorInfo.nombre)) {
+    this.invalidate("tutorInfo", "Debe proporcionar información del tutor");
+  }
+});
 
 // ============================================
 // VIRTUAL: Nombre completo
@@ -182,14 +229,10 @@ patientSchema.pre("save", function () {
 
 /**
  * Generar token de acceso para el paciente
- * @param {number} diasValidez - Días que el token será válido (default: 30)
- * @returns {string} Token generado
  */
 patientSchema.methods.generarTokenAcceso = function (diasValidez = 30) {
-  // Generar token único y seguro
   const token = crypto.randomBytes(32).toString("hex");
 
-  // Establecer fecha de expiración
   const expiracion = new Date();
   expiracion.setDate(expiracion.getDate() + diasValidez);
 
@@ -201,7 +244,6 @@ patientSchema.methods.generarTokenAcceso = function (diasValidez = 30) {
 
 /**
  * Verificar si el token de acceso es válido
- * @returns {boolean}
  */
 patientSchema.methods.tokenEsValido = function () {
   if (!this.accessToken || !this.tokenExpiracion) {
@@ -213,8 +255,6 @@ patientSchema.methods.tokenEsValido = function () {
 
 /**
  * Renovar token de acceso
- * @param {number} diasValidez
- * @returns {string} Nuevo token
  */
 patientSchema.methods.renovarToken = function (diasValidez = 30) {
   return this.generarTokenAcceso(diasValidez);
@@ -222,10 +262,8 @@ patientSchema.methods.renovarToken = function (diasValidez = 30) {
 
 /**
  * Asignar profesional al paciente
- * @param {string} profesionalId - ID del profesional
  */
 patientSchema.methods.asignarProfesional = function (profesionalId) {
-  // Verificar que no esté ya asignado
   const yaAsignado = this.profesionalesAsignados.some(
     (id) => id.toString() === profesionalId.toString(),
   );
@@ -237,7 +275,6 @@ patientSchema.methods.asignarProfesional = function (profesionalId) {
 
 /**
  * Remover profesional del paciente
- * @param {string} profesionalId
  */
 patientSchema.methods.removerProfesional = function (profesionalId) {
   this.profesionalesAsignados = this.profesionalesAsignados.filter(
@@ -265,7 +302,7 @@ patientSchema.methods.getDatosPublicos = function () {
  * Obtener datos completos (para tutor/profesional)
  */
 patientSchema.methods.getDatosCompletos = function () {
-  return {
+  const datos = {
     _id: this._id,
     nombre: this.nombre,
     apellido: this.apellido,
@@ -273,16 +310,26 @@ patientSchema.methods.getDatosCompletos = function () {
     fechaNacimiento: this.fechaNacimiento,
     edad: this.edad,
     genero: this.genero,
+    tipoCuenta: this.tipoCuenta,
+    creadoPor: this.creadoPor,
     diagnostico: this.diagnostico,
     observaciones: this.observaciones,
     areasTrabajar: this.areasTrabajar,
     avatar: this.avatar,
     activo: this.activo,
-    tutor: this.tutor,
     profesionalesAsignados: this.profesionalesAsignados,
     createdAt: this.createdAt,
     updatedAt: this.updatedAt,
   };
+
+  // Incluir tutor o tutorInfo según corresponda
+  if (this.tutor) {
+    datos.tutor = this.tutor;
+  } else if (this.tutorInfo) {
+    datos.tutorInfo = this.tutorInfo;
+  }
+
+  return datos;
 };
 
 // ============================================
@@ -290,33 +337,52 @@ patientSchema.methods.getDatosCompletos = function () {
 // ============================================
 
 /**
- * Buscar pacientes de un tutor específico
- * @param {string} tutorId
+ * Buscar pacientes de un tutor específico (Plan Familiar)
  */
 patientSchema.statics.buscarPorTutor = function (tutorId) {
-  return this.find({ tutor: tutorId, activo: true })
+  return this.find({
+    tutor: tutorId,
+    activo: true,
+  })
     .populate("tutor", "nombre email")
     .populate("profesionalesAsignados", "nombre email especialidad")
+    .populate("creadoPor", "nombre email")
     .sort({ createdAt: -1 });
 };
 
 /**
- * Buscar pacientes de un profesional específico
- * @param {string} profesionalId
+ * Buscar pacientes creados por un profesional (Plan Profesional)
+ */
+patientSchema.statics.buscarCreadosPorProfesional = function (profesionalId) {
+  return this.find({
+    creadoPor: profesionalId,
+    activo: true,
+  })
+    .populate("tutor", "nombre email")
+    .populate("profesionalesAsignados", "nombre email especialidad")
+    .populate("creadoPor", "nombre email")
+    .sort({ createdAt: -1 });
+};
+
+/**
+ * Buscar pacientes de un profesional (creados O asignados)
  */
 patientSchema.statics.buscarPorProfesional = function (profesionalId) {
   return this.find({
-    profesionalesAsignados: profesionalId,
+    $or: [
+      { profesionalesAsignados: profesionalId },
+      { creadoPor: profesionalId },
+    ],
     activo: true,
   })
     .populate("tutor", "nombre email telefono")
     .populate("profesionalesAsignados", "nombre email especialidad")
+    .populate("creadoPor", "nombre email")
     .sort({ createdAt: -1 });
 };
 
 /**
  * Buscar paciente por token de acceso
- * @param {string} token
  */
 patientSchema.statics.buscarPorToken = function (token) {
   return this.findOne({
@@ -328,7 +394,6 @@ patientSchema.statics.buscarPorToken = function (token) {
 
 /**
  * Obtener estadísticas de un tutor
- * @param {string} tutorId
  */
 patientSchema.statics.obtenerEstadisticasTutor = async function (tutorId) {
   const total = await this.countDocuments({ tutor: tutorId, activo: true });
@@ -361,14 +426,45 @@ patientSchema.statics.obtenerEstadisticasTutor = async function (tutorId) {
   };
 };
 
+/**
+ * Obtener estadísticas de un profesional
+ */
+patientSchema.statics.obtenerEstadisticasProfesional = async function (
+  profesionalId,
+) {
+  const total = await this.countDocuments({
+    $or: [
+      { profesionalesAsignados: profesionalId },
+      { creadoPor: profesionalId },
+    ],
+    activo: true,
+  });
+
+  const creados = await this.countDocuments({
+    creadoPor: profesionalId,
+    activo: true,
+  });
+
+  const asignados = await this.countDocuments({
+    profesionalesAsignados: profesionalId,
+    creadoPor: { $ne: profesionalId },
+    activo: true,
+  });
+
+  return {
+    total,
+    creados, // Pacientes del plan profesional
+    asignados, // Pacientes del plan familiar invitados
+  };
+};
+
 // ============================================
 // ÍNDICES
 // ============================================
-// Índice compuesto para búsquedas por tutor
 patientSchema.index({ tutor: 1, activo: 1 });
-
-// Índice para búsquedas por profesional
+patientSchema.index({ creadoPor: 1, activo: 1 });
 patientSchema.index({ profesionalesAsignados: 1 });
+patientSchema.index({ tipoCuenta: 1 });
 
 // ============================================
 // CONFIGURACIÓN DE VIRTUALS EN JSON
