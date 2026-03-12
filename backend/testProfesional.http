@@ -1,0 +1,205 @@
+### VARIABLES GLOBALES
+@baseUrl = http://localhost:3000
+
+### TOKENS (se actualizan en cada paso)
+@tokenTutor = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWIxZGUxY2ExN2UyZGY3YWMxZGNjYWYiLCJlbWFpbCI6Im1hcmlhLnRlc3RAZWplbXBsby5jb20iLCJyb2xlIjoidHV0b3IiLCJpYXQiOjE3NzMyNjQ3OTAsImV4cCI6MTc3Mzg2OTU5MH0.3EXZnhFEnHyboPHtRO2kNSCRn6o8wHWWqr9GiEooago
+@tokenProfesional = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWIxZTBhNWExN2UyZGY3YWMxZGNjYmEiLCJlbWFpbCI6ImNhcmxvcy50ZXN0QGVqZW1wbG8uY29tIiwicm9sZSI6InByb2Zlc2lvbmFsIiwiaWF0IjoxNzczMjY1MDg3LCJleHAiOjE3NzM4Njk4ODd9.WP0Y-WhjsDTdBxjEdqinMt1j-b2gf5NX_xaQj4lCJEU
+@accessTokenPaciente = 732fed27170e299a50f60661deaccfb0ec12ede17bddf8c750369da713df4d9d
+
+### IDS (se actualizan en cada paso)
+@tutorId = 69b1de1ca17e2df7ac1dccaf
+@profesionalId = 69b1e0a5a17e2df7ac1dccba
+@pacienteId = 69b1dfbca17e2df7ac1dccb5
+@juegoId = 69b1e162a17e2df7ac1dccc7
+@asignacionId = 69b1e17fa17e2df7ac1dcccd
+
+### IDS PROFESIONAL SIN TUTOR (se actualizan en cada paso)
+@pacienteIdEmma = 69b1ebf236437b7a21a2c91e
+@accessTokenEmma = dde636a402aa0d3d55e2ae2041a68f57cccec146cafa163ace77117ca9756721
+@juegoIdMemoria = 69b1ec4936437b7a21a2c925
+@asignacionIdEmma = 69b1ec9136437b7a21a2c92b
+@asignacionIdMateoMemoria = 69b1ed8b36437b7a21a2c94d
+
+### ESCENARIO 2: PLAN PROFESIONAL
+### 2.1 - PROFESIONAL CREA PACIENTE SIN TUTOR REGISTRADO
+POST {{baseUrl}}/api/patients
+Authorization: Bearer {{tokenProfesional}}
+Content-Type: application/json
+
+{
+    "nombre": "Emma",
+    "apellido": "Martínez",
+    "fechaNacimiento": "2019-11-20",
+    "genero": "femenino",
+    "tutorInfo": {
+        "nombre": "Lucía Martínez",
+        "email": "lucia@ejemplo.com",
+        "telefono": "965432187",
+        "relacion": "madre"
+    },
+    "diagnostico": "Retraso del lenguaje expresivo",
+    "areasTrabajar": ["habla", "lenguaje"]
+}
+
+### 2.2 - CREAR SEGUNDO JUEGO
+POST {{baseUrl}}/api/games
+Authorization: Bearer {{tokenProfesional}}
+Content-Type: application/json
+
+{
+    "nombre": "Memoria de Palabras",
+    "descripcion": "Juego de memoria con palabras y conceptos",
+    "instrucciones": "Encuentra los pares de palabras iguales",
+    "codigo": "MEMORIA_PALABRAS_TEST",
+    "areaTerapeutica": "semantica",
+    "nivelDificultad": "intermedio",
+    "rangoEdad": {
+        "min": 5,
+        "max": 10
+    },
+    "objetivos": ["Mejorar memoria visual", "Reconocer palabras"],
+    "palabrasClave": ["memoria", "palabras"],
+    "duracionEstimada": 5,
+    "numeroRondas": 1,
+    "puntuacionMaxima": 100,
+    "porcentajeAprobacion": 60,
+    "urlJuego": "/games/html5/memoria/index.html",
+    "publicado": true
+}
+
+### 2.3 - ASIGNAR JUEGO A EMMA
+POST {{baseUrl}}/api/assignments
+Authorization: Bearer {{tokenProfesional}}
+Content-Type: application/json
+
+{
+    "pacienteId": "{{pacienteIdEmma}}",
+    "juegoId": "{{juegoIdMemoria}}",
+    "configuracion": {
+        "nivelDificultad": "intermedio",
+        "numeroRondas": 1,
+        "puntuacionObjetivo": 70
+    },
+    "notas": "Paciente nueva, evaluación inicial"
+}
+
+### 2.4 - EMMA OBTIENE SUS JUEGOS
+GET {{baseUrl}}/api/assignments/token/{{accessTokenEmma}}/games
+
+### 2.5 - EMMA ENVÍA PROGRESO
+POST {{baseUrl}}/api/progress
+Content-Type: application/json
+
+{
+    "token": "{{accessTokenEmma}}",
+    "asignacionId": "{{asignacionIdEmma}}",
+    "puntuacion": 90,
+    "tiempoJugado": 120,
+    "rondasCompletadas": 1,
+    "rondasTotales": 1,
+    "aciertos": 9,
+    "errores": 1,
+    "completado": true,
+    "datosJuego": {
+        "paresEncontrados": 9,
+        "intentosTotales": 18,
+        "eficiencia": 0.5
+    },
+    "dispositivo": "tablet"
+}
+
+### 2.6 - DR. PÉREZ VE PROGRESO DE EMMA
+GET {{baseUrl}}/api/progress/patient/{{pacienteIdEmma}}
+Authorization: Bearer {{tokenProfesional}}
+
+### 2.7 - MARÍA INTENTA VER PROGRESO DE EMMA (DEBERÍA FALLAR)
+GET {{baseUrl}}/api/progress/patient/{{pacienteIdEmma}}
+Authorization: Bearer {{tokenTutor}}
+
+### ESCENARIO 3: MÚLTIPLES JUEGOS
+### 3.1 - ASIGNAR MEMORIA A MATEO
+POST {{baseUrl}}/api/assignments
+Authorization: Bearer {{tokenTutor}}
+Content-Type: application/json
+
+{
+    "pacienteId": "{{pacienteId}}",
+    "juegoId": "{{juegoIdMemoria}}",
+    "configuracion": {
+        "nivelDificultad": "basico",
+        "numeroRondas": 1,
+        "puntuacionObjetivo": 65
+    }
+}
+
+### 3.2 - MATEO VE SUS JUEGOS ASIGNADOS
+GET {{baseUrl}}/api/assignments/token/{{accessTokenPaciente}}/games
+
+### 3.3A - MATEO JUEGA MEMORIA - SESIÓN 1
+POST {{baseUrl}}/api/progress
+Content-Type: application/json
+
+{
+    "token": "{{accessTokenPaciente}}",
+    "asignacionId": "{{asignacionIdMateoMemoria}}",
+    "puntuacion": 50,
+    "tiempoJugado": 150,
+    "rondasCompletadas": 1,
+    "rondasTotales": 1,
+    "completado": true,
+    "dispositivo": "web"
+}
+
+### 3.3B - MATEO JUEGA MEMORIA - SESIÓN 2
+POST {{baseUrl}}/api/progress
+Content-Type: application/json
+
+{
+    "token": "{{accessTokenPaciente}}",
+    "asignacionId": "{{asignacionIdMateoMemoria}}",
+    "puntuacion": 75,
+    "tiempoJugado": 130,
+    "rondasCompletadas": 1,
+    "rondasTotales": 1,
+    "completado": true,
+    "dispositivo": "web"
+}
+
+### 3.3C - MATEO JUEGA MEMORIA - SESIÓN 3
+POST {{baseUrl}}/api/progress
+Content-Type: application/json
+
+{
+    "token": "{{accessTokenPaciente}}",
+    "asignacionId": "{{asignacionIdMateoMemoria}}",
+    "puntuacion": 85,
+    "tiempoJugado": 110,
+    "rondasCompletadas": 1,
+    "rondasTotales": 1,
+    "completado": true,
+    "dispositivo": "web"
+}
+
+### 3.4 - VER JUEGOS MÁS JUGADOS POR MATEO
+GET {{baseUrl}}/api/progress/juegos-mas-jugados/{{pacienteId}}?limite=5
+Authorization: Bearer {{tokenTutor}}
+
+### 3.5 - ESTADÍSTICAS GENERALES DE MATEO
+GET {{baseUrl}}/api/progress/estadisticas/{{pacienteId}}
+Authorization: Bearer {{tokenTutor}}
+
+### 3.6 - VER EVOLUCIÓN EN MEMORIA
+GET {{baseUrl}}/api/progress/evolucion/{{pacienteId}}/{{juegoIdMemoria}}?dias=30
+Authorization: Bearer {{tokenTutor}}
+
+### 4.1 - MARÍA INTENTA VER JUEGOS (SOLO VERÁ PUBLICADOS)
+GET {{baseUrl}}/api/games
+Authorization: Bearer {{tokenTutor}}
+
+### 4.2 - DR. PÉREZ VE SUS PACIENTES
+GET {{baseUrl}}/api/patients
+Authorization: Bearer {{tokenProfesional}}
+
+### 4.3 - MARÍA INTENTA DESACTIVAR ASIGNACIÓN DE EMMA (DEBERÍA FALLAR)
+DELETE {{baseUrl}}/api/assignments/{{asignacionIdEmma}}
+Authorization: Bearer {{tokenTutor}}

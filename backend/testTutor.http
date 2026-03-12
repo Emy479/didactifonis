@@ -1,0 +1,217 @@
+### VARIABLES GLOBALES
+@baseUrl = http://localhost:3000
+
+### TOKENS (se actualizan en cada paso)
+@tokenTutor = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWIxZGUxY2ExN2UyZGY3YWMxZGNjYWYiLCJlbWFpbCI6Im1hcmlhLnRlc3RAZWplbXBsby5jb20iLCJyb2xlIjoidHV0b3IiLCJpYXQiOjE3NzMyNjQ3OTAsImV4cCI6MTc3Mzg2OTU5MH0.3EXZnhFEnHyboPHtRO2kNSCRn6o8wHWWqr9GiEooago
+@tokenProfesional = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWIxZTBhNWExN2UyZGY3YWMxZGNjYmEiLCJlbWFpbCI6ImNhcmxvcy50ZXN0QGVqZW1wbG8uY29tIiwicm9sZSI6InByb2Zlc2lvbmFsIiwiaWF0IjoxNzczMjY1MDg3LCJleHAiOjE3NzM4Njk4ODd9.WP0Y-WhjsDTdBxjEdqinMt1j-b2gf5NX_xaQj4lCJEU
+@accessTokenPaciente = 732fed27170e299a50f60661deaccfb0ec12ede17bddf8c750369da713df4d9d
+
+### IDS (se actualizan en cada paso)
+@tutorId = 69b1de1ca17e2df7ac1dccaf
+@profesionalId = 69b1e0a5a17e2df7ac1dccba
+@pacienteId = 69b1dfbca17e2df7ac1dccb5
+@juegoId = 69b1e162a17e2df7ac1dccc7
+@asignacionId = 69b1e17fa17e2df7ac1dcccd
+
+### 1.1 - REGISTRAR TUTOR
+POST {{baseUrl}}/api/auth/registro
+Content-Type: application/json
+
+{
+    "nombre": "María González",
+    "email": "maria.test@ejemplo.com",
+    "password": "password123",
+    "role": "tutor",
+    "telefono": "912345678"
+}
+
+### 1.2 - LOGIN TUTOR
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "maria.test@ejemplo.com",
+    "password": "password123"
+}
+
+### 2.1 - CREAR PACIENTE
+POST {{baseUrl}}/api/patients
+Authorization: Bearer {{tokenTutor}}
+Content-Type: application/json
+
+{
+    "nombre": "Mateo",
+    "apellido": "González",
+    "fechaNacimiento": "2020-05-15",
+    "genero": "masculino",
+    "diagnostico": "Evaluación inicial de lenguaje",
+    "areasTrabajar": ["fonologia", "habla"]
+}
+
+### 3.1 - REGISTRAR PROFESIONAL
+POST {{baseUrl}}/api/auth/registro
+Content-Type: application/json
+
+{
+    "nombre": "Dr. Carlos Pérez",
+    "email": "carlos.test@ejemplo.com",
+    "password": "password123",
+    "role": "profesional",
+    "telefono": "987654321",
+    "especialidad": "fonoaudiología",
+    "numeroRegistro": "FN-12345"
+}
+
+### 3.2 - LOGIN PROFESIONAL
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "carlos.test@ejemplo.com",
+    "password": "password123"
+}
+
+### 4.1 - VERIFICAR PROFESIONAL (requiere admin)
+### ⚠️ IMPORTANTE: Los profesionales NO se auto-verifican. Debes verificarlo manualmente.
+
+### 5.1 - ASIGNAR PROFESIONAL AL PACIENTE
+POST {{baseUrl}}/api/patients/{{pacienteId}}/asignar-profesional
+Authorization: Bearer {{tokenTutor}}
+Content-Type: application/json
+
+{
+    "profesionalId": "{{profesionalId}}"
+}
+
+### 6.1 - CREAR JUEGO
+POST {{baseUrl}}/api/games
+Authorization: Bearer {{tokenProfesional}}
+Content-Type: application/json
+
+{
+    "nombre": "Onomatopeyas de Animales",
+    "descripcion": "Juego educativo donde los niños identifican sonidos de animales",
+    "instrucciones": "Escucha el sonido y selecciona el animal correcto",
+    "codigo": "ONOMATOPEYAS_TEST",
+    "areaTerapeutica": "fonologia",
+    "nivelDificultad": "basico",
+    "rangoEdad": {
+        "min": 3,
+        "max": 7
+    },
+    "objetivos": [
+        "Identificar sonidos de animales",
+        "Asociar imagen con sonido"
+    ],
+    "palabrasClave": ["onomatopeyas", "animales", "sonidos"],
+    "duracionEstimada": 10,
+    "numeroRondas": 10,
+    "puntuacionMaxima": 100,
+    "porcentajeAprobacion": 70,
+    "thumbnail": "onomatopeyas-thumb.png",
+    "urlJuego": "/games/unity/onomatopeyas/index.html",
+    "publicado": true
+}
+
+### 7.1 - ASIGNAR JUEGO AL PACIENTE
+POST {{baseUrl}}/api/assignments
+Authorization: Bearer {{tokenProfesional}}
+Content-Type: application/json
+
+{
+    "pacienteId": "{{pacienteId}}",
+    "juegoId": "{{juegoId}}",
+    "configuracion": {
+        "nivelDificultad": "basico",
+        "numeroRondas": 5,
+        "puntuacionObjetivo": 80
+    },
+    "objetivosPersonalizados": [
+        "Identificar al menos 4 de 5 sonidos correctamente"
+    ],
+    "notas": "Primera asignación, nivel introductorio",
+    "fechaFin": "2026-04-30"
+}
+
+### 8.1 - OBTENER JUEGOS ASIGNADOS (PÚBLICO)
+GET {{baseUrl}}/api/assignments/token/{{accessTokenPaciente}}/games
+
+### 9.1 - GUARDAR PROGRESO - SESIÓN 1
+POST {{baseUrl}}/api/progress
+Content-Type: application/json
+
+{
+    "token": "{{accessTokenPaciente}}",
+    "asignacionId": "{{asignacionId}}",
+    "puntuacion": 60,
+    "tiempoJugado": 200,
+    "rondasCompletadas": 5,
+    "rondasTotales": 5,
+    "aciertos": 3,
+    "errores": 2,
+    "completado": true,
+    "datosJuego": {
+        "animalesCorrectos": ["perro", "gato", "vaca"],
+        "animalesIncorrectos": ["pato", "cerdo"],
+        "tiemposPorRonda": [35, 42, 38, 45, 40]
+    },
+    "dispositivo": "web",
+    "navegador": "Chrome",
+    "sistemaOperativo": "Windows 10"
+}
+
+### 10.1 - GUARDAR PROGRESO - SESIÓN 2
+POST {{baseUrl}}/api/progress
+Content-Type: application/json
+
+{
+    "token": "{{accessTokenPaciente}}",
+    "asignacionId": "{{asignacionId}}",
+    "puntuacion": 80,
+    "tiempoJugado": 180,
+    "rondasCompletadas": 5,
+    "rondasTotales": 5,
+    "aciertos": 4,
+    "errores": 1,
+    "completado": true,
+    "datosJuego": {
+        "animalesCorrectos": ["perro", "gato", "vaca", "pato"],
+        "animalesIncorrectos": ["cerdo"],
+        "tiemposPorRonda": [32, 38, 35, 40, 35]
+    },
+    "dispositivo": "web"
+}
+
+### 11.1 - GUARDAR PROGRESO - SESIÓN 3
+POST {{baseUrl}}/api/progress
+Content-Type: application/json
+
+{
+    "token": "{{accessTokenPaciente}}",
+    "asignacionId": "{{asignacionId}}",
+    "puntuacion": 100,
+    "tiempoJugado": 150,
+    "rondasCompletadas": 5,
+    "rondasTotales": 5,
+    "aciertos": 5,
+    "errores": 0,
+    "completado": true,
+    "datosJuego": {
+        "animalesCorrectos": ["perro", "gato", "vaca", "pato", "cerdo"],
+        "animalesIncorrectos": [],
+        "tiemposPorRonda": [28, 30, 32, 30, 30]
+    },
+    "dispositivo": "web"
+}
+
+### 12.1 - VER PROGRESO DEL PACIENTE
+GET {{baseUrl}}/api/progress/patient/{{pacienteId}}
+Authorization: Bearer {{tokenTutor}}
+
+### 13.1 - VER EVOLUCIÓN TEMPORAL
+GET {{baseUrl}}/api/progress/evolucion/{{pacienteId}}/{{juegoId}}?dias=30
+Authorization: Bearer {{tokenProfesional}}
+
+### 14.1 - ESTADÍSTICAS GENERALES DE MATEO
+GET {{baseUrl}}/api/progress/estadisticas/{{pacienteId}}
+Authorization: Bearer {{tokenTutor}}

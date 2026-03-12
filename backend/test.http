@@ -984,7 +984,8 @@ Content-Type: application/json
 }
 
 ### _id =
-### @tutorIdAna =
+@tokenProfesional = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWIxZDFmZjM5ZmFlZGFlMmRiMzc4NTUiLCJlbWFpbCI6ImFuYS5sb3Blei50dXRvckBlamVtcGxvLmNvbSIsInJvbGUiOiJ0dXRvciIsImlhdCI6MTc3MzI2MTM0NCwiZXhwIjoxNzczODY2MTQ0fQ.yVALnJ14o4W9VmSUKI9zxbM5sbWZVvl3qv3nhH9f9h4
+@tutorIdAna = 69b1d1ff39faedae2db37855
 
 ### 1.2 Profesional crea paciente especificando tutorId
 POST {{baseUrl}}/api/patients
@@ -1085,4 +1086,233 @@ Content-Type: application/json
     "tutorInfo": {
         "nombre": "Solo nombre"
     }
+}
+
+###############################################
+# PROGRESS (PROGRESO)
+###############################################
+
+### VARIABLES ADICIONALES NECESARIAS
+#@accessToken = 716a6939ea3e1c1a95b6a877dc225f0b521daf0a39d4c71cee61e82cb6eb3e2e
+#@asignacionId = 69b0d4fd97ead0d3edd7ee7d
+#@pacienteId = 69b69b0c12e7a656d75470d4232
+
+# ============================================
+# 1. GUARDAR PROGRESO (PÚBLICO - DESDE JUEGO)
+# ============================================
+POST {{baseUrl}}/api/progress
+Content-Type: application/json
+
+{
+    "token": "{{accessToken}}",
+    "asignacionId": "{{asignacionId}}",
+    "puntuacion": 85,
+    "tiempoJugado": 180,
+    "rondasCompletadas": 10,
+    "rondasTotales": 10,
+    "aciertos": 9,
+    "errores": 1,
+    "completado": true,
+    "datosJuego": {
+        "nivel": 1,
+        "animalesIdentificados": ["perro", "gato", "vaca", "pato", "cerdo"],
+        "tiempoPorRonda": [15, 18, 12, 20, 16, 14, 19, 17, 21, 18]
+    },
+    "dispositivo": "web",
+    "navegador": "Chrome",
+    "sistemaOperativo": "Windows 10"
+}
+
+### Respuesta esperada:
+# {
+#   "success": true,
+#   "message": "Progreso guardado exitosamente",
+#   "data": {
+#     "progreso": { ... },
+#     "aprobado": true,
+#     "porcentajeAcierto": 85,
+#     "mensaje": "¡Felicitaciones! Has aprobado este juego."
+#   }
+# }
+
+# ============================================
+# 2. OBTENER PROGRESO DE UN PACIENTE
+# ============================================
+GET {{baseUrl}}/api/progress/patient/{{pacienteId}}?limite=20
+Authorization: Bearer {{token}}
+
+### Respuesta esperada:
+# {
+#   "success": true,
+#   "count": 5,
+#   "estadisticas": {
+#     "totalSesiones": 5,
+#     "sesionesCompletadas": 4,
+#     "sesionesAprobadas": 3,
+#     "puntuacionPromedio": 78.5,
+#     "porcentajePromedioAcierto": 78.5,
+#     "tiempoTotalJugado": 850,
+#     "mejorPuntuacion": 95
+#   },
+#   "data": [ ... ]
+# }
+
+# ============================================
+# 3. OBTENER PROGRESO DE UNA ASIGNACIÓN
+# ============================================
+GET {{baseUrl}}/api/progress/assignment/{{asignacionId}}
+Authorization: Bearer {{token}}
+
+### Respuesta esperada:
+# {
+#   "success": true,
+#   "count": 3,
+#   "estadisticas": {
+#     "totalSesiones": 3,
+#     "sesionesCompletadas": 3,
+#     "puntuacionPromedio": 82.33,
+#     "mejorPuntuacion": 90,
+#     "tiempoPromedio": 175
+#   },
+#   "data": [ ... ]
+# }
+
+# ============================================
+# 4. OBTENER EVOLUCIÓN TEMPORAL
+# ============================================
+GET {{baseUrl}}/api/progress/evolucion/{{pacienteId}}/{{juegoId}}?dias=30
+Authorization: Bearer {{token}}
+
+### Respuesta esperada:
+# {
+#   "success": true,
+#   "dias": 30,
+#   "count": 5,
+#   "data": [
+#     {
+#       "puntuacion": 70,
+#       "porcentajeAcierto": 70,
+#       "tiempoJugado": 200,
+#       "completado": true,
+#       "fechaSesion": "2026-03-01..."
+#     },
+#     {
+#       "puntuacion": 80,
+#       "porcentajeAcierto": 80,
+#       "tiempoJugado": 180,
+#       "completado": true,
+#       "fechaSesion": "2026-03-05..."
+#     }
+#   ]
+# }
+
+# ============================================
+# 5. JUEGOS MÁS JUGADOS
+# ============================================
+GET {{baseUrl}}/api/progress/juegos-mas-jugados/{{pacienteId}}?limite=5
+Authorization: Bearer {{token}}
+
+### Respuesta esperada:
+# {
+#   "success": true,
+#   "count": 3,
+#   "data": [
+#     {
+#       "juego": {
+#         "nombre": "Onomatopeyas de Animales",
+#         "codigo": "ONOMATOPEYAS_ANIMALES"
+#       },
+#       "totalSesiones": 8,
+#       "puntuacionPromedio": 82.5,
+#       "tiempoTotal": 1400
+#     }
+#   ]
+# }
+
+# ============================================
+# 6. ESTADÍSTICAS GENERALES
+# ============================================
+GET {{baseUrl}}/api/progress/estadisticas/{{pacienteId}}
+Authorization: Bearer {{token}}
+
+### Respuesta esperada:
+# {
+#   "success": true,
+#   "data": {
+#     "generales": {
+#       "totalSesiones": 12,
+#       "sesionesCompletadas": 10,
+#       "sesionesAprobadas": 8,
+#       "puntuacionPromedio": 79.2,
+#       "porcentajePromedioAcierto": 79.2,
+#       "tiempoTotalJugado": 2100,
+#       "mejorPuntuacion": 98
+#     },
+#     "juegosMasJugados": [ ... ]
+#   }
+# }
+
+# ============================================
+# FLUJO COMPLETO DE EJEMPLO
+# ============================================
+
+### Paso 1: Paciente obtiene sus juegos asignados
+GET {{baseUrl}}/api/assignments/token/{{accessToken}}/games
+
+### Paso 2: Paciente juega y envía resultados
+POST {{baseUrl}}/api/progress
+Content-Type: application/json
+
+{
+    "token": "{{accessToken}}",
+    "asignacionId": "{{asignacionId}}",
+    "puntuacion": 90,
+    "tiempoJugado": 165,
+    "rondasCompletadas": 10,
+    "rondasTotales": 10,
+    "aciertos": 9,
+    "errores": 1,
+    "completado": true,
+    "datosJuego": {
+        "dificultad": "medio",
+        "sonidosReconocidos": ["perro", "gato", "vaca", "pato"]
+    },
+    "dispositivo": "mobile",
+    "navegador": "Safari",
+    "sistemaOperativo": "iOS 17"
+}
+
+### Paso 3: Tutor/Profesional ve el progreso
+GET {{baseUrl}}/api/progress/patient/{{pacienteId}}
+Authorization: Bearer {{token}}
+
+### Paso 4: Ver evolución en el tiempo
+GET {{baseUrl}}/api/progress/evolucion/{{pacienteId}}/{{juegoId}}?dias=7
+Authorization: Bearer {{token}}
+
+### ======================================================
+### PASO 1: Obtener juegos del paciente con su token
+GET {{baseUrl}}/api/assignments/token/{{accessToken}}/games
+
+### Respuesta: Copia el asignacionId
+
+### PASO 2: Guardar una sesión de juego
+POST {{baseUrl}}/api/progress
+Content-Type: application/json
+
+{
+    "token": "{{accessToken}}",
+    "asignacionId": "PEGA_AQUI_EL_ASSIGNMENT_ID",
+    "puntuacion": 85,
+    "tiempoJugado": 180,
+    "rondasCompletadas": 10,
+    "rondasTotales": 10,
+    "aciertos": 9,
+    "errores": 1,
+    "completado": true,
+    "datosJuego": {
+        "nivel": "medio",
+        "animalesCorrectos": ["perro", "gato", "vaca"]
+    },
+    "dispositivo": "web"
 }

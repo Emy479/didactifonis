@@ -339,14 +339,83 @@ const validarJuego = [
   validarCampos,
 ];
 
+/**
+ * Validar datos de progreso
+ */
+const validarProgreso = [
+  body("token")
+    .trim()
+    .notEmpty()
+    .withMessage("El token del paciente es obligatorio"),
+
+  body("asignacionId")
+    .trim()
+    .notEmpty()
+    .withMessage("El ID de la asignación es obligatorio")
+    .isMongoId()
+    .withMessage("ID de asignación inválido"),
+
+  body("puntuacion")
+    .notEmpty()
+    .withMessage("La puntuación es obligatoria")
+    .isNumeric()
+    .withMessage("La puntuación debe ser un número")
+    .isFloat({ min: 0 })
+    .withMessage("La puntuación no puede ser negativa"),
+
+  body("tiempoJugado")
+    .notEmpty()
+    .withMessage("El tiempo jugado es obligatorio")
+    .isNumeric()
+    .withMessage("El tiempo debe ser un número")
+    .isFloat({ min: 0 })
+    .withMessage("El tiempo no puede ser negativo"),
+
+  body("rondasCompletadas")
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage("Las rondas completadas deben ser un número entero positivo"),
+
+  body("rondasTotales")
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage("Las rondas totales deben ser al menos 1"),
+
+  body("aciertos")
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage("Los aciertos deben ser un número entero positivo"),
+
+  body("errores")
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage("Los errores deben ser un número entero positivo"),
+
+  body("completado")
+    .optional()
+    .isBoolean()
+    .withMessage("Completado debe ser true o false"),
+
+  body("datosJuego")
+    .optional()
+    .isObject()
+    .withMessage("Los datos del juego deben ser un objeto"),
+
+  body("dispositivo")
+    .optional()
+    .isIn(["web", "mobile", "tablet", "desktop"])
+    .withMessage("Dispositivo debe ser: web, mobile, tablet o desktop"),
+];
+
 // ============================================
 // EXPORTAR (ACTUALIZAR)
 // ============================================
 module.exports = {
   validarRegistro,
   validarLogin,
-  validarCampos,
   validarPaciente,
-  validarAsignacion,
   validarJuego,
+  validarAsignacion,
+  validarProgreso,
+  validarCampos,
 };

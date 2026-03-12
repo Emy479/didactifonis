@@ -34,6 +34,7 @@ const authRoutes = require("./src/routes/authRoutes");
 const patientsRoutes = require("./src/routes/patientsRoutes");
 const assignmentsRoutes = require("./src/routes/assignmentsRoutes");
 const gamesRoutes = require("./src/routes/gamesRoutes");
+const progressRoutes = require("./src/routes/progressRoutes");
 
 // ============================================
 // CREAR APLICACIÓN EXPRESS
@@ -84,11 +85,12 @@ app.get("/health", (req, res) => {
 // ============================================
 // MONTAR RUTAS DE RECURSOS
 // ============================================
-app.use("/api/tareas", tareasRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/patients", patientsRoutes);
-app.use("/api/assignments", assignmentsRoutes);
+app.use("/api/tareas", tareasRoutes);
 app.use("/api/games", gamesRoutes);
+app.use("/api/assignments", assignmentsRoutes);
+app.use("/api/progress", progressRoutes);
 
 // Aquí montaremos más rutas después:
 // app.use('/api/users', usersRoutes);
