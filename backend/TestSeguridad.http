@@ -1,0 +1,76 @@
+### VARIABLES GLOBALES
+@baseUrl = http://localhost:3000
+
+### TOKENS (se actualizan en cada paso)
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWIxZGUxY2ExN2UyZGY3YWMxZGNjYWYiLCJlbWFpbCI6Im1hcmlhLnRlc3RAZWplbXBsby5jb20iLCJyb2xlIjoidHV0b3IiLCJpYXQiOjE3NzMyODU2NTUsImV4cCI6MTc3Mzg5MDQ1NX0.7892Ww_zXggf0LQjQ_BTf_w1VhWo2Stuwqx0xiy0Lj0
+@tokenTutor = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWIxZGUxY2ExN2UyZGY3YWMxZGNjYWYiLCJlbWFpbCI6Im1hcmlhLnRlc3RAZWplbXBsby5jb20iLCJyb2xlIjoidHV0b3IiLCJpYXQiOjE3NzMyNjQ3OTAsImV4cCI6MTc3Mzg2OTU5MH0.3EXZnhFEnHyboPHtRO2kNSCRn6o8wHWWqr9GiEooago
+@tokenProfesional = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWIxZTBhNWExN2UyZGY3YWMxZGNjYmEiLCJlbWFpbCI6ImNhcmxvcy50ZXN0QGVqZW1wbG8uY29tIiwicm9sZSI6InByb2Zlc2lvbmFsIiwiaWF0IjoxNzczMjY1MDg3LCJleHAiOjE3NzM4Njk4ODd9.WP0Y-WhjsDTdBxjEdqinMt1j-b2gf5NX_xaQj4lCJEU
+@accessTokenPaciente = 732fed27170e299a50f60661deaccfb0ec12ede17bddf8c750369da713df4d9d
+
+### IDS (se actualizan en cada paso)
+@tutorId = 69b1de1ca17e2df7ac1dccaf
+@profesionalId = 69b1e0a5a17e2df7ac1dccba
+@pacienteId = 69b1dfbca17e2df7ac1dccb5
+@juegoId = 69b1e162a17e2df7ac1dccc7
+@asignacionId = 69b1e17fa17e2df7ac1dcccd
+
+### IDS PROFESIONAL SIN TUTOR (se actualizan en cada paso)
+@pacienteIdEmma = 69b1ebf236437b7a21a2c91e
+@accessTokenEmma = dde636a402aa0d3d55e2ae2041a68f57cccec146cafa163ace77117ca9756721
+@juegoIdMemoria = 69b1ec4936437b7a21a2c925
+@asignacionIdEmma = 69b1ec9136437b7a21a2c92b
+@asignacionIdMateoMemoria = 69b1ed8b36437b7a21a2c94d
+
+### TEST 1: HEALTH CHECK
+GET {{baseUrl}}/health
+
+### TEST 2: RATE LIMITING EN LOGIN
+### Vamos a probar que el rate limiting funciona. Ejecuta esta petición 6 veces seguidas:
+### INTENTO 1-5 (deberían fallar normalmente)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "usuario.inexistente@ejemplo.com",
+    "password": "incorrecta"
+}
+
+### TEST 3: SANITIZACIÓN NoSQL
+### Intenta un ataque de inyección NoSQL:
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+    "email": { "$gt": "" },
+    "password": { "$gt": "" }
+}
+
+### TEST 4: ENDPOINTS NORMALES SIGUEN FUNCIONANDO
+### Verifica que los endpoints existentes siguen funcionando:
+### Login normal (debería funcionar después de esperar o reiniciar servidor)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "maria.test@ejemplo.com",
+    "password": "password123"
+}
+
+### Obtener pacientes
+GET {{baseUrl}}/api/patients
+Authorization: Bearer {{token}}
+
+### Guardar progreso
+POST {{baseUrl}}/api/progress
+Content-Type: application/json
+
+{
+    "token": "{{accessTokenPaciente}}",
+    "asignacionId": "{{asignacionId}}",
+    "puntuacion": 95,
+    "tiempoJugado": 140,
+    "completado": true
+}
+
+### TEST 5: RUTA 404
+GET {{baseUrl}}/api/ruta-que-no-existe
