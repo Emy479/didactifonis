@@ -88,11 +88,24 @@ const crear = async (req, res) => {
       });
     }
 
+    // Determinar origen
+    let origen = "tutor";
+    if (req.user.role === "profesional") {
+      // Verificar si es profesional asignado al paciente
+      const esProfAsignado = paciente.profesionalesAsignados.some(
+        (prof) => prof.toString() === req.user.userId,
+      );
+      if (esProfAsignado) {
+        origen = "profesional";
+      }
+    }
+
     // Crear asignación
     const nuevaAsignacion = new Assignment({
       paciente: pacienteId,
       juego: juegoId,
       asignadoPor: req.user.userId,
+      origen,
       configuracion: configuracion || {},
       objetivosPersonalizados,
       notas,
@@ -531,6 +544,7 @@ const obtenerJuegosPorToken = async (req, res) => {
       asignacionId: a._id,
       juego: a.juego.getDatosPublicos(),
       configuracion: a.configuracion,
+      origen: a.origen || "tutor",
       estadisticas: {
         vecesJugado: a.estadisticas.vecesJugado,
         mejorPuntuacion: a.estadisticas.mejorPuntuacion,

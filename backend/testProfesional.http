@@ -86,6 +86,22 @@ Content-Type: application/json
 ### 2.4 - EMMA OBTIENE SUS JUEGOS
 GET {{baseUrl}}/api/assignments/token/{{accessTokenEmma}}/games
 
+### Como María (tutor) asigna un juego a Mateo
+POST {{baseUrl}}/api/assignments
+Authorization: Bearer {{tokenTutor}}
+Content-Type: application/json
+
+{
+    "pacienteId": "{{pacienteId}}",
+    "juegoId": "{{juegoIdMemoria}}",
+    "configuracion": {
+        "nivelDificultad": "basico"
+    },
+    "notas": "Juego extra para practicar en casa"
+}
+### MATEO OBTIENE SUS JUEGOS
+GET {{baseUrl}}/api/assignments/token/{{accessTokenPaciente}}/games
+
 ### 2.5 - EMMA ENVÍA PROGRESO
 POST {{baseUrl}}/api/progress
 Content-Type: application/json

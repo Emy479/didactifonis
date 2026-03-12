@@ -31,6 +31,12 @@ const assignmentSchema = new mongoose.Schema(
       required: [true, "El usuario que asigna es obligatorio"],
     },
 
+    origen: {
+      type: String,
+      enum: ["profesional", "tutor"],
+      required: true,
+    },
+
     // Configuración personalizada para este paciente
     configuracion: {
       nivelDificultad: {
