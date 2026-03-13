@@ -56,9 +56,13 @@ const userSchema = new mongoose.Schema(
     especialidad: {
       type: String,
       enum: [
-        "fonoaudiología",
-        "psicopedagogía",
-        "educación_diferencial",
+        "fonoaudiologia",
+        "psicopedagogia",
+        "educacion_especial",
+        "terapia_lenguaje",
+        "audiologia",
+        "neuropsicologia",
+        "psicologia",
         "otro",
       ],
       required: function () {

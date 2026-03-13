@@ -60,18 +60,25 @@ const validarRegistro = [
     .matches(/^[0-9]{9,15}$/)
     .withMessage("Teléfono inválido"),
 
-  // Validaciones condicionales para profesionales
+  // Especialidad opcional (sin validación estricta)
   body("especialidad")
     .if(body("role").equals("profesional"))
     .notEmpty()
     .withMessage("La especialidad es obligatoria para profesionales")
-    .isIn(["fonoaudiología", "psicopedagogía", "educación_diferencial", "otro"])
+    .isIn([
+      "fonoaudiologia",
+      "psicopedagogia",
+      "educacion_especial",
+      "terapia_lenguaje",
+      "audiologia",
+      "neuropsicologia",
+      "psicologia",
+      "otro",
+    ])
     .withMessage("Especialidad inválida"),
 
-  body("numeroRegistro")
-    .if(body("role").equals("profesional"))
-    .notEmpty()
-    .withMessage("El número de registro es obligatorio para profesionales"),
+  // Número de registro opcional
+  body("numeroRegistro").optional().trim().isString(),
 
   validarCampos,
 ];
