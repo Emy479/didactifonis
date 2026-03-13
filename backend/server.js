@@ -27,6 +27,7 @@ const tareasRoutes = require("./src/routes/tareasRoutes");
 const gamesRoutes = require("./src/routes/gamesRoutes");
 const assignmentsRoutes = require("./src/routes/assignmentsRoutes");
 const progressRoutes = require("./src/routes/progressRoutes");
+const suggestionsRoutes = require("./src/routes/suggestionsRoutes");
 
 // ============================================
 // CREAR APLICACIÓN EXPRESS
@@ -88,8 +89,8 @@ app.use("/api/tareas", tareasRoutes);
 app.use("/api/games", gamesRoutes);
 app.use("/api/assignments", assignmentsRoutes);
 app.use("/api/progress", progressRoutes);
+app.use("/api/suggestions", suggestionsRoutes);
 
-// Ruta 404
 // Ruta 404
 app.use((req, res) => {
   res.status(404).json({

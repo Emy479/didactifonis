@@ -13,6 +13,8 @@ import Register from "../pages/auth/Register";
 // Dashboards
 import TutorDashboard from "../pages/tutor/TutorDashboard";
 import ProfesionalDashboard from "../pages/profesional/ProfesionalDashboard";
+import SuggestGame from "../pages/profesional/SuggestGame";
+import SuggestionsList from "../pages/profesional/SuggestionsList";
 
 // Componentes de protección
 import ProtectedRoute from "./ProtectedRoute";
@@ -60,6 +62,23 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute allowedRoles={["profesional"]}>
             <ProfesionalDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profesional/sugerir-juego"
+        element={
+          <ProtectedRoute allowedRoles={["profesional"]}>
+            <SuggestGame />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/profesional/sugerencias"
+        element={
+          <ProtectedRoute allowedRoles={["profesional"]}>
+            <SuggestionsList />
           </ProtectedRoute>
         }
       />

@@ -415,6 +415,56 @@ const validarProgreso = [
 ];
 
 // ============================================
+// Validación para crear sugerencia de juego
+// ============================================
+const validarSugerencia = [
+  body("titulo")
+    .trim()
+    .notEmpty()
+    .withMessage("El título es obligatorio")
+    .isLength({ max: 100 })
+    .withMessage("El título no puede exceder 100 caracteres"),
+
+  body("descripcion")
+    .trim()
+    .notEmpty()
+    .withMessage("La descripción es obligatoria")
+    .isLength({ max: 1000 })
+    .withMessage("La descripción no puede exceder 1000 caracteres"),
+
+  body("areaTerapeutica")
+    .notEmpty()
+    .withMessage("El área terapéutica es obligatoria")
+    .isIn([
+      "fonologia",
+      "semantica",
+      "sintaxis",
+      "pragmatica",
+      "habla",
+      "lenguaje",
+      "general",
+    ])
+    .withMessage("Área terapéutica inválida"),
+
+  body("rangoEdadSugerido.min")
+    .optional()
+    .isInt({ min: 2, max: 18 })
+    .withMessage("La edad mínima debe estar entre 2 y 18 años"),
+
+  body("rangoEdadSugerido.max")
+    .optional()
+    .isInt({ min: 2, max: 18 })
+    .withMessage("La edad máxima debe estar entre 2 y 18 años"),
+
+  body("objetivos")
+    .optional()
+    .isArray()
+    .withMessage("Los objetivos deben ser un array"),
+
+  validarCampos,
+];
+
+// ============================================
 // EXPORTAR (ACTUALIZAR)
 // ============================================
 module.exports = {
@@ -425,4 +475,5 @@ module.exports = {
   validarAsignacion,
   validarProgreso,
   validarCampos,
+  validarSugerencia,
 };

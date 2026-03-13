@@ -88,23 +88,14 @@ const verificarToken = async (req, res, next) => {
  * Middleware que verifica que el usuario tenga uno de los roles permitidos
  * @param  {...string} rolesPermitidos - Lista de roles permitidos
  */
-const verificarRol = (...rolesPermitidos) => {
+const verificarRol = (rolesPermitidos) => {
   return (req, res, next) => {
-    // Este middleware debe usarse DESPUÉS de verificarToken
-    if (!req.user) {
-      return res.status(401).json({
-        success: false,
-        error: "No autorizado",
-      });
-    }
-
     if (!rolesPermitidos.includes(req.user.role)) {
       return res.status(403).json({
         success: false,
-        error: `Acceso denegado. Se requiere rol: ${rolesPermitidos.join(" o ")}`,
+        error: `Acceso denegado. Se requiere rol: ${rolesPermitidos.join(",")}`,
       });
     }
-
     next();
   };
 };
