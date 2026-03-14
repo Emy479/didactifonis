@@ -228,6 +228,43 @@ const obtenerTodos = async (req, res) => {
   }
 };
 
+const obtenerMisPacientes = async (req, res) => {
+  try {
+    const { userId, role } = req.user;
+
+    let query = { activo: true }; // Solo pacientes activos
+
+    if (role === "tutor") {
+      query.tutor = userId;
+    } else if (role === "profesional") {
+      query.profesionalesAsignados = userId; // ← IMPORTANTE: usar profesionalesAsignados
+    } else {
+      return res.status(403).json({
+        success: false,
+        error: "Rol no autorizado",
+      });
+    }
+
+    const pacientes = await Patient.find(query)
+      .populate("tutor", "nombre email")
+      .populate("profesionalesAsignados", "nombre email especialidad")
+      .populate("creadoPor", "nombre email")
+      .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      count: pacientes.length,
+      data: pacientes.map((p) => p.getDatosCompletos()),
+    });
+  } catch (error) {
+    console.error("Error al obtener mis pacientes:", error);
+    res.status(500).json({
+      success: false,
+      error: "Error al obtener pacientes",
+    });
+  }
+};
+
 // ============================================
 // OBTENER PACIENTE POR ID
 // ============================================
@@ -690,6 +727,7 @@ const obtenerEstadisticas = async (req, res) => {
 // ============================================
 module.exports = {
   crear,
+  obtenerMisPacientes,
   obtenerTodos,
   obtenerPorId,
   actualizar,

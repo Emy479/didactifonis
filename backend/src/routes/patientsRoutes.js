@@ -7,6 +7,7 @@ const router = express.Router();
 const patientsController = require("../controllers/patientsController");
 const { validarPaciente } = require("../middleware/validators");
 const { verificarToken } = require("../middleware/auth");
+const { verificarRole } = require("../middleware/auth");
 
 // ============================================
 // RUTA PÚBLICA (Sin autenticación)
@@ -56,6 +57,18 @@ router.post("/", validarPaciente, patientsController.crear);
 // ============================================
 // RUTAS CON PARÁMETROS
 // ============================================
+
+/**
+ * @route   GET /api/patients/mis-pacientes
+ * @desc    Obtener mis pacientes
+ * @access  Tutor, Profesional
+ */
+router.get(
+  "/mis-pacientes", // ← IMPORTANTE: Sin :id
+  verificarToken,
+  verificarRole(["tutor", "profesional"]),
+  patientsController.obtenerMisPacientes,
+);
 
 /**
  * @route   GET /api/patients/:id

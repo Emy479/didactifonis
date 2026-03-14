@@ -2,11 +2,14 @@
  * Rutas de Sugerencias de Juegos
  */
 
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const suggestionsController = require('../controllers/suggestionsController');
-const { verificarToken, verificarRol } = require('../middleware/auth');
-const { validarSugerencia, validarCampos } = require('../middleware/validators');
+const suggestionsController = require("../controllers/suggestionsController");
+const { verificarToken, verificarRole } = require("../middleware/auth");
+const {
+  validarSugerencia,
+  validarCampos,
+} = require("../middleware/validators");
 
 // Todas las rutas requieren autenticación
 router.use(verificarToken);
@@ -17,11 +20,11 @@ router.use(verificarToken);
  * @access  Profesional, Admin
  */
 router.post(
-  '/',
-  verificarRol(['profesional', 'admin']),
+  "/",
+  verificarRole(["profesional", "admin"]),
   validarSugerencia,
   validarCampos,
-  suggestionsController.crear
+  suggestionsController.crear,
 );
 
 /**
@@ -30,9 +33,9 @@ router.post(
  * @access  Profesional, Admin
  */
 router.get(
-  '/',
-  verificarRol(['profesional', 'admin']),
-  suggestionsController.obtenerTodas
+  "/",
+  verificarRole(["profesional", "admin"]),
+  suggestionsController.obtenerTodas,
 );
 
 /**
@@ -41,9 +44,9 @@ router.get(
  * @access  Profesional
  */
 router.get(
-  '/mis-sugerencias',
-  verificarRol(['profesional', 'admin']),
-  suggestionsController.obtenerMisSugerencias
+  "/mis-sugerencias",
+  verificarRole(["profesional", "admin"]),
+  suggestionsController.obtenerMisSugerencias,
 );
 
 /**
@@ -52,9 +55,9 @@ router.get(
  * @access  Admin
  */
 router.get(
-  '/estadisticas',
-  verificarRol(['admin']),
-  suggestionsController.obtenerEstadisticas
+  "/estadisticas",
+  verificarRole(["admin"]),
+  suggestionsController.obtenerEstadisticas,
 );
 
 /**
@@ -63,9 +66,9 @@ router.get(
  * @access  Profesional, Admin
  */
 router.get(
-  '/:id',
-  verificarRol(['profesional', 'admin']),
-  suggestionsController.obtenerPorId
+  "/:id",
+  verificarRole(["profesional", "admin"]),
+  suggestionsController.obtenerPorId,
 );
 
 /**
@@ -74,9 +77,9 @@ router.get(
  * @access  Profesional
  */
 router.post(
-  '/:id/votar',
-  verificarRol(['profesional', 'admin']),
-  suggestionsController.votar
+  "/:id/votar",
+  verificarRole(["profesional", "admin"]),
+  suggestionsController.votar,
 );
 
 /**
@@ -85,9 +88,9 @@ router.post(
  * @access  Profesional
  */
 router.delete(
-  '/:id/votar',
-  verificarRol(['profesional', 'admin']),
-  suggestionsController.quitarVoto
+  "/:id/votar",
+  verificarRole(["profesional", "admin"]),
+  suggestionsController.quitarVoto,
 );
 
 /**
@@ -96,9 +99,9 @@ router.delete(
  * @access  Admin
  */
 router.put(
-  '/:id/estado',
-  verificarRol(['admin']),
-  suggestionsController.cambiarEstado
+  "/:id/estado",
+  verificarRole(["admin"]),
+  suggestionsController.cambiarEstado,
 );
 
 /**
@@ -106,9 +109,6 @@ router.put(
  * @desc    Eliminar sugerencia
  * @access  Creador, Admin
  */
-router.delete(
-  '/:id',
-  suggestionsController.eliminar
-);
+router.delete("/:id", suggestionsController.eliminar);
 
 module.exports = router;

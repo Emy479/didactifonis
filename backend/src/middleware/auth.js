@@ -88,17 +88,14 @@ const verificarToken = async (req, res, next) => {
  * Middleware que verifica que el usuario tenga uno de los roles permitidos
  * @param  {...string} rolesPermitidos - Lista de roles permitidos
  */
-const verificarRol = (rolesPermitidos) => {
-  return (req, res, next) => {
+function verificarRole(rolesPermitidos) {
+  return function (req, res, next) {
     if (!rolesPermitidos.includes(req.user.role)) {
-      return res.status(403).json({
-        success: false,
-        error: `Acceso denegado. Se requiere rol: ${rolesPermitidos.join(",")}`,
-      });
+      return res.status(403).json({ error: "Acceso no autorizado" });
     }
     next();
   };
-};
+}
 
 // ============================================
 // VERIFICAR QUE SEA PROFESIONAL VERIFICADO
@@ -175,7 +172,7 @@ const tokenOpcional = async (req, res, next) => {
 // ============================================
 module.exports = {
   verificarToken,
-  verificarRol,
+  verificarRole,
   verificarProfesionalVerificado,
   tokenOpcional,
 };

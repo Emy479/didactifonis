@@ -116,14 +116,6 @@ const ProfesionalDashboard = () => {
             </p>
             <div className="flex gap-3">
               <Button
-                variant="primary"
-                onClick={() => navigate("/profesional/crear-juego")}
-                className="flex-1"
-              >
-                <Gamepad2 className="h-4 w-4 mr-2" />
-                Crear Juego
-              </Button>
-              <Button
                 variant="outline"
                 onClick={() => navigate("/profesional/juegos")}
                 className="flex-1"

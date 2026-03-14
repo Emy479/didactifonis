@@ -16,6 +16,10 @@ import ProfesionalDashboard from "../pages/profesional/ProfesionalDashboard";
 import SuggestGame from "../pages/profesional/SuggestGame";
 import SuggestionsList from "../pages/profesional/SuggestionsList";
 
+// Imports
+import CreatePatient from "../pages/shared/CreatePatient";
+import PatientsList from "../pages/shared/PatientsList";
+
 // Componentes de protección
 import ProtectedRoute from "./ProtectedRoute";
 
@@ -41,11 +45,9 @@ const AppRoutes = () => {
           )
         }
       />
-
       {/* Rutas públicas (auth) */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-
       {/* Rutas protegidas - Tutor */}
       <Route
         path="/tutor/dashboard"
@@ -55,7 +57,23 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
-
+      {/* Rutas TUTOR Pacientes */}
+      <Route
+        path="/tutor/pacientes"
+        element={
+          <ProtectedRoute allowedRoles={["tutor"]}>
+            <PatientsList />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/tutor/crear-paciente"
+        element={
+          <ProtectedRoute allowedRoles={["tutor"]}>
+            <CreatePatient />
+          </ProtectedRoute>
+        }
+      />
       {/* Rutas protegidas - Profesional */}
       <Route
         path="/profesional/dashboard"
@@ -73,12 +91,28 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
-
       <Route
         path="/profesional/sugerencias"
         element={
           <ProtectedRoute allowedRoles={["profesional"]}>
             <SuggestionsList />
+          </ProtectedRoute>
+        }
+      />
+      {/* Rutas PROFESIONAL Pacientes */}
+      <Route
+        path="/profesional/pacientes"
+        element={
+          <ProtectedRoute allowedRoles={["profesional"]}>
+            <PatientsList />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profesional/crear-paciente"
+        element={
+          <ProtectedRoute allowedRoles={["profesional"]}>
+            <CreatePatient />
           </ProtectedRoute>
         }
       />

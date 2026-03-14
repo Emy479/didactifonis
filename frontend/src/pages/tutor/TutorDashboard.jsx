@@ -3,15 +3,15 @@
  * Vista principal para padres/tutores
  */
 
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
-import DashboardLayout from '../../components/layout/DashboardLayout';
-import StatsCard from '../../components/common/StatsCard';
-import Button from '../../components/common/Button';
-import Card from '../../components/common/Card';
-import Spinner from '../../components/common/Spinner';
-import { Users, Gamepad2, TrendingUp, UserPlus } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import DashboardLayout from "../../components/layout/DashboardLayout";
+import StatsCard from "../../components/common/StatsCard";
+import Button from "../../components/common/Button";
+import Card from "../../components/common/Card";
+import Spinner from "../../components/common/Spinner";
+import { Users, Gamepad2, TrendingUp, UserPlus } from "lucide-react";
 
 const TutorDashboard = () => {
   const { user } = useAuth();
@@ -53,9 +53,7 @@ const TutorDashboard = () => {
         <h1 className="text-3xl font-bold text-gray-900">
           ¡Hola, {user?.nombre}! 👋
         </h1>
-        <p className="text-gray-600 mt-2">
-          Bienvenido a tu dashboard familiar
-        </p>
+        <p className="text-gray-600 mt-2">Bienvenido a tu dashboard familiar</p>
       </div>
 
       {/* Stats */}
@@ -86,11 +84,12 @@ const TutorDashboard = () => {
         <Card title="Mis Hijos" subtitle="Administra a tus hijos">
           <div className="space-y-4">
             <p className="text-gray-600 text-sm">
-              Aún no has agregado ningún hijo. Comienza creando un perfil para tu hijo/a.
+              Aún no has agregado ningún hijo. Comienza creando un perfil para
+              tu hijo/a.
             </p>
             <Button
               variant="primary"
-              onClick={() => navigate('/tutor/crear-paciente')}
+              onClick={() => navigate("/tutor/crear-paciente")}
               className="w-full"
             >
               + Agregar Hijo
@@ -106,7 +105,7 @@ const TutorDashboard = () => {
             </p>
             <Button
               variant="outline"
-              onClick={() => navigate('/tutor/juegos')}
+              onClick={() => navigate("/tutor/juegos")}
               className="w-full"
             >
               <Gamepad2 className="h-4 w-4 mr-2" />
@@ -124,8 +123,12 @@ const TutorDashboard = () => {
               1
             </div>
             <div>
-              <p className="font-medium text-gray-900">Crea un perfil para tu hijo/a</p>
-              <p className="text-sm text-gray-600">Agrega información básica y edad</p>
+              <p className="font-medium text-gray-900">
+                Crea un perfil para tu hijo/a
+              </p>
+              <p className="text-sm text-gray-600">
+                Agrega información básica y edad
+              </p>
             </div>
           </div>
 
@@ -134,8 +137,12 @@ const TutorDashboard = () => {
               2
             </div>
             <div>
-              <p className="font-medium text-gray-900">Asigna un profesional (opcional)</p>
-              <p className="text-sm text-gray-600">Conecta con un fonoaudiólogo verificado</p>
+              <p className="font-medium text-gray-900">
+                Asigna un profesional (opcional)
+              </p>
+              <p className="text-sm text-gray-600">
+                Conecta con un fonoaudiólogo verificado
+              </p>
             </div>
           </div>
 
@@ -145,7 +152,9 @@ const TutorDashboard = () => {
             </div>
             <div>
               <p className="font-medium text-gray-900">Selecciona juegos</p>
-              <p className="text-sm text-gray-600">Elige juegos apropiados para la edad de tu hijo/a</p>
+              <p className="text-sm text-gray-600">
+                Elige juegos apropiados para la edad de tu hijo/a
+              </p>
             </div>
           </div>
         </div>
