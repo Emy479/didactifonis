@@ -3,38 +3,54 @@
  * Menú lateral de navegación
  */
 
-import { NavLink } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
-import { 
-  LayoutDashboard, 
-  Users, 
-  Gamepad2, 
-  BarChart3, 
+import { NavLink } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import {
+  LayoutDashboard,
+  Users,
+  Gamepad2,
+  BarChart3,
   UserPlus,
-  X 
-} from 'lucide-react';
+  X,
+} from "lucide-react";
 
 const Sidebar = ({ isOpen, onClose }) => {
   const { user } = useAuth();
 
   // Menú para tutores
   const tutorMenu = [
-    { name: 'Dashboard', icon: LayoutDashboard, path: '/tutor/dashboard' },
-    { name: 'Mis Hijos', icon: Users, path: '/tutor/pacientes' },
-    { name: 'Juegos', icon: Gamepad2, path: '/tutor/juegos' },
-    { name: 'Progreso', icon: BarChart3, path: '/tutor/progreso' },
+    { name: "Dashboard", icon: LayoutDashboard, path: "/tutor/dashboard" },
+    { name: "Mis Hijos", icon: Users, path: "/tutor/pacientes" },
+    { name: "Biblioteca de Juegos", icon: Gamepad2, path: "/tutor/biblioteca" },
+    { name: "Progreso", icon: BarChart3, path: "/tutor/progreso" },
   ];
 
   // Menú para profesionales
   const profesionalMenu = [
-    { name: 'Dashboard', icon: LayoutDashboard, path: '/profesional/dashboard' },
-    { name: 'Mis Pacientes', icon: Users, path: '/profesional/pacientes' },
-    { name: 'Crear Paciente', icon: UserPlus, path: '/profesional/crear-paciente' },
-    { name: 'Mis Juegos', icon: Gamepad2, path: '/profesional/juegos' },
-    { name: 'Estadísticas', icon: BarChart3, path: '/profesional/estadisticas' },
+    {
+      name: "Dashboard",
+      icon: LayoutDashboard,
+      path: "/profesional/dashboard",
+    },
+    { name: "Mis Pacientes", icon: Users, path: "/profesional/pacientes" },
+    {
+      name: "Crear Paciente",
+      icon: UserPlus,
+      path: "/profesional/crear-paciente",
+    },
+    {
+      name: "Biblioteca de Juegos",
+      icon: Gamepad2,
+      path: "/profesional/biblioteca",
+    },
+    {
+      name: "Estadísticas",
+      icon: BarChart3,
+      path: "/profesional/estadisticas",
+    },
   ];
 
-  const menuItems = user?.role === 'tutor' ? tutorMenu : profesionalMenu;
+  const menuItems = user?.role === "tutor" ? tutorMenu : profesionalMenu;
 
   return (
     <>
@@ -52,7 +68,7 @@ const Sidebar = ({ isOpen, onClose }) => {
           fixed lg:static inset-y-0 left-0 z-30
           w-64 bg-white border-r border-gray-200
           transform transition-transform duration-300 ease-in-out
-          ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         `}
       >
         <div className="h-full flex flex-col">
@@ -82,8 +98,8 @@ const Sidebar = ({ isOpen, onClose }) => {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                     isActive
-                      ? 'bg-blue-50 text-blue-600'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      ? "bg-blue-50 text-blue-600"
+                      : "text-gray-700 hover:bg-gray-100"
                   }`
                 }
               >
