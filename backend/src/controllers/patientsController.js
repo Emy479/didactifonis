@@ -446,11 +446,16 @@ const eliminar = async (req, res) => {
       });
     }
 
-    // Solo el tutor puede eliminar
-    if (paciente.tutor.toString() !== req.user.userId) {
+    // Tutor, creador o admin pueden eliminar
+    const esTutor =
+      paciente.tutor && paciente.tutor.toString() === req.user.userId;
+    const esCreador =
+      paciente.creadoPor && paciente.creadoPor.toString() === req.user.userId;
+
+    if (!esTutor && !esCreador && req.user.role !== "admin") {
       return res.status(403).json({
         success: false,
-        error: "Solo el tutor puede eliminar este paciente",
+        error: "No tienes permiso para eliminar este paciente",
       });
     }
 

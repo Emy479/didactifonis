@@ -9,7 +9,7 @@ import { useAuth } from "../../hooks/useAuth";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import Spinner from "../../components/common/Spinner";
 import Alert from "../../components/common/Alert";
-import { obtenerPaciente } from "../../api/patients";
+import { obtenerPaciente, eliminarPaciente } from "../../api/patients";
 import {
   obtenerAsignacionesPaciente,
   desactivarAsignacion,
@@ -23,6 +23,7 @@ import {
   Gamepad2,
   Users,
   UserCog,
+  Trash2,
 } from "lucide-react";
 
 const AREAS_LABEL = {
@@ -44,6 +45,7 @@ const PatientDetail = () => {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
   const [eliminando, setEliminando] = useState(null);
+  const [confirmarEliminar, setConfirmarEliminar] = useState(false);
 
   // ── Cargar datos del paciente y sus asignaciones ──────────────────────────
   const cargarDatos = useCallback(async () => {
@@ -89,6 +91,17 @@ const PatientDetail = () => {
     const m = hoy.getMonth() - nac.getMonth();
     if (m < 0 || (m === 0 && hoy.getDate() < nac.getDate())) edad--;
     return edad;
+  };
+
+  // ── Eliminar paciente ─────────────────────────────────────────────────────
+  const handleEliminar = async () => {
+    try {
+      await eliminarPaciente(id);
+      navigate(rutaRegreso);
+    } catch (err) {
+      setError(err.response?.data?.error || "Error al eliminar paciente");
+      setConfirmarEliminar(false);
+    }
   };
 
   // ── Ruta de regreso según rol ─────────────────────────────────────────────
@@ -193,6 +206,15 @@ const PatientDetail = () => {
                   >
                     <UserCog className="h-4 w-4" />
                     Editar
+                  </button>
+
+                  {/* Botón eliminar */}
+                  <button
+                    onClick={() => setConfirmarEliminar(true)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors bg-red-50 text-red-600 hover:bg-red-100"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Eliminar
                   </button>
                 </div>
               </div>
@@ -340,6 +362,43 @@ const PatientDetail = () => {
             </div>
           )}
         </div>
+        {/* Modal de confirmación */}
+        {confirmarEliminar && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+          >
+            <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                  <Trash2 className="h-5 w-5 text-red-600" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">
+                  ¿Eliminar paciente?
+                </h3>
+              </div>
+              <p className="text-sm text-gray-600 mb-6">
+                Esta acción desactivará el perfil de{" "}
+                <span className="font-semibold">{nombreCompleto}</span>. No se
+                eliminarán sus datos históricos.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setConfirmarEliminar(false)}
+                  className="flex-1 py-2.5 rounded-xl text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleEliminar}
+                  className="flex-1 py-2.5 rounded-xl text-sm font-medium bg-red-600 text-white hover:bg-red-700 transition-colors"
+                >
+                  Sí, eliminar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );
