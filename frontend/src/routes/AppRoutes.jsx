@@ -22,6 +22,7 @@ import PatientsList from "../pages/shared/PatientsList";
 import BibliotecaPage from "../pages/shared/BibliotecaPage";
 import PatientDetail from "../pages/shared/PatientDetail";
 import EditPatient from "../pages/shared/EditPatient";
+import EstadisticasLog from "../pages/shared/EstadisticasLog";
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import GestionJuegos from "../pages/admin/GestionJuegos";
 import GestionSugerencias from "../pages/admin/GestionSugerencias";
@@ -139,6 +140,23 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute allowedRoles={["tutor", "profesional"]}>
             <EditPatient />
+          </ProtectedRoute>
+        }
+      />
+      {/* Estadísticas / Log de seguimiento */}
+      <Route
+        path="/tutor/estadisticas"
+        element={
+          <ProtectedRoute allowedRoles={["tutor"]}>
+            <EstadisticasLog />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profesional/estadisticas"
+        element={
+          <ProtectedRoute allowedRoles={["profesional"]}>
+            <EstadisticasLog />
           </ProtectedRoute>
         }
       />
