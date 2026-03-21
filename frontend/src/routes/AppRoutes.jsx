@@ -20,6 +20,7 @@ import SuggestionsList from "../pages/profesional/SuggestionsList";
 import CreatePatient from "../pages/shared/CreatePatient";
 import PatientsList from "../pages/shared/PatientsList";
 import BibliotecaPage from "../pages/shared/BibliotecaPage";
+import PatientDetail from "../pages/shared/PatientDetail";
 
 // Componentes de protección
 import ProtectedRoute from "./ProtectedRoute";
@@ -117,7 +118,15 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
-
+      {/* Detalle de Paciente - accesible para ambos roles */}
+      <Route
+        path="/pacientes/:id"
+        element={
+          <ProtectedRoute allowedRoles={["tutor", "profesional"]}>
+            <PatientDetail />
+          </ProtectedRoute>
+        }
+      />
       {/* Biblioteca de Juegos - accesible para ambos roles */}
       <Route
         path="/tutor/biblioteca"
