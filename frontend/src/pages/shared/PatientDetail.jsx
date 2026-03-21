@@ -22,6 +22,7 @@ import {
   Brain,
   Gamepad2,
   Users,
+  UserCog,
 } from "lucide-react";
 
 const AREAS_LABEL = {
@@ -171,18 +172,29 @@ const PatientDetail = () => {
                   </div>
                 </div>
 
-                {/* Badge tipo cuenta */}
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                    paciente.tipoCuenta === "familiar"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-blue-100 text-blue-700"
-                  }`}
-                >
-                  {paciente.tipoCuenta === "familiar"
-                    ? "Plan Familiar"
-                    : "Plan Profesional"}
-                </span>
+                <div className="flex items-center gap-3">
+                  {/* Badge tipo cuenta */}
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                      paciente.tipoCuenta === "familiar"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-blue-100 text-blue-700"
+                    }`}
+                  >
+                    {paciente.tipoCuenta === "familiar"
+                      ? "Plan Familiar"
+                      : "Plan Profesional"}
+                  </span>
+
+                  {/* Botón editar */}
+                  <button
+                    onClick={() => navigate(`/pacientes/${id}/editar`)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  >
+                    <UserCog className="h-4 w-4" />
+                    Editar
+                  </button>
+                </div>
               </div>
             </div>
           </div>

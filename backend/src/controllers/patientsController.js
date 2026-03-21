@@ -359,13 +359,21 @@ const actualizar = async (req, res) => {
       });
     }
 
-    // Verificar permisos
-    const esTutor = paciente.tutor.toString() === req.user.userId;
+    // Verificar permisos (modelo dual)
+    const esTutor =
+      paciente.tutor && paciente.tutor.toString() === req.user.userId;
+    const esCreador =
+      paciente.creadoPor && paciente.creadoPor.toString() === req.user.userId;
     const esProfesionalAsignado = paciente.profesionalesAsignados.some(
       (prof) => prof.toString() === req.user.userId,
     );
 
-    if (!esTutor && !esProfesionalAsignado) {
+    if (
+      !esTutor &&
+      !esCreador &&
+      !esProfesionalAsignado &&
+      req.user.role !== "admin"
+    ) {
       return res.status(403).json({
         success: false,
         error: "No tienes permiso para actualizar este paciente",
@@ -373,7 +381,7 @@ const actualizar = async (req, res) => {
     }
 
     // Solo el tutor puede cambiar datos básicos
-    if (esTutor) {
+    if (esTutor || esCreador) {
       if (nombre) paciente.nombre = nombre;
       if (apellido) paciente.apellido = apellido;
       if (fechaNacimiento) paciente.fechaNacimiento = fechaNacimiento;

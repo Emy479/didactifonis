@@ -21,6 +21,7 @@ import CreatePatient from "../pages/shared/CreatePatient";
 import PatientsList from "../pages/shared/PatientsList";
 import BibliotecaPage from "../pages/shared/BibliotecaPage";
 import PatientDetail from "../pages/shared/PatientDetail";
+import EditPatient from "../pages/shared/EditPatient";
 
 // Componentes de protección
 import ProtectedRoute from "./ProtectedRoute";
@@ -124,6 +125,15 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute allowedRoles={["tutor", "profesional"]}>
             <PatientDetail />
+          </ProtectedRoute>
+        }
+      />
+      {/* Editar Paciente */}
+      <Route
+        path="/pacientes/:id/editar"
+        element={
+          <ProtectedRoute allowedRoles={["tutor", "profesional"]}>
+            <EditPatient />
           </ProtectedRoute>
         }
       />
