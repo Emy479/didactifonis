@@ -25,6 +25,7 @@ import {
   UserCog,
   Trash2,
 } from "lucide-react";
+import ProgresoPaciente from "../../components/patients/ProgresoPaciente";
 
 const AREAS_LABEL = {
   fonologia: "Fonología",
@@ -361,6 +362,10 @@ const PatientDetail = () => {
               ))}
             </div>
           )}
+        </div>
+        {/* ── PROGRESO ── */}
+        <div className="mt-6">
+          <ProgresoPaciente pacienteId={id} />
         </div>
         {/* Modal de confirmación */}
         {confirmarEliminar && (
