@@ -22,6 +22,9 @@ import PatientsList from "../pages/shared/PatientsList";
 import BibliotecaPage from "../pages/shared/BibliotecaPage";
 import PatientDetail from "../pages/shared/PatientDetail";
 import EditPatient from "../pages/shared/EditPatient";
+import AdminDashboard from "../pages/admin/AdminDashboard";
+import GestionJuegos from "../pages/admin/GestionJuegos";
+import GestionSugerencias from "../pages/admin/GestionSugerencias";
 
 // Componentes de protección
 import ProtectedRoute from "./ProtectedRoute";
@@ -40,6 +43,8 @@ const AppRoutes = () => {
               <Navigate to="/tutor/dashboard" replace />
             ) : user?.role === "profesional" ? (
               <Navigate to="/profesional/dashboard" replace />
+            ) : user?.role === "admin" ? (
+              <Navigate to="/admin/dashboard" replace />
             ) : (
               <Navigate to="/login" replace />
             )
@@ -151,6 +156,31 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute allowedRoles={["profesional"]}>
             <BibliotecaPage />
+          </ProtectedRoute>
+        }
+      />
+      {/* Rutas Admin */}
+      <Route
+        path="/admin/dashboard"
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <AdminDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/juegos"
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <GestionJuegos />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/sugerencias"
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <GestionSugerencias />
           </ProtectedRoute>
         }
       />

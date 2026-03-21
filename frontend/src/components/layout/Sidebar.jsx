@@ -11,6 +11,8 @@ import {
   Gamepad2,
   BarChart3,
   UserPlus,
+  Lightbulb,
+  ShieldCheck,
   X,
 } from "lucide-react";
 
@@ -50,7 +52,18 @@ const Sidebar = ({ isOpen, onClose }) => {
     },
   ];
 
-  const menuItems = user?.role === "tutor" ? tutorMenu : profesionalMenu;
+  const adminMenu = [
+    { name: "Panel Admin", icon: ShieldCheck, path: "/admin/dashboard" },
+    { name: "Gestión de Juegos", icon: Gamepad2, path: "/admin/juegos" },
+    { name: "Sugerencias", icon: Lightbulb, path: "/admin/sugerencias" },
+  ];
+
+  const menuItems =
+    user?.role === "tutor"
+      ? tutorMenu
+      : user?.role === "admin"
+        ? adminMenu
+        : profesionalMenu;
 
   return (
     <>

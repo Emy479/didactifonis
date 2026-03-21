@@ -165,6 +165,18 @@ const SuggestionsList = () => {
                     <span>•</span>
                     <span>Por: {sugerencia.profesional?.nombre}</span>
                   </div>
+
+                  {/* Feedback del admin */}
+                  {sugerencia.notasAdmin && (
+                    <div className="mt-3 px-3 py-2 bg-blue-50 border border-blue-100 rounded-lg">
+                      <p className="text-xs font-semibold text-blue-700 mb-0.5">
+                        Feedback del administrador
+                      </p>
+                      <p className="text-sm text-blue-800">
+                        {sugerencia.notasAdmin}
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex flex-col items-center gap-2 ml-4">

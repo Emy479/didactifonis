@@ -60,7 +60,7 @@ const corsOptions = {
  */
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // 100 peticiones por IP
+  max: process.env.NODE_ENV === "development" ? 1000 : 100,
   message: {
     success: false,
     error:
@@ -75,7 +75,7 @@ const generalLimiter = rateLimit({
  */
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 5, // 5 intentos de login
+  max: process.env.NODE_ENV === "development" ? 100 : 5,
   message: {
     success: false,
     error:
