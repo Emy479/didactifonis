@@ -320,6 +320,8 @@ patientSchema.methods.getDatosCompletos = function () {
     profesionalesAsignados: this.profesionalesAsignados,
     createdAt: this.createdAt,
     updatedAt: this.updatedAt,
+    accessToken: this.accessToken,
+    tokenExpiracion: this.tokenExpiracion,
   };
 
   // Incluir tutor o tutorInfo según corresponda

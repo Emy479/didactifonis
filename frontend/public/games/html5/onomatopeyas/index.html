@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Onomatopeyas de Animales</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background: linear-gradient(135deg, #1e3a5f, #0f2027);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        overflow: hidden;
+      }
+
+      #pantalla-inicio,
+      #pantalla-juego,
+      #pantalla-resultado {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        width: 100%;
+        max-width: 600px;
+        padding: 20px;
+      }
+
+      #pantalla-inicio {
+        display: flex;
+      }
+
+      h1 {
+        font-size: 2rem;
+        margin-bottom: 10px;
+      }
+      p {
+        font-size: 1rem;
+        opacity: 0.8;
+        margin-bottom: 30px;
+      }
+
+      .btn {
+        background: linear-gradient(135deg, #3b82f6, #6366f1);
+        color: white;
+        border: none;
+        padding: 14px 40px;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition:
+          transform 0.1s,
+          opacity 0.2s;
+      }
+      .btn:hover {
+        opacity: 0.9;
+        transform: scale(1.03);
+      }
+      .btn:active {
+        transform: scale(0.98);
+      }
+
+      /* Juego */
+      .animal-emoji {
+        font-size: 6rem;
+        margin-bottom: 20px;
+        animation: bounce 0.5s ease;
+      }
+
+      @keyframes bounce {
+        0% {
+          transform: scale(0.5);
+        }
+        70% {
+          transform: scale(1.1);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .pregunta {
+        font-size: 1.4rem;
+        font-weight: bold;
+        margin-bottom: 30px;
+      }
+
+      .opciones {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        width: 100%;
+        max-width: 400px;
+      }
+
+      .opcion {
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 14px;
+        border-radius: 16px;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .opcion:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.03);
+      }
+      .opcion.correcta {
+        background: rgba(34, 197, 94, 0.4);
+        border-color: #22c55e;
+      }
+      .opcion.incorrecta {
+        background: rgba(239, 68, 68, 0.4);
+        border-color: #ef4444;
+      }
+
+      .progreso {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        background: rgba(0, 0, 0, 0.4);
+        padding: 10px 20px;
+        border-radius: 50px;
+        font-size: 0.9rem;
+      }
+
+      .puntos-badge {
+        background: linear-gradient(135deg, #f59e0b, #f97316);
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-weight: bold;
+      }
+
+      .feedback {
+        font-size: 2rem;
+        margin-bottom: 15px;
+        min-height: 50px;
+      }
+
+      /* Resultado */
+      .resultado-emoji {
+        font-size: 5rem;
+        margin-bottom: 15px;
+      }
+      .resultado-score {
+        font-size: 3rem;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+      .resultado-label {
+        opacity: 0.7;
+        margin-bottom: 30px;
+      }
+      .resultado-detalle {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 15px 25px;
+        margin-bottom: 25px;
+        width: 100%;
+        max-width: 350px;
+      }
+      .resultado-detalle p {
+        margin-bottom: 5px;
+        opacity: 1;
+        font-size: 0.95rem;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- PANTALLA INICIO -->
+    <div id="pantalla-inicio">
+      <div style="font-size: 4rem; margin-bottom: 15px">🐾</div>
+      <h1>Onomatopeyas</h1>
+      <p>
+        ¿Qué sonido hace cada animal?<br />¡Escucha y elige la respuesta
+        correcta!
+      </p>
+      <button class="btn" onclick="iniciarJuego()">¡Jugar!</button>
+    </div>
+
+    <!-- PANTALLA JUEGO -->
+    <div id="pantalla-juego">
+      <div class="progreso">
+        <span id="texto-progreso">Pregunta 1/5</span>
+        <span class="puntos-badge" id="texto-puntos">0 pts</span>
+      </div>
+      <div class="feedback" id="feedback"></div>
+      <div class="animal-emoji" id="animal-emoji">🐶</div>
+      <div class="pregunta" id="texto-pregunta">¿Qué sonido hace?</div>
+      <div class="opciones" id="contenedor-opciones"></div>
+    </div>
+
+    <!-- PANTALLA RESULTADO -->
+    <div id="pantalla-resultado">
+      <div class="resultado-emoji" id="resultado-emoji">🏆</div>
+      <div class="resultado-score" id="resultado-score">100</div>
+      <div class="resultado-label">puntos</div>
+      <div class="resultado-detalle">
+        <p id="resultado-aciertos">✅ Aciertos: 0</p>
+        <p id="resultado-errores">❌ Errores: 0</p>
+        <p id="resultado-tiempo">⏱ Tiempo: 0s</p>
+      </div>
+      <button class="btn" onclick="enviarResultado()">Continuar</button>
+    </div>
+
+    <script>
+      // ── Datos del juego ─────────────────────────────────────────────────────
+      const ANIMALES = [
+        {
+          emoji: "🐶",
+          nombre: "Perro",
+          sonido: "Guau",
+          opciones: ["Guau", "Miau", "Muuu", "Cuac"],
+        },
+        {
+          emoji: "🐱",
+          nombre: "Gato",
+          sonido: "Miau",
+          opciones: ["Guau", "Miau", "Pío", "Muuu"],
+        },
+        {
+          emoji: "🐄",
+          nombre: "Vaca",
+          sonido: "Muuu",
+          opciones: ["Muuu", "Beee", "Guau", "Cuac"],
+        },
+        {
+          emoji: "🐸",
+          nombre: "Rana",
+          sonido: "Croac",
+          opciones: ["Croac", "Muuu", "Pío", "Miau"],
+        },
+        {
+          emoji: "🐦",
+          nombre: "Pájaro",
+          sonido: "Pío",
+          opciones: ["Pío", "Cuac", "Muuu", "Guau"],
+        },
+        {
+          emoji: "🦆",
+          nombre: "Pato",
+          sonido: "Cuac",
+          opciones: ["Cuac", "Pío", "Miau", "Croac"],
+        },
+        {
+          emoji: "🐑",
+          nombre: "Oveja",
+          sonido: "Beee",
+          opciones: ["Beee", "Muuu", "Guau", "Cuac"],
+        },
+        {
+          emoji: "🐷",
+          nombre: "Cerdo",
+          sonido: "Oink",
+          opciones: ["Oink", "Beee", "Miau", "Pío"],
+        },
+      ];
+
+      const TOTAL_PREGUNTAS = 5;
+
+      let preguntas = [];
+      let actual = 0;
+      let puntos = 0;
+      let aciertos = 0;
+      let errores = 0;
+      let tiempoInicio = null;
+      let respondiendo = false;
+
+      // Leer parámetros de la URL
+      const params = new URLSearchParams(window.location.search);
+      const TOKEN = params.get("token") || "";
+      const ASIGNACION_ID = params.get("asignacionId") || "";
+
+      // ── Iniciar juego ────────────────────────────────────────────────────────
+      function iniciarJuego() {
+        // Mezclar y seleccionar preguntas
+        preguntas = [...ANIMALES]
+          .sort(() => Math.random() - 0.5)
+          .slice(0, TOTAL_PREGUNTAS);
+        actual = 0;
+        puntos = 0;
+        aciertos = 0;
+        errores = 0;
+        tiempoInicio = Date.now();
+
+        mostrarPantalla("pantalla-juego");
+        mostrarPregunta();
+      }
+
+      // ── Mostrar pregunta ─────────────────────────────────────────────────────
+      function mostrarPregunta() {
+        respondiendo = false;
+        const p = preguntas[actual];
+
+        document.getElementById("animal-emoji").textContent = p.emoji;
+        document.getElementById("texto-pregunta").textContent =
+          `¿Qué sonido hace el ${p.nombre}?`;
+        document.getElementById("texto-progreso").textContent =
+          `Pregunta ${actual + 1}/${TOTAL_PREGUNTAS}`;
+        document.getElementById("texto-puntos").textContent = `${puntos} pts`;
+        document.getElementById("feedback").textContent = "";
+
+        // Mezclar opciones
+        const opciones = [...p.opciones].sort(() => Math.random() - 0.5);
+        const contenedor = document.getElementById("contenedor-opciones");
+        contenedor.innerHTML = "";
+
+        opciones.forEach((op) => {
+          const btn = document.createElement("button");
+          btn.className = "opcion";
+          btn.textContent = op;
+          btn.onclick = () => responder(btn, op, p.sonido);
+          contenedor.appendChild(btn);
+        });
+
+        // Animar emoji
+        const emoji = document.getElementById("animal-emoji");
+        emoji.style.animation = "none";
+        setTimeout(() => (emoji.style.animation = "bounce 0.5s ease"), 10);
+      }
+
+      // ── Responder ────────────────────────────────────────────────────────────
+      function responder(btn, elegida, correcta) {
+        if (respondiendo) return;
+        respondiendo = true;
+
+        const esCorrecta = elegida === correcta;
+
+        if (esCorrecta) {
+          btn.classList.add("correcta");
+          document.getElementById("feedback").textContent = "✅ ¡Correcto!";
+          puntos += 20;
+          aciertos += 1;
+        } else {
+          btn.classList.add("incorrecta");
+          document.getElementById("feedback").textContent =
+            `❌ Era: ${correcta}`;
+          errores += 1;
+
+          // Marcar la correcta
+          document.querySelectorAll(".opcion").forEach((b) => {
+            if (b.textContent === correcta) b.classList.add("correcta");
+          });
+        }
+
+        document.getElementById("texto-puntos").textContent = `${puntos} pts`;
+
+        setTimeout(() => {
+          actual += 1;
+          if (actual < TOTAL_PREGUNTAS) {
+            mostrarPregunta();
+          } else {
+            mostrarResultado();
+          }
+        }, 1200);
+      }
+
+      // ── Mostrar resultado ────────────────────────────────────────────────────
+      function mostrarResultado() {
+        const tiempoTotal = Math.round((Date.now() - tiempoInicio) / 1000);
+        const aprobado = puntos >= 60; // 60% de 100
+
+        mostrarPantalla("pantalla-resultado");
+
+        document.getElementById("resultado-emoji").textContent = aprobado
+          ? "🏆"
+          : "💪";
+        document.getElementById("resultado-score").textContent = puntos;
+        document.getElementById("resultado-aciertos").textContent =
+          `✅ Aciertos: ${aciertos}`;
+        document.getElementById("resultado-errores").textContent =
+          `❌ Errores: ${errores}`;
+        document.getElementById("resultado-tiempo").textContent =
+          `⏱ Tiempo: ${tiempoTotal}s`;
+
+        // Guardar datos para enviar
+        window._resultadoJuego = {
+          puntuacion: puntos,
+          tiempoJugado: tiempoTotal,
+          rondasCompletadas: aciertos,
+          rondasTotales: TOTAL_PREGUNTAS,
+          aciertos,
+          errores,
+          completado: true,
+        };
+      }
+
+      // ── Enviar resultado al player ───────────────────────────────────────────
+      function enviarResultado() {
+        // Comunicación con el player via postMessage
+        window.parent.postMessage(
+          {
+            tipo: "JUEGO_TERMINADO",
+            datos: window._resultadoJuego,
+          },
+          "*",
+        );
+      }
+
+      // ── Helpers ──────────────────────────────────────────────────────────────
+      function mostrarPantalla(id) {
+        ["pantalla-inicio", "pantalla-juego", "pantalla-resultado"].forEach(
+          (p) => {
+            document.getElementById(p).style.display = "none";
+          },
+        );
+        document.getElementById(id).style.display = "flex";
+      }
+    </script>
+  </body>
+</html>

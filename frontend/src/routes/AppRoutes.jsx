@@ -23,6 +23,7 @@ import BibliotecaPage from "../pages/shared/BibliotecaPage";
 import PatientDetail from "../pages/shared/PatientDetail";
 import EditPatient from "../pages/shared/EditPatient";
 import EstadisticasLog from "../pages/shared/EstadisticasLog";
+import JugarPage from "../pages/jugar/JugarPage";
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import GestionJuegos from "../pages/admin/GestionJuegos";
 import GestionSugerencias from "../pages/admin/GestionSugerencias";
@@ -202,6 +203,9 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
+
+      {/* Ruta pública para pacientes - acceso por token */}
+      <Route path="/jugar" element={<JugarPage />} />
 
       {/* Ruta 404 */}
       <Route path="*" element={<Navigate to="/" replace />} />
