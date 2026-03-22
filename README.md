@@ -495,14 +495,14 @@ Este proyecto está bajo la Licencia MIT. Ver [LICENSE](LICENSE) para más detal
 
 ## 👥 Equipo
 
-- **Desarrollador Principal** - [Tu Nombre](https://github.com/tu-usuario)
+- **Desarrollador Principal** - [Emiliano](https://github.com/Emy479/)
 
 ---
 
 ## 📞 Contacto
 
-- **Email:** contacto@didactifonis.com
-- **Website:** https://didactifonis.com
+- **Email:** 
+- **Website:** 
 - **GitHub:** https://github.com/Emy479/didactifonis
 
 ---
