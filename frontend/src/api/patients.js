@@ -3,13 +3,13 @@
  * Funciones para gestionar pacientes
  */
 
-import api from './axios';
+import api from "./axios";
 
 /**
  * Crear nuevo paciente
  */
 export const crearPaciente = async (data) => {
-  const response = await api.post('/patients', data);
+  const response = await api.post("/patients", data);
   return response.data;
 };
 
@@ -17,7 +17,7 @@ export const crearPaciente = async (data) => {
  * Obtener mis pacientes
  */
 export const obtenerMisPacientes = async () => {
-  const response = await api.get('/patients/mis-pacientes');
+  const response = await api.get("/patients/mis-pacientes");
   return response.data;
 };
 
@@ -49,9 +49,12 @@ export const eliminarPaciente = async (id) => {
  * Asignar profesional a paciente (solo tutor)
  */
 export const asignarProfesional = async (pacienteId, profesionalId) => {
-  const response = await api.put(`/patients/${pacienteId}/asignar-profesional`, {
-    profesionalId
-  });
+  const response = await api.post(
+    `/patients/${pacienteId}/asignar-profesional`,
+    {
+      profesionalId,
+    },
+  );
   return response.data;
 };
 
@@ -60,5 +63,15 @@ export const asignarProfesional = async (pacienteId, profesionalId) => {
  */
 export const obtenerPacientesPorTutor = async (tutorId) => {
   const response = await api.get(`/patients/tutor/${tutorId}`);
+  return response.data;
+};
+
+/**
+ * Remover profesional de paciente (solo tutor)
+ */
+export const removerProfesional = async (pacienteId, profesionalId) => {
+  const response = await api.delete(
+    `/patients/${pacienteId}/profesional/${profesionalId}`,
+  );
   return response.data;
 };

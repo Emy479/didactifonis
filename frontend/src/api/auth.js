@@ -48,7 +48,7 @@ export const changePassword = async (passwordData) => {
 /**
  * Listar profesionales verificados
  */
-export const getProfessionals = async () => {
+export const listarProfesionales = async () => {
   const response = await api.get("/auth/profesionales");
   return response.data;
 };

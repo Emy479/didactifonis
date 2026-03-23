@@ -9,7 +9,11 @@ import { useAuth } from "../../hooks/useAuth";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import Spinner from "../../components/common/Spinner";
 import Alert from "../../components/common/Alert";
-import { obtenerPaciente, eliminarPaciente } from "../../api/patients";
+import {
+  obtenerPaciente,
+  eliminarPaciente,
+  removerProfesional,
+} from "../../api/patients";
 import {
   obtenerAsignacionesPaciente,
   desactivarAsignacion,
@@ -28,6 +32,7 @@ import {
 } from "lucide-react";
 import ProgresoPaciente from "../../components/patients/ProgresoPaciente";
 import PlayerJuego from "../jugar/PlayerJuego";
+import ModalAsignarProfesional from "../../components/patients/ModalAsignarProfesional";
 
 const AREAS_LABEL = {
   fonologia: "Fonología",
@@ -50,6 +55,7 @@ const PatientDetail = () => {
   const [eliminando, setEliminando] = useState(null);
   const [confirmarEliminar, setConfirmarEliminar] = useState(false);
   const [juegoActivo, setJuegoActivo] = useState(null);
+  const [mostrarAsignarProf, setMostrarAsignarProf] = useState(false);
 
   // ── Cargar datos del paciente y sus asignaciones ──────────────────────────
   const cargarDatos = useCallback(async () => {
@@ -282,26 +288,54 @@ const PatientDetail = () => {
           </div>
 
           {/* ── PROFESIONALES ASIGNADOS ── */}
-          {paciente.profesionalesAsignados?.length > 0 && (
+          {(paciente.profesionalesAsignados?.length > 0 ||
+            user?.role === "tutor") && (
             <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
-              <h2 className="flex items-center gap-2 text-base font-bold text-gray-900 mb-4">
-                <Users className="h-5 w-5 text-green-500" />
-                Profesionales Asignados
-              </h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="flex items-center gap-2 text-base font-bold text-gray-900">
+                  <Users className="h-5 w-5 text-green-500" />
+                  Profesionales Asignados
+                </h2>
+                {user?.role === "tutor" && (
+                  <button
+                    onClick={() => setMostrarAsignarProf(true)}
+                    className="text-xs px-3 py-1.5 rounded-lg font-medium transition-colors"
+                    style={{ backgroundColor: "#dbeafe", color: "#1d4ed8" }}
+                  >
+                    + Asignar
+                  </button>
+                )}
+              </div>
               <div className="flex flex-wrap gap-3">
                 {paciente.profesionalesAsignados.map((prof) => (
                   <div
                     key={prof._id || prof}
-                    className="flex items-center gap-2 px-3 py-2 bg-green-50 rounded-xl"
+                    className="flex items-center justify-between gap-2 px-3 py-2 bg-green-50 rounded-xl"
                   >
-                    <div className="w-7 h-7 bg-green-200 rounded-full flex items-center justify-center">
-                      <span className="text-xs font-bold text-green-700">
-                        {typeof prof === "object" ? prof.nombre?.[0] : "?"}
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 bg-green-200 rounded-full flex items-center justify-center">
+                        <span className="text-xs font-bold text-green-700">
+                          {typeof prof === "object" ? prof.nombre?.[0] : "?"}
+                        </span>
+                      </div>
+                      <span className="text-sm font-medium text-green-800">
+                        {typeof prof === "object" ? prof.nombre : "Profesional"}
                       </span>
                     </div>
-                    <span className="text-sm font-medium text-green-800">
-                      {typeof prof === "object" ? prof.nombre : "Profesional"}
-                    </span>
+
+                    {/* Botón remover — solo visible para tutores */}
+                    {user?.role === "tutor" && (
+                      <button
+                        onClick={() =>
+                          removerProfesional(paciente._id, prof._id).then(
+                            cargarDatos,
+                          )
+                        }
+                        className="text-xs text-red-400 hover:text-red-600 font-medium transition-colors"
+                      >
+                        Remover
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>
@@ -425,6 +459,19 @@ const PatientDetail = () => {
           )}
         </div>
       </DashboardLayout>
+
+      {/* Modal asignar profesional */}
+      {mostrarAsignarProf && (
+        <ModalAsignarProfesional
+          pacienteId={id}
+          profesionalesActuales={paciente?.profesionalesAsignados || []}
+          onClose={() => setMostrarAsignarProf(false)}
+          onActualizado={() => {
+            setMostrarAsignarProf(false);
+            cargarDatos();
+          }}
+        />
+      )}
 
       {/* Player de juego */}
       {juegoActivo && (
