@@ -24,7 +24,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     { name: "Dashboard", icon: LayoutDashboard, path: "/tutor/dashboard" },
     { name: "Mis Hijos", icon: Users, path: "/tutor/pacientes" },
     { name: "Biblioteca de Juegos", icon: Gamepad2, path: "/tutor/biblioteca" },
-    { name: "Progreso", icon: BarChart3, path: "/tutor/progreso" },
+    { name: "Progreso", icon: BarChart3, path: "/tutor/estadisticas" },
   ];
 
   // Menú para profesionales
