@@ -5,6 +5,7 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useToast } from "../../context/ToastContext";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import Card from "../../components/common/Card";
 import Input from "../../components/common/Input";
@@ -26,12 +27,10 @@ const AREAS_OPCIONES = [
 const EditPatient = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  /*const {} = useAuth();*/
+  const toast = useToast();
 
   const [loading, setLoading] = useState(true);
   const [guardando, setGuardando] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
 
   const [formData, setFormData] = useState({
     nombre: "",
@@ -65,7 +64,7 @@ const EditPatient = () => {
           areasTrabajar: p.areasTrabajar || [],
         });
       } catch (err) {
-        setError(err.response?.data?.error || "Error al cargar paciente");
+        toast.error(err.response?.data?.error || "Error al cargar paciente");
       } finally {
         setLoading(false);
       }
@@ -101,11 +100,9 @@ const EditPatient = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setGuardando(true);
-    setError(null);
-
     try {
       if (!formData.nombre || !formData.fechaNacimiento) {
-        setError("Nombre y fecha de nacimiento son obligatorios");
+        toast.advertencia("Nombre y fecha de nacimiento son obligatorios");
         setGuardando(false);
         return;
       }
@@ -120,10 +117,10 @@ const EditPatient = () => {
         areasTrabajar: formData.areasTrabajar,
       });
 
-      setSuccess(true);
-      setTimeout(() => navigate(`/pacientes/${id}`), 1500);
+      toast.exito("¡Paciente actualizado correctamente!");
+      navigate(`/pacientes/${id}`);
     } catch (err) {
-      setError(err.response?.data?.error || "Error al actualizar paciente");
+      toast.error(err.response?.data?.error || "Error al actualizar paciente");
     } finally {
       setGuardando(false);
     }
@@ -169,22 +166,6 @@ const EditPatient = () => {
             </div>
           </div>
         </div>
-
-        {error && (
-          <Alert
-            type="error"
-            message={error}
-            onClose={() => setError(null)}
-            className="mb-4"
-          />
-        )}
-        {success && (
-          <Alert
-            type="success"
-            message="¡Paciente actualizado! Redirigiendo..."
-            className="mb-4"
-          />
-        )}
 
         <Card>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -318,7 +299,7 @@ const EditPatient = () => {
                 variant="primary"
                 fullWidth
                 loading={guardando}
-                disabled={guardando || success}
+                disabled={guardando}
               >
                 {guardando ? "Guardando..." : "Guardar Cambios"}
               </Button>

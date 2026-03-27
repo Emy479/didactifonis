@@ -6,6 +6,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
+import { useToast } from "../../context/ToastContext";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import Card from "../../components/common/Card";
 import Input from "../../components/common/Input";
@@ -17,9 +18,8 @@ import { UserPlus, ArrowLeft, Calendar, FileText } from "lucide-react";
 const CreatePatient = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const toast = useToast();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
 
   const [formData, setFormData] = useState({
     nombre: "",
@@ -66,26 +66,24 @@ const CreatePatient = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
-    setSuccess(false);
 
     try {
       if (!formData.nombre || !formData.fechaNacimiento) {
-        setError("Por favor completa los campos obligatorios");
+        toast.advertencia("Por favor completa los campos obligatorios");
         setLoading(false);
         return;
       }
 
       const edad = calcularEdad(formData.fechaNacimiento);
       if (edad < 2 || edad > 18) {
-        setError("La edad debe estar entre 2 y 18 años");
+        toast.advertencia("La edad debe estar entre 2 y 18 años");
         setLoading(false);
         return;
       }
 
       if (user.role === "profesional") {
         if (!formData.tutorInfo.nombre || !formData.tutorInfo.email) {
-          setError("Por favor completa la información del tutor");
+          toast.advertencia("Por favor completa la información del tutor");
           setLoading(false);
           return;
         }
@@ -109,7 +107,7 @@ const CreatePatient = () => {
       }
 
       await crearPaciente(dataToSend);
-      setSuccess(true);
+      toast.exito("¡Paciente creado exitosamente!");
 
       setTimeout(() => {
         if (user.role === "tutor") {
@@ -119,7 +117,7 @@ const CreatePatient = () => {
         }
       }, 1500);
     } catch (err) {
-      setError(err.response?.data?.error || "Error al crear paciente");
+      toast.error(err.response?.data?.error || "Error al crear paciente");
     } finally {
       setLoading(false);
     }
@@ -154,23 +152,6 @@ const CreatePatient = () => {
           </div>
         </div>
       </div>
-
-      {error && (
-        <Alert
-          type="error"
-          message={error}
-          onClose={() => setError(null)}
-          className="mb-6"
-        />
-      )}
-
-      {success && (
-        <Alert
-          type="success"
-          message="¡Paciente creado exitosamente! Redirigiendo..."
-          className="mb-6"
-        />
-      )}
 
       <Card>
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -309,7 +290,7 @@ const CreatePatient = () => {
               variant="primary"
               fullWidth
               loading={loading}
-              disabled={loading || success}
+              disabled={loading}
             >
               {loading ? "Creando..." : "Crear Paciente"}
             </Button>
