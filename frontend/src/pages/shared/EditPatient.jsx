@@ -10,7 +10,6 @@ import DashboardLayout from "../../components/layout/DashboardLayout";
 import Card from "../../components/common/Card";
 import Input from "../../components/common/Input";
 import Button from "../../components/common/Button";
-import Alert from "../../components/common/Alert";
 import Spinner from "../../components/common/Spinner";
 import { obtenerPaciente, actualizarPaciente } from "../../api/patients";
 import { UserCog, ArrowLeft } from "lucide-react";
@@ -49,7 +48,6 @@ const EditPatient = () => {
         const res = await obtenerPaciente(id);
         const p = res.data;
 
-        // Formatear fecha para input type="date"
         const fecha = p.fechaNacimiento
           ? new Date(p.fechaNacimiento).toISOString().split("T")[0]
           : "";
@@ -100,6 +98,7 @@ const EditPatient = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setGuardando(true);
+
     try {
       if (!formData.nombre || !formData.fechaNacimiento) {
         toast.advertencia("Nombre y fecha de nacimiento son obligatorios");

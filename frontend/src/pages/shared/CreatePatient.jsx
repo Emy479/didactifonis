@@ -6,19 +6,18 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import { useToast } from "../../context/ToastContext";
+import { useToast } from "../../context/ToastContext"; // 🔔
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import Card from "../../components/common/Card";
 import Input from "../../components/common/Input";
 import Button from "../../components/common/Button";
-import Alert from "../../components/common/Alert";
 import { crearPaciente } from "../../api/patients";
 import { UserPlus, ArrowLeft, Calendar, FileText } from "lucide-react";
 
 const CreatePatient = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const toast = useToast();
+  const toast = useToast(); // 🔔
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -35,19 +34,13 @@ const CreatePatient = () => {
   });
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleTutorInfoChange = (e) => {
     setFormData({
       ...formData,
-      tutorInfo: {
-        ...formData.tutorInfo,
-        [e.target.name]: e.target.value,
-      },
+      tutorInfo: { ...formData.tutorInfo, [e.target.name]: e.target.value },
     });
   };
 
@@ -57,9 +50,7 @@ const CreatePatient = () => {
     const nacimiento = new Date(fechaNacimiento);
     let edad = hoy.getFullYear() - nacimiento.getFullYear();
     const mes = hoy.getMonth() - nacimiento.getMonth();
-    if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
-      edad--;
-    }
+    if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) edad--;
     return edad;
   };
 
@@ -69,21 +60,21 @@ const CreatePatient = () => {
 
     try {
       if (!formData.nombre || !formData.fechaNacimiento) {
-        toast.advertencia("Por favor completa los campos obligatorios");
+        toast.advertencia("Por favor completa los campos obligatorios"); // 🔔
         setLoading(false);
         return;
       }
 
       const edad = calcularEdad(formData.fechaNacimiento);
       if (edad < 2 || edad > 18) {
-        toast.advertencia("La edad debe estar entre 2 y 18 años");
+        toast.advertencia("La edad debe estar entre 2 y 18 años"); // 🔔
         setLoading(false);
         return;
       }
 
       if (user.role === "profesional") {
         if (!formData.tutorInfo.nombre || !formData.tutorInfo.email) {
-          toast.advertencia("Por favor completa la información del tutor");
+          toast.advertencia("Por favor completa la información del tutor"); // 🔔
           setLoading(false);
           return;
         }
@@ -107,17 +98,16 @@ const CreatePatient = () => {
       }
 
       await crearPaciente(dataToSend);
-      toast.exito("¡Paciente creado exitosamente!");
+      toast.exito("¡Paciente creado exitosamente!"); // 🔔
 
-      setTimeout(() => {
-        if (user.role === "tutor") {
-          navigate("/tutor/pacientes");
-        } else {
-          navigate("/profesional/pacientes");
-        }
-      }, 1500);
+      // Navegación directa, sin setTimeout
+      if (user.role === "tutor") {
+        navigate("/tutor/pacientes");
+      } else {
+        navigate("/profesional/pacientes");
+      }
     } catch (err) {
-      toast.error(err.response?.data?.error || "Error al crear paciente");
+      toast.error(err.response?.data?.error || "Error al crear paciente"); // 🔔
     } finally {
       setLoading(false);
     }
@@ -170,7 +160,6 @@ const CreatePatient = () => {
                   placeholder="Ej: Mateo"
                   required
                 />
-
                 <Input
                   label="Apellido"
                   name="apellido"
@@ -231,12 +220,10 @@ const CreatePatient = () => {
           {user.role === "profesional" && (
             <>
               <hr className="my-6" />
-
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
                   Información del Tutor/Padre
                 </h3>
-
                 <div className="space-y-4">
                   <Input
                     label="Nombre del tutor"
@@ -246,7 +233,6 @@ const CreatePatient = () => {
                     placeholder="Ej: María González"
                     required
                   />
-
                   <Input
                     label="Email del tutor"
                     type="email"
@@ -256,7 +242,6 @@ const CreatePatient = () => {
                     placeholder="maria@ejemplo.com"
                     required
                   />
-
                   <Input
                     label="Teléfono del tutor"
                     type="tel"
@@ -265,7 +250,6 @@ const CreatePatient = () => {
                     onChange={handleTutorInfoChange}
                     placeholder="912345678"
                   />
-
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                     <div className="flex items-start gap-2">
                       <FileText className="h-5 w-5 text-blue-600 mt-0.5" />

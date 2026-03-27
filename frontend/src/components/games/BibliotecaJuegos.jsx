@@ -6,6 +6,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import ModalDetallesJuego from "./ModalDetallesJuego";
 import ModalAsignarPaciente from "./ModalAsignarPaciente";
+import { useToast } from "../../context/ToastContext";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
@@ -45,7 +46,7 @@ export default function BibliotecaJuegos() {
 
   const [juegoDetalle, setJuegoDetalle] = useState(null);
   const [juegoAsignar, setJuegoAsignar] = useState(null);
-  const [toast, setToast] = useState(null);
+  const toast = useToast();
 
   const cargarJuegos = useCallback(async () => {
     setCargando(true);
@@ -128,8 +129,7 @@ export default function BibliotecaJuegos() {
 
   const handleAsignado = (nombre) => {
     setJuegoAsignar(null);
-    setToast(`✓ Juego asignado a ${nombre}`);
-    setTimeout(() => setToast(null), 3500);
+    toast.exito(`Juego asignado a ${nombre}`);
   };
 
   return (
@@ -305,12 +305,6 @@ export default function BibliotecaJuegos() {
           onClose={() => setJuegoAsignar(null)}
           onAsignado={handleAsignado}
         />
-      )}
-
-      {toast && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-xl text-sm font-medium shadow-xl bg-green-50 text-green-700 border border-green-200">
-          {toast}
-        </div>
       )}
     </div>
   );
