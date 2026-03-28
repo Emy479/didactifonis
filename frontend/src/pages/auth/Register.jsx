@@ -3,28 +3,30 @@
  * Permite crear nuevas cuentas
  */
 
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
-import Button from '../../components/common/Button';
-import Input from '../../components/common/Input';
-import Card from '../../components/common/Card';
-import Alert from '../../components/common/Alert';
-import { Mail, Lock, User, Phone, Briefcase } from 'lucide-react';
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import { useToast } from "../../context/ToastContext";
+import Button from "../../components/common/Button";
+import Input from "../../components/common/Input";
+import Card from "../../components/common/Card";
+import Alert from "../../components/common/Alert";
+import { Mail, Lock, User, Phone, Briefcase } from "lucide-react";
 
 const Register = () => {
   const navigate = useNavigate();
   const { register } = useAuth();
+  const toast = useToast();
 
   const [formData, setFormData] = useState({
-    nombre: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    role: 'tutor',
-    telefono: '',
-    especialidad: '',
-    numeroRegistro: '',
+    nombre: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    role: "tutor",
+    telefono: "",
+    especialidad: "",
+    numeroRegistro: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -32,15 +34,15 @@ const Register = () => {
 
   // Especialidades disponibles (sincronizadas con el backend)
   const especialidades = [
-    { value: '', label: 'Selecciona una especialidad' },
-    { value: 'fonoaudiologia', label: 'Fonoaudiología' },
-    { value: 'psicopedagogia', label: 'Psicopedagogía' },
-    { value: 'educacion_especial', label: 'Educación Especial' },
-    { value: 'terapia_lenguaje', label: 'Terapia del Lenguaje' },
-    { value: 'audiologia', label: 'Audiología' },
-    { value: 'neuropsicologia', label: 'Neuropsicología' },
-    { value: 'psicologia', label: 'Psicología' },
-    { value: 'otro', label: 'Otro' },
+    { value: "", label: "Selecciona una especialidad" },
+    { value: "fonoaudiologia", label: "Fonoaudiología" },
+    { value: "psicopedagogia", label: "Psicopedagogía" },
+    { value: "educacion_especial", label: "Educación Especial" },
+    { value: "terapia_lenguaje", label: "Terapia del Lenguaje" },
+    { value: "audiologia", label: "Audiología" },
+    { value: "neuropsicologia", label: "Neuropsicología" },
+    { value: "psicologia", label: "Psicología" },
+    { value: "otro", label: "Otro" },
   ];
 
   // Manejar cambios en inputs
@@ -60,26 +62,26 @@ const Register = () => {
 
     // Validaciones
     if (!formData.nombre || !formData.email || !formData.password) {
-      setError('Por favor completa todos los campos obligatorios');
+      setError("Por favor completa todos los campos obligatorios");
       setLoading(false);
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Las contraseñas no coinciden');
+      setError("Las contraseñas no coinciden");
       setLoading(false);
       return;
     }
 
     if (formData.password.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres');
+      setError("La contraseña debe tener al menos 6 caracteres");
       setLoading(false);
       return;
     }
 
     // Validación específica para profesionales
-    if (formData.role === 'profesional' && !formData.especialidad) {
-      setError('Por favor selecciona una especialidad');
+    if (formData.role === "profesional" && !formData.especialidad) {
+      setError("Por favor selecciona una especialidad");
       setLoading(false);
       return;
     }
@@ -94,7 +96,7 @@ const Register = () => {
     };
 
     // Agregar campos específicos de profesional
-    if (formData.role === 'profesional') {
+    if (formData.role === "profesional") {
       dataToSend.especialidad = formData.especialidad;
       dataToSend.numeroRegistro = formData.numeroRegistro || undefined;
     }
@@ -103,14 +105,12 @@ const Register = () => {
     const result = await register(dataToSend);
 
     if (result.success) {
-      // Redirigir según el rol
-      if (formData.role === 'tutor') {
-        navigate('/tutor/dashboard');
-      } else if (formData.role === 'profesional') {
-        navigate('/profesional/dashboard');
+      toast.exito("¡Cuenta creada exitosamente! Bienvenido/a 🎉");
+      if (formData.role === "tutor") {
+        navigate("/tutor/dashboard");
+      } else if (formData.role === "profesional") {
+        navigate("/profesional/dashboard");
       }
-    } else {
-      setError(result.error);
     }
 
     setLoading(false);
@@ -124,16 +124,12 @@ const Register = () => {
           <h1 className="text-5xl font-bold text-white mb-2">
             🎓 Didactifonis
           </h1>
-          <p className="text-blue-100 text-lg">
-            Crea tu cuenta
-          </p>
+          <p className="text-blue-100 text-lg">Crea tu cuenta</p>
         </div>
 
         {/* Card de registro */}
         <Card>
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">
-            Registro
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Registro</h2>
 
           {/* Error alert */}
           {error && (
@@ -155,12 +151,20 @@ const Register = () => {
               <div className="grid grid-cols-2 gap-4">
                 <button
                   type="button"
-                  onClick={() => setFormData({ ...formData, role: 'tutor', especialidad: '', numeroRegistro: '' })}
+                  onClick={() =>
+                    setFormData({
+                      ...formData,
+                      role: "tutor",
+                      especialidad: "",
+                      numeroRegistro: "",
+                    })
+                  }
                   className={`
                     p-4 rounded-lg border-2 transition-all
-                    ${formData.role === 'tutor'
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-300 hover:border-gray-400'
+                    ${
+                      formData.role === "tutor"
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-gray-300 hover:border-gray-400"
                     }
                   `}
                 >
@@ -171,12 +175,15 @@ const Register = () => {
 
                 <button
                   type="button"
-                  onClick={() => setFormData({ ...formData, role: 'profesional' })}
+                  onClick={() =>
+                    setFormData({ ...formData, role: "profesional" })
+                  }
                   className={`
                     p-4 rounded-lg border-2 transition-all
-                    ${formData.role === 'profesional'
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-300 hover:border-gray-400'
+                    ${
+                      formData.role === "profesional"
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-gray-300 hover:border-gray-400"
                     }
                   `}
                 >
@@ -223,7 +230,7 @@ const Register = () => {
             />
 
             {/* Campos específicos de profesional */}
-            {formData.role === 'profesional' && (
+            {formData.role === "profesional" && (
               <>
                 {/* Especialidad - SELECT */}
                 <div>
@@ -304,7 +311,7 @@ const Register = () => {
               loading={loading}
               disabled={loading}
             >
-              {loading ? 'Creando cuenta...' : 'Crear Cuenta'}
+              {loading ? "Creando cuenta..." : "Crear Cuenta"}
             </Button>
           </form>
 
