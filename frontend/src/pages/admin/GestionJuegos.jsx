@@ -11,9 +11,9 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "../../context/ToastContext";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import Spinner from "../../components/common/Spinner";
-import Alert from "../../components/common/Alert";
 import {
   obtenerJuegos,
   crearJuego,
@@ -59,8 +59,7 @@ const GestionJuegos = () => {
 
   const [juegos, setJuegos] = useState([]);
   const [cargando, setCargando] = useState(true);
-  const [error, setError] = useState(null);
-  const [exito, setExito] = useState(null);
+  const toast = useToast();
 
   // Formulario
   const [mostrarForm, setMostrarForm] = useState(false);
@@ -75,12 +74,11 @@ const GestionJuegos = () => {
   // ── Cargar juegos ─────────────────────────────────────────────────────────
   const cargarJuegos = useCallback(async () => {
     setCargando(true);
-    setError(null);
     try {
       const res = await obtenerJuegos();
       setJuegos(res.data);
     } catch (err) {
-      setError(err.response?.data?.error || "Error al cargar juegos");
+      toast.error(err.response?.data?.error || "Error al cargar juegos");
     } finally {
       setCargando(false);
     }
@@ -95,7 +93,6 @@ const GestionJuegos = () => {
     setEditando(null);
     setForm(FORM_VACIO);
     setMostrarForm(true);
-    setError(null);
   };
 
   // ── Abrir formulario para editar ──────────────────────────────────────────
@@ -118,7 +115,6 @@ const GestionJuegos = () => {
       publicado: juego.publicado || false,
     });
     setMostrarForm(true);
-    setError(null);
   };
 
   // ── Cancelar formulario ───────────────────────────────────────────────────
@@ -126,7 +122,6 @@ const GestionJuegos = () => {
     setMostrarForm(false);
     setEditando(null);
     setForm(FORM_VACIO);
-    setError(null);
   };
 
   // ── Cambios en el formulario ──────────────────────────────────────────────
@@ -159,7 +154,6 @@ const GestionJuegos = () => {
   const handleGuardar = async (e) => {
     e.preventDefault();
     setGuardando(true);
-    setError(null);
 
     try {
       const payload = {
@@ -175,17 +169,16 @@ const GestionJuegos = () => {
 
       if (editando) {
         await actualizarJuego(editando._id, payload);
-        setExito("Juego actualizado exitosamente");
+        toast.exito("Juego actualizado exitosamente");
       } else {
         await crearJuego(payload);
-        setExito("Juego creado exitosamente");
+        toast.exito("Juego creado exitosamente");
       }
 
       await cargarJuegos();
       handleCancelar();
-      setTimeout(() => setExito(null), 3000);
     } catch (err) {
-      setError(err.response?.data?.error || "Error al guardar juego");
+      toast.error(err.response?.data?.error || "Error al guardar juego");
     } finally {
       setGuardando(false);
     }
@@ -198,10 +191,9 @@ const GestionJuegos = () => {
       await eliminarJuego(confirmarEliminar._id);
       setJuegos((prev) => prev.filter((j) => j._id !== confirmarEliminar._id));
       setConfirmarEliminar(null);
-      setExito("Juego eliminado exitosamente");
-      setTimeout(() => setExito(null), 3000);
+      toast.exito("Juego eliminado exitosamente"); // 🔔
     } catch (err) {
-      setError(err.response?.data?.error || "Error al eliminar juego");
+      toast.error(err.response?.data?.error || "Error al eliminar juego");
       setConfirmarEliminar(null);
     } finally {
       setEliminando(false);
@@ -242,17 +234,6 @@ const GestionJuegos = () => {
             )}
           </div>
         </div>
-
-        {/* Alertas */}
-        {error && (
-          <Alert
-            type="error"
-            message={error}
-            onClose={() => setError(null)}
-            className="mb-4"
-          />
-        )}
-        {exito && <Alert type="success" message={exito} className="mb-4" />}
 
         {/* ── FORMULARIO ── */}
         {mostrarForm && (

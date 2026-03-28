@@ -9,6 +9,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "../../context/ToastContext";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import Spinner from "../../components/common/Spinner";
 import Alert from "../../components/common/Alert";
@@ -31,8 +32,7 @@ const GestionSugerencias = () => {
 
   const [sugerencias, setSugerencias] = useState([]);
   const [cargando, setCargando] = useState(true);
-  const [error, setError] = useState(null);
-  const [exito, setExito] = useState(null);
+  const toast = useToast();
   const [filtroEstado, setFiltroEstado] = useState("todas");
 
   // Modal de revisión
@@ -43,12 +43,11 @@ const GestionSugerencias = () => {
   // ── Cargar sugerencias ────────────────────────────────────────────────────
   const cargarSugerencias = useCallback(async () => {
     setCargando(true);
-    setError(null);
     try {
       const res = await obtenerSugerencias();
       setSugerencias(res.data);
     } catch (err) {
-      setError(err.response?.data?.error || "Error al cargar sugerencias");
+      toast.error(err.response?.data?.error || "Error al cargar sugerencias");
     } finally {
       setCargando(false);
     }
@@ -68,16 +67,15 @@ const GestionSugerencias = () => {
   const handleRevisar = (sugerencia) => {
     setModalRevision(sugerencia);
     setFeedback(sugerencia.notasAdmin || "");
-    setError(null);
   };
 
   // ── Cambiar estado ────────────────────────────────────────────────────────
   const handleCambiarEstado = async (estado) => {
     setProcesando(true);
-    setError(null);
     try {
       await cambiarEstadoSugerencia(modalRevision._id, estado, feedback);
-      setExito(
+      toast.exito(
+        // 🔔
         estado === "aprobada"
           ? "Sugerencia aprobada exitosamente"
           : estado === "rechazada"
@@ -87,9 +85,8 @@ const GestionSugerencias = () => {
       setModalRevision(null);
       setFeedback("");
       await cargarSugerencias();
-      setTimeout(() => setExito(null), 3000);
     } catch (err) {
-      setError(err.response?.data?.error || "Error al cambiar estado");
+      toast.error(err.response?.data?.error || "Error al cambiar estado"); // 🔔
     } finally {
       setProcesando(false);
     }
@@ -115,17 +112,6 @@ const GestionSugerencias = () => {
             Revisa y responde las propuestas de los profesionales
           </p>
         </div>
-
-        {/* Alertas */}
-        {error && (
-          <Alert
-            type="error"
-            message={error}
-            onClose={() => setError(null)}
-            className="mb-4"
-          />
-        )}
-        {exito && <Alert type="success" message={exito} className="mb-4" />}
 
         {/* Filtros por estado */}
         <div className="flex items-center gap-2 mb-5 flex-wrap">
