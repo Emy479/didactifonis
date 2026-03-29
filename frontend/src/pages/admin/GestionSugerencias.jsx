@@ -51,7 +51,7 @@ const GestionSugerencias = () => {
     } finally {
       setCargando(false);
     }
-  }, []);
+  }, [toast]);
 
   useEffect(() => {
     cargarSugerencias();

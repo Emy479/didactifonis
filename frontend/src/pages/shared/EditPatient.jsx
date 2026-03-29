@@ -67,7 +67,7 @@ const EditPatient = () => {
       }
     };
     cargar();
-  }, [id]);
+  }, [id, toast]);
 
   // ── Handlers ──────────────────────────────────────────────────────────────
   const handleChange = (e) => {

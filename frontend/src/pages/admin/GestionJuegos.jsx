@@ -13,7 +13,6 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../../context/ToastContext";
 import DashboardLayout from "../../components/layout/DashboardLayout";
-import Spinner from "../../components/common/Spinner";
 import {
   obtenerJuegos,
   crearJuego,
@@ -82,7 +81,7 @@ const GestionJuegos = () => {
     } finally {
       setCargando(false);
     }
-  }, []);
+  }, [toast]);
 
   useEffect(() => {
     cargarJuegos();
@@ -475,8 +474,34 @@ const GestionJuegos = () => {
 
         {/* ── LISTA DE JUEGOS ── */}
         {cargando ? (
-          <div className="flex justify-center py-20">
-            <Spinner size="lg" />
+          <div className="space-y-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div
+                key={i}
+                className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-200"
+              >
+                {/* Izquierda */}
+                <div className="flex items-center gap-4">
+                  {/* Dot publicado */}
+                  <div className="w-2 h-2 rounded-full bg-gray-200 animate-pulse flex-shrink-0" />
+                  <div className="space-y-2">
+                    <div className="h-4 w-48 bg-gray-200 rounded animate-pulse" />
+                    <div className="flex items-center gap-2">
+                      <div className="h-3 w-16 bg-gray-200 rounded animate-pulse" />
+                      <div className="h-3 w-20 bg-gray-200 rounded animate-pulse" />
+                      <div className="h-3 w-16 bg-gray-200 rounded animate-pulse" />
+                      <div className="h-3 w-14 bg-gray-200 rounded animate-pulse" />
+                    </div>
+                  </div>
+                </div>
+                {/* Derecha — botones acción */}
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-gray-200 rounded-lg animate-pulse" />
+                  <div className="w-8 h-8 bg-gray-200 rounded-lg animate-pulse" />
+                  <div className="w-8 h-8 bg-gray-200 rounded-lg animate-pulse" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : juegos.length === 0 ? (
           <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-gray-300">
