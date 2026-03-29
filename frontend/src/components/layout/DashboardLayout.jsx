@@ -7,7 +7,7 @@ import { useState } from "react";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 
-const DashboardLayout = ({ children }) => {
+const DashboardLayout = ({ children, noPadding = false }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -15,12 +15,14 @@ const DashboardLayout = ({ children }) => {
       {/* Navbar */}
       <Navbar onMenuClick={() => setSidebarOpen(true)} />
 
-      <div className="flex">
+      <div className="flex overflow-x-hidden">
         {/* Sidebar */}
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
         {/* Main content */}
-        <main className="flex-1 p-6 lg:p-8">{children}</main>
+        <main className={`flex-1 ${noPadding ? "" : "p-6 lg:p-8"}`}>
+          {children}
+        </main>
       </div>
     </div>
   );

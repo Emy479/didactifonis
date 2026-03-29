@@ -8,7 +8,7 @@ import BibliotecaJuegos from "../../components/games/BibliotecaJuegos";
 
 const BibliotecaPage = () => {
   return (
-    <DashboardLayout>
+    <DashboardLayout noPadding>
       <BibliotecaJuegos />
     </DashboardLayout>
   );
