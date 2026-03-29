@@ -6,9 +6,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
+import { useToast } from "../../context/ToastContext";
 import DashboardLayout from "../../components/layout/DashboardLayout";
-import Spinner from "../../components/common/Spinner";
-import Alert from "../../components/common/Alert";
 import {
   obtenerPaciente,
   eliminarPaciente,
@@ -47,11 +46,11 @@ const PatientDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const toast = useToast();
 
   const [paciente, setPaciente] = useState(null);
   const [asignaciones, setAsignaciones] = useState([]);
   const [cargando, setCargando] = useState(true);
-  const [error, setError] = useState(null);
   const [eliminando, setEliminando] = useState(null);
   const [confirmarEliminar, setConfirmarEliminar] = useState(false);
   const [juegoActivo, setJuegoActivo] = useState(null);
@@ -60,7 +59,6 @@ const PatientDetail = () => {
   // ── Cargar datos del paciente y sus asignaciones ──────────────────────────
   const cargarDatos = useCallback(async () => {
     setCargando(true);
-    setError(null);
     try {
       const [resPaciente, resAsignaciones] = await Promise.all([
         obtenerPaciente(id),
@@ -69,11 +67,14 @@ const PatientDetail = () => {
       setPaciente(resPaciente.data);
       setAsignaciones(resAsignaciones.data);
     } catch (err) {
-      setError(err.response?.data?.error || "Error al cargar los datos");
+      toast.error(err.response?.data?.error || "Error al cargar los datos");
+      navigate(
+        user?.role === "tutor" ? "/tutor/pacientes" : "/profesional/pacientes",
+      );
     } finally {
       setCargando(false);
     }
-  }, [id]);
+  }, [id, toast, navigate, user?.role]);
 
   useEffect(() => {
     cargarDatos();
@@ -86,7 +87,7 @@ const PatientDetail = () => {
       await desactivarAsignacion(asignacionId);
       setAsignaciones((prev) => prev.filter((a) => a._id !== asignacionId));
     } catch (err) {
-      setError(err.response?.data?.error || "Error al quitar el juego");
+      toast.error(err.response?.data?.error || "Error al quitar el juego");
     } finally {
       setEliminando(null);
     }
@@ -109,7 +110,7 @@ const PatientDetail = () => {
       await eliminarPaciente(id);
       navigate(rutaRegreso);
     } catch (err) {
-      setError(err.response?.data?.error || "Error al eliminar paciente");
+      toast.error(err.response?.data?.error || "Error al eliminar paciente");
       setConfirmarEliminar(false);
     }
   };
@@ -122,21 +123,75 @@ const PatientDetail = () => {
   if (cargando) {
     return (
       <DashboardLayout>
-        <div className="flex justify-center items-center h-64">
-          <Spinner size="lg" />
+        <div className="max-w-4xl mx-auto">
+          {/* Botón volver skeleton */}
+          <div className="h-4 w-28 bg-gray-200 rounded animate-pulse mb-6" />
+
+          {/* Cabecera skeleton */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
+            <div className="flex items-start gap-5">
+              <div className="w-16 h-16 rounded-full bg-gray-200 animate-pulse flex-shrink-0" />
+              <div className="flex-1 space-y-2">
+                <div className="h-6 w-48 bg-gray-200 rounded animate-pulse" />
+                <div className="flex gap-4">
+                  <div className="h-4 w-20 bg-gray-200 rounded animate-pulse" />
+                  <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
+                </div>
+                <div className="flex gap-2 mt-2">
+                  <div className="h-7 w-24 bg-gray-200 rounded-lg animate-pulse" />
+                  <div className="h-7 w-24 bg-gray-200 rounded-lg animate-pulse" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Sección clínica skeleton */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6 space-y-4">
+            <div className="h-5 w-36 bg-gray-200 rounded animate-pulse" />
+            <div className="grid grid-cols-2 gap-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="space-y-1.5">
+                  <div className="h-3 w-20 bg-gray-200 rounded animate-pulse" />
+                  <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
+                </div>
+              ))}
+            </div>
+            <div className="space-y-1.5">
+              <div className="h-3 w-24 bg-gray-200 rounded animate-pulse" />
+              <div className="h-16 bg-gray-200 rounded-lg animate-pulse" />
+            </div>
+          </div>
+
+          {/* Juegos asignados skeleton */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-6">
+            <div className="h-5 w-40 bg-gray-200 rounded animate-pulse mb-4" />
+            <div className="space-y-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gray-200 rounded-lg animate-pulse" />
+                    <div className="space-y-1.5">
+                      <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
+                      <div className="h-3 w-20 bg-gray-200 rounded animate-pulse" />
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="h-4 w-12 bg-gray-200 rounded animate-pulse" />
+                    <div className="h-4 w-12 bg-gray-200 rounded animate-pulse" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </DashboardLayout>
     );
   }
 
   // ── Error ─────────────────────────────────────────────────────────────────
-  if (error && !paciente) {
-    return (
-      <DashboardLayout>
-        <Alert type="error" message={error} />
-      </DashboardLayout>
-    );
-  }
 
   const nombreCompleto = `${paciente.nombre} ${paciente.apellido}`;
   const iniciales =
@@ -154,15 +209,6 @@ const PatientDetail = () => {
             <ArrowLeft className="h-4 w-4" />
             <span className="text-sm font-medium">Volver a pacientes</span>
           </button>
-
-          {error && (
-            <Alert
-              type="error"
-              message={error}
-              onClose={() => setError(null)}
-              className="mb-4"
-            />
-          )}
 
           {/* ── CABECERA ── */}
           <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
