@@ -10,7 +10,6 @@ import DashboardLayout from "../../components/layout/DashboardLayout";
 import Card from "../../components/common/Card";
 import Input from "../../components/common/Input";
 import Button from "../../components/common/Button";
-import Spinner from "../../components/common/Spinner";
 import { obtenerPaciente, actualizarPaciente } from "../../api/patients";
 import { UserCog, ArrowLeft } from "lucide-react";
 
@@ -129,8 +128,86 @@ const EditPatient = () => {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="flex justify-center items-center h-64">
-          <Spinner size="lg" />
+        <div className="max-w-2xl mx-auto">
+          {/* Cabecera skeleton */}
+          <div className="mb-6">
+            <div className="h-4 w-24 bg-gray-200 rounded animate-pulse mb-4" />
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gray-200 rounded-lg animate-pulse" />
+              <div className="space-y-2">
+                <div className="h-6 w-40 bg-gray-200 rounded animate-pulse" />
+                <div className="h-4 w-56 bg-gray-200 rounded animate-pulse" />
+              </div>
+            </div>
+          </div>
+
+          {/* Card skeleton */}
+          <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-6">
+            {/* Sección datos básicos */}
+            <div>
+              <div className="h-4 w-28 bg-gray-200 rounded animate-pulse mb-4" />
+              <div className="space-y-4">
+                {/* Nombre / Apellido */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <div className="h-3.5 w-16 bg-gray-200 rounded animate-pulse" />
+                    <div className="h-10 bg-gray-200 rounded-lg animate-pulse" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <div className="h-3.5 w-16 bg-gray-200 rounded animate-pulse" />
+                    <div className="h-10 bg-gray-200 rounded-lg animate-pulse" />
+                  </div>
+                </div>
+                {/* Fecha */}
+                <div className="space-y-1.5">
+                  <div className="h-3.5 w-32 bg-gray-200 rounded animate-pulse" />
+                  <div className="h-10 bg-gray-200 rounded-lg animate-pulse" />
+                </div>
+                {/* Género */}
+                <div className="space-y-1.5">
+                  <div className="h-3.5 w-16 bg-gray-200 rounded animate-pulse" />
+                  <div className="h-10 bg-gray-200 rounded-lg animate-pulse" />
+                </div>
+              </div>
+            </div>
+
+            <div className="h-px bg-gray-200" />
+
+            {/* Sección clínica */}
+            <div>
+              <div className="h-4 w-36 bg-gray-200 rounded animate-pulse mb-4" />
+              <div className="space-y-4">
+                {/* Diagnóstico */}
+                <div className="space-y-1.5">
+                  <div className="h-3.5 w-24 bg-gray-200 rounded animate-pulse" />
+                  <div className="h-24 bg-gray-200 rounded-lg animate-pulse" />
+                </div>
+                {/* Observaciones */}
+                <div className="space-y-1.5">
+                  <div className="h-3.5 w-28 bg-gray-200 rounded animate-pulse" />
+                  <div className="h-24 bg-gray-200 rounded-lg animate-pulse" />
+                </div>
+                {/* Áreas */}
+                <div className="space-y-2">
+                  <div className="h-3.5 w-28 bg-gray-200 rounded animate-pulse" />
+                  <div className="flex gap-2">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <div
+                        key={i}
+                        className="h-7 w-20 bg-gray-200 rounded-full animate-pulse"
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Botones */}
+            <div className="flex gap-4 pt-2">
+              <div className="h-10 flex-1 bg-gray-200 rounded-xl animate-pulse" />
+              <div className="h-10 flex-1 bg-gray-200 rounded-xl animate-pulse" />
+            </div>
+          </div>
         </div>
       </DashboardLayout>
     );
