@@ -11,7 +11,6 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../../context/ToastContext";
 import DashboardLayout from "../../components/layout/DashboardLayout";
-import Spinner from "../../components/common/Spinner";
 import Alert from "../../components/common/Alert";
 import { obtenerSugerencias, cambiarEstadoSugerencia } from "../../api/games";
 import { ArrowLeft, CheckCircle, XCircle, Clock, Eye } from "lucide-react";
@@ -144,8 +143,35 @@ const GestionSugerencias = () => {
 
         {/* Lista */}
         {cargando ? (
-          <div className="flex justify-center py-20">
-            <Spinner size="lg" />
+          <div className="space-y-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-xl border border-gray-200 p-4"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  {/* Izquierda */}
+                  <div className="flex-1 space-y-2">
+                    {/* Título + badge */}
+                    <div className="flex items-center gap-2">
+                      <div className="h-4 w-48 bg-gray-200 rounded animate-pulse" />
+                      <div className="h-5 w-20 bg-gray-200 rounded-full animate-pulse" />
+                    </div>
+                    {/* Descripción */}
+                    <div className="h-3 w-full bg-gray-200 rounded animate-pulse" />
+                    <div className="h-3 w-3/4 bg-gray-200 rounded animate-pulse" />
+                    {/* Meta */}
+                    <div className="flex items-center gap-3">
+                      <div className="h-3 w-24 bg-gray-200 rounded animate-pulse" />
+                      <div className="h-3 w-20 bg-gray-200 rounded animate-pulse" />
+                      <div className="h-3 w-16 bg-gray-200 rounded animate-pulse" />
+                    </div>
+                  </div>
+                  {/* Botón revisar */}
+                  <div className="h-8 w-20 bg-gray-200 rounded-lg animate-pulse flex-shrink-0" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : sugerenciasFiltradas.length === 0 ? (
           <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-gray-300">
