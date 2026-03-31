@@ -85,8 +85,8 @@ const ProgresoPaciente = ({ pacienteId }) => {
   // ── Sin datos aún ─────────────────────────────────────────────────────────
   if (!cargando && historial.length === 0) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-200 p-6">
-        <h2 className="flex items-center gap-2 text-base font-bold text-gray-900 mb-4">
+      <div className="bg-white rounded-2xl border border-gray-200 p-4 md:p-6 overflow-x-hidden">
+        <h2 className="flex items-center gap-2 text-base font-bold text-gray-900 mb-5">
           <TrendingUp className="h-5 w-5 text-blue-500" />
           Progreso
         </h2>
@@ -104,8 +104,8 @@ const ProgresoPaciente = ({ pacienteId }) => {
   // ── Loading ───────────────────────────────────────────────────────────────
   if (cargando) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-200 p-6">
-        <h2 className="flex items-center gap-2 text-base font-bold text-gray-900 mb-4">
+      <div className="bg-white rounded-2xl border border-gray-200 p-4 md:p-6 overflow-x-hidden">
+        <h2 className="flex items-center gap-2 text-base font-bold text-gray-900 mb-5">
           <TrendingUp className="h-5 w-5 text-blue-500" />
           Progreso
         </h2>
@@ -121,8 +121,8 @@ const ProgresoPaciente = ({ pacienteId }) => {
   // ── Error ─────────────────────────────────────────────────────────────────
   if (error) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-200 p-6">
-        <h2 className="flex items-center gap-2 text-base font-bold text-gray-900 mb-2">
+      <div className="bg-white rounded-2xl border border-gray-200 p-4 md:p-6 overflow-x-hidden">
+        <h2 className="flex items-center gap-2 text-base font-bold text-gray-900 mb-5">
           <TrendingUp className="h-5 w-5 text-blue-500" />
           Progreso
         </h2>
@@ -134,14 +134,14 @@ const ProgresoPaciente = ({ pacienteId }) => {
   const gen = estadisticas?.generales;
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-6">
+    <div className="bg-white rounded-2xl border border-gray-200 p-4 md:p-6 overflow-x-hidden">
       <h2 className="flex items-center gap-2 text-base font-bold text-gray-900 mb-5">
         <TrendingUp className="h-5 w-5 text-blue-500" />
         Progreso
       </h2>
 
       {/* ── Stats rápidas ── */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-6">
         {[
           {
             icon: Target,
@@ -172,10 +172,17 @@ const ProgresoPaciente = ({ pacienteId }) => {
             valor: Math.round((gen?.tiempoTotalJugado || 0) / 60),
           },
         ].map(({ icon: Icono, color, bg, label, valor }) => (
-          <div key={label} className={`${bg} rounded-xl p-3 text-center`}>
-            <Icono className={`h-5 w-5 ${color} mx-auto mb-1`} />
-            <p className="text-xl font-bold text-gray-900">{valor}</p>
-            <p className="text-xs text-gray-500 mt-0.5">{label}</p>
+          <div
+            key={label}
+            className={`${bg} rounded-xl p-2 md:p-3 text-center`}
+          >
+            <Icono className={`h-4 w-4 md:h-5 md:w-5 ${color} mx-auto mb-1`} />
+            <p className="text-lg md:text-xl font-bold text-gray-900">
+              {valor}
+            </p>
+            <p className="text-[10px] md:text-xs text-gray-500 mt-0.5 leading-tight">
+              {label}
+            </p>
           </div>
         ))}
       </div>
@@ -186,38 +193,41 @@ const ProgresoPaciente = ({ pacienteId }) => {
           <p className="text-sm font-semibold text-gray-700 mb-3">
             Evolución de puntuaciones (últimas {datosGrafica.length} sesiones)
           </p>
-          <ResponsiveContainer width="100%" height={180}>
-            <LineChart data={datosGrafica}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis
-                dataKey="fecha"
-                tick={{ fontSize: 11, fill: "#9ca3af" }}
-                tickLine={false}
-              />
-              <YAxis
-                tick={{ fontSize: 11, fill: "#9ca3af" }}
-                tickLine={false}
-                axisLine={false}
-                domain={[0, "auto"]}
-              />
-              <Tooltip
-                contentStyle={{
-                  borderRadius: "8px",
-                  border: "1px solid #e5e7eb",
-                  fontSize: "12px",
-                }}
-                formatter={(value) => [value, "Puntuación"]}
-              />
-              <Line
-                type="monotone"
-                dataKey="puntuacion"
-                stroke="#3b82f6"
-                strokeWidth={2}
-                dot={{ fill: "#3b82f6", r: 3 }}
-                activeDot={{ r: 5 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+          <div className="w-full overflow-hidden">
+            <ResponsiveContainer width="100%" height={160}>
+              <LineChart data={datosGrafica} margin={{ left: -10, right: 10 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis
+                  dataKey="fecha"
+                  tick={{ fontSize: 10, fill: "#9ca3af" }}
+                  tickLine={false}
+                  interval="preserveStartEnd"
+                />
+                <YAxis
+                  tick={{ fontSize: 11, fill: "#9ca3af" }}
+                  tickLine={false}
+                  axisLine={false}
+                  domain={[0, "auto"]}
+                />
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: "8px",
+                    border: "1px solid #e5e7eb",
+                    fontSize: "12px",
+                  }}
+                  formatter={(value) => [value, "Puntuación"]}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="puntuacion"
+                  stroke="#3b82f6"
+                  strokeWidth={2}
+                  dot={{ fill: "#3b82f6", r: 3 }}
+                  activeDot={{ r: 5 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       )}
 
@@ -227,33 +237,39 @@ const ProgresoPaciente = ({ pacienteId }) => {
           <p className="text-sm font-semibold text-gray-700 mb-3">
             Juegos más jugados
           </p>
-          <ResponsiveContainer width="100%" height={150}>
-            <BarChart data={datosJuegos} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis
-                type="number"
-                tick={{ fontSize: 11, fill: "#9ca3af" }}
-                tickLine={false}
-              />
-              <YAxis
-                type="category"
-                dataKey="nombre"
-                tick={{ fontSize: 11, fill: "#6b7280" }}
-                tickLine={false}
-                axisLine={false}
-                width={80}
-              />
-              <Tooltip
-                contentStyle={{
-                  borderRadius: "8px",
-                  border: "1px solid #e5e7eb",
-                  fontSize: "12px",
-                }}
-                formatter={(value) => [value, "Sesiones"]}
-              />
-              <Bar dataKey="sesiones" fill="#818cf8" radius={[0, 4, 4, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          <div className="w-full overflow-hidden">
+            <ResponsiveContainer width="100%" height={120}>
+              <BarChart
+                data={datosJuegos}
+                layout="vertical"
+                margin={{ left: 0, right: 10 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis
+                  type="number"
+                  tick={{ fontSize: 11, fill: "#9ca3af" }}
+                  tickLine={false}
+                />
+                <YAxis
+                  type="category"
+                  dataKey="nombre"
+                  tick={{ fontSize: 10, fill: "#6b7280" }}
+                  tickLine={false}
+                  axisLine={false}
+                  width={60}
+                />
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: "8px",
+                    border: "1px solid #e5e7eb",
+                    fontSize: "12px",
+                  }}
+                  formatter={(value) => [value, "Sesiones"]}
+                />
+                <Bar dataKey="sesiones" fill="#818cf8" radius={[0, 4, 4, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       )}
 
@@ -267,14 +283,14 @@ const ProgresoPaciente = ({ pacienteId }) => {
             {historial.slice(0, 5).map((sesion) => (
               <div
                 key={sesion._id}
-                className="flex items-center justify-between px-3 py-2 bg-gray-50 rounded-lg"
+                className="flex items-center justify-between px-3 py-2 bg-gray-50 rounded-lg gap-2"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 min-w-0">
                   <div
-                    className={`w-2 h-2 rounded-full ${sesion.aprobado ? "bg-green-400" : "bg-gray-300"}`}
+                    className={`w-2 h-2 rounded-full flex-shrink-0 ${sesion.aprobado ? "bg-green-400" : "bg-gray-300"}`}
                   />
-                  <div>
-                    <p className="text-xs font-medium text-gray-800">
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium text-gray-800 truncate">
                       {sesion.juego?.nombre || "Juego"}
                     </p>
                     <p className="text-xs text-gray-400">
@@ -286,7 +302,7 @@ const ProgresoPaciente = ({ pacienteId }) => {
                     </p>
                   </div>
                 </div>
-                <div className="text-right">
+                <div className="text-right flex-shrink-0">
                   <p className="text-xs font-bold text-gray-900">
                     {sesion.puntuacion} pts
                   </p>

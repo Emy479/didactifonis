@@ -163,7 +163,7 @@ const PatientDetail = () => {
           </div>
 
           {/* Juegos asignados skeleton */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-6">
+          <div className="bg-white rounded-2xl border border-gray-200 p-6  ">
             <div className="h-5 w-40 bg-gray-200 rounded animate-pulse mb-4" />
             <div className="space-y-3">
               {Array.from({ length: 3 }).map((_, i) => (
@@ -211,69 +211,66 @@ const PatientDetail = () => {
           </button>
 
           {/* ── CABECERA ── */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
-            <div className="flex items-start gap-5">
+          <div className="bg-white rounded-2xl border border-gray-200 p-4 md:p-6 mb-6">
+            <div className="flex items-start gap-4">
               {/* Avatar */}
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="text-xl font-bold text-blue-600">
+              <div className="w-14 h-14 md:w-16 md:h-16 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <span className="text-lg md:text-xl font-bold text-blue-600">
                   {iniciales}
                 </span>
               </div>
 
-              <div className="flex-1">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h1 className="text-2xl font-bold text-gray-900">
-                      {nombreCompleto}
-                    </h1>
-                    <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
-                        {calcularEdad(paciente.fechaNacimiento)} años
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <User className="h-4 w-4" />
-                        {paciente.genero === "masculino"
-                          ? "Masculino"
-                          : paciente.genero === "femenino"
-                            ? "Femenino"
-                            : "No especificado"}
-                      </span>
-                    </div>
-                  </div>
+              <div className="flex-1 min-w-0">
+                {/* Nombre + badge en mobile apilados */}
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <h1 className="text-xl md:text-2xl font-bold text-gray-900 leading-tight">
+                    {nombreCompleto}
+                  </h1>
+                  <span
+                    className={`flex-shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold ${
+                      paciente.tipoCuenta === "familiar"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-blue-100 text-blue-700"
+                    }`}
+                  >
+                    {paciente.tipoCuenta === "familiar"
+                      ? "Plan Familiar"
+                      : "Plan Profesional"}
+                  </span>
+                </div>
 
-                  <div className="flex items-center gap-3">
-                    {/* Badge tipo cuenta */}
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        paciente.tipoCuenta === "familiar"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-blue-100 text-blue-700"
-                      }`}
-                    >
-                      {paciente.tipoCuenta === "familiar"
-                        ? "Plan Familiar"
-                        : "Plan Profesional"}
-                    </span>
+                {/* Edad y género */}
+                <div className="flex flex-wrap items-center gap-3 mt-1 text-sm text-gray-500">
+                  <span className="flex items-center gap-1">
+                    <Calendar className="h-4 w-4 flex-shrink-0" />
+                    {calcularEdad(paciente.fechaNacimiento)} años
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <User className="h-4 w-4 flex-shrink-0" />
+                    {paciente.genero === "masculino"
+                      ? "Masculino"
+                      : paciente.genero === "femenino"
+                        ? "Femenino"
+                        : "No especificado"}
+                  </span>
+                </div>
 
-                    {/* Botón editar */}
-                    <button
-                      onClick={() => navigate(`/pacientes/${id}/editar`)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    >
-                      <UserCog className="h-4 w-4" />
-                      Editar
-                    </button>
-
-                    {/* Botón eliminar */}
-                    <button
-                      onClick={() => setConfirmarEliminar(true)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors bg-red-50 text-red-600 hover:bg-red-100"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      Eliminar
-                    </button>
-                  </div>
+                {/* Botones — fila en mobile */}
+                <div className="flex gap-2 mt-3">
+                  <button
+                    onClick={() => navigate(`/pacientes/${id}/editar`)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs md:text-sm font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  >
+                    <UserCog className="h-4 w-4" />
+                    Editar
+                  </button>
+                  <button
+                    onClick={() => setConfirmarEliminar(true)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs md:text-sm font-medium transition-colors bg-red-50 text-red-600 hover:bg-red-100"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Eliminar
+                  </button>
                 </div>
               </div>
             </div>
@@ -281,7 +278,7 @@ const PatientDetail = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             {/* ── DIAGNÓSTICO ── */}
-            <div className="bg-white rounded-2xl border border-gray-200 p-6">
+            <div className="bg-white rounded-2xl border border-gray-200 p-6  ">
               <h2 className="flex items-center gap-2 text-base font-bold text-gray-900 mb-4">
                 <FileText className="h-5 w-5 text-blue-500" />
                 Diagnóstico
@@ -309,7 +306,7 @@ const PatientDetail = () => {
             </div>
 
             {/* ── ÁREAS DE TRABAJO ── */}
-            <div className="bg-white rounded-2xl border border-gray-200 p-6">
+            <div className="bg-white rounded-2xl border border-gray-200 p-6  ">
               <h2 className="flex items-center gap-2 text-base font-bold text-gray-900 mb-4">
                 <Brain className="h-5 w-5 text-purple-500" />
                 Áreas de Trabajo
