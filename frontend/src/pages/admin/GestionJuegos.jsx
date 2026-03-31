@@ -518,76 +518,70 @@ const GestionJuegos = () => {
             {juegos.map((juego) => (
               <div
                 key={juego._id}
-                className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-200"
+                className="p-4 bg-white rounded-xl border border-gray-200"
               >
-                <div className="flex items-center gap-4">
-                  {/* Badge publicado */}
-                  <div
-                    className={`w-2 h-2 rounded-full flex-shrink-0 ${juego.publicado ? "bg-green-400" : "bg-gray-300"}`}
-                  />
-
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900">
+                {/* Fila superior — dot + nombre + botones */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div
+                      className={`w-2 h-2 rounded-full flex-shrink-0 ${juego.publicado ? "bg-green-400" : "bg-gray-300"}`}
+                    />
+                    <p className="text-sm font-semibold text-gray-900 truncate">
                       {juego.nombre}
                     </p>
-                    <div className="flex items-center gap-3 mt-0.5">
-                      <span className="text-xs text-gray-400">
-                        {juego.codigo}
-                      </span>
-                      <span className="text-xs text-gray-400">·</span>
-                      <span className="text-xs text-gray-400 capitalize">
-                        {juego.areaTerapeutica}
-                      </span>
-                      <span className="text-xs text-gray-400">·</span>
-                      <span className="text-xs text-gray-400 capitalize">
-                        {juego.nivelDificultad}
-                      </span>
-                      <span className="text-xs text-gray-400">·</span>
-                      <span
-                        className={`text-xs font-medium ${juego.publicado ? "text-green-600" : "text-gray-400"}`}
-                      >
-                        {juego.publicado ? "Publicado" : "Borrador"}
-                      </span>
-                    </div>
+                  </div>
+
+                  {/* Botones acción */}
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <button
+                      onClick={() =>
+                        actualizarJuego(juego._id, {
+                          publicado: !juego.publicado,
+                        }).then(cargarJuegos)
+                      }
+                      className="p-2 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                      title={juego.publicado ? "Despublicar" : "Publicar"}
+                    >
+                      {juego.publicado ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                    <button
+                      onClick={() => handleEditar(juego)}
+                      className="p-2 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                      title="Editar"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => setConfirmarEliminar(juego)}
+                      className="p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                      title="Eliminar"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
 
-                {/* Acciones */}
-                <div className="flex items-center gap-2">
-                  {/* Toggle publicado */}
-                  <button
-                    onClick={() =>
-                      actualizarJuego(juego._id, {
-                        publicado: !juego.publicado,
-                      }).then(cargarJuegos)
-                    }
-                    className="p-2 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
-                    title={juego.publicado ? "Despublicar" : "Publicar"}
+                {/* Fila inferior — metadata */}
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1.5 ml-5">
+                  <span className="text-xs text-gray-400">{juego.codigo}</span>
+                  <span className="text-xs text-gray-300">·</span>
+                  <span className="text-xs text-gray-400 capitalize">
+                    {juego.areaTerapeutica}
+                  </span>
+                  <span className="text-xs text-gray-300">·</span>
+                  <span className="text-xs text-gray-400 capitalize">
+                    {juego.nivelDificultad}
+                  </span>
+                  <span className="text-xs text-gray-300">·</span>
+                  <span
+                    className={`text-xs font-medium ${juego.publicado ? "text-green-600" : "text-gray-400"}`}
                   >
-                    {juego.publicado ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </button>
-
-                  {/* Editar */}
-                  <button
-                    onClick={() => handleEditar(juego)}
-                    className="p-2 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
-                    title="Editar"
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </button>
-
-                  {/* Eliminar */}
-                  <button
-                    onClick={() => setConfirmarEliminar(juego)}
-                    className="p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-                    title="Eliminar"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+                    {juego.publicado ? "Publicado" : "Borrador"}
+                  </span>
                 </div>
               </div>
             ))}
