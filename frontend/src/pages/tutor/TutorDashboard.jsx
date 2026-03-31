@@ -10,7 +10,6 @@ import DashboardLayout from "../../components/layout/DashboardLayout";
 import StatsCard from "../../components/common/StatsCard";
 import Button from "../../components/common/Button";
 import Card from "../../components/common/Card";
-import Spinner from "../../components/common/Spinner";
 import { obtenerMisPacientes } from "../../api/patients";
 import { Users, Gamepad2, UserPlus, BookOpen, TrendingUp } from "lucide-react";
 
@@ -47,8 +46,17 @@ const TutorDashboard = () => {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center h-64">
-          <Spinner size="lg" />
+        <div className="mb-6">
+          <div className="h-8 w-48 bg-gray-200 rounded animate-pulse mb-2" />
+          <div className="h-4 w-64 bg-gray-200 rounded animate-pulse" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div className="h-28 bg-gray-200 rounded-2xl animate-pulse" />
+          <div className="h-28 bg-gray-200 rounded-2xl animate-pulse" />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="h-40 bg-gray-200 rounded-2xl animate-pulse" />
+          <div className="h-40 bg-gray-200 rounded-2xl animate-pulse" />
         </div>
       </DashboardLayout>
     );
@@ -58,7 +66,7 @@ const TutorDashboard = () => {
     <DashboardLayout>
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
           ¡Hola, {user?.nombre}! 👋
         </h1>
         <p className="text-gray-600 mt-2">Bienvenido a tu dashboard familiar</p>
@@ -191,7 +199,7 @@ const TutorDashboard = () => {
             onClick={() => navigate("/tutor/crear-paciente")}
           >
             <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-3">
-              <UserPlus className="h-6 w-6 text-white" />
+              <UserPlus className="h-5 w-5 text-white" />
             </div>
             <h3 className="font-semibold text-gray-900 mb-1">
               1. Crea un perfil
@@ -206,7 +214,7 @@ const TutorDashboard = () => {
             onClick={() => navigate("/tutor/biblioteca")}
           >
             <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-3">
-              <BookOpen className="h-6 w-6 text-white" />
+              <BookOpen className="h-5 w-5 text-white" />
             </div>
             <h3 className="font-semibold text-gray-900 mb-1">
               2. Asigna juegos
@@ -221,7 +229,7 @@ const TutorDashboard = () => {
             onClick={() => navigate("/tutor/pacientes")}
           >
             <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-3">
-              <TrendingUp className="h-6 w-6 text-white" />
+              <TrendingUp className="h-5 w-5 text-white" />
             </div>
             <h3 className="font-semibold text-gray-900 mb-1">
               3. Monitorea progreso

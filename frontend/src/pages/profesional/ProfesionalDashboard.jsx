@@ -10,7 +10,6 @@ import DashboardLayout from "../../components/layout/DashboardLayout";
 import StatsCard from "../../components/common/StatsCard";
 import Button from "../../components/common/Button";
 import Card from "../../components/common/Card";
-import Spinner from "../../components/common/Spinner";
 import { obtenerMisPacientes } from "../../api/patients";
 import { obtenerMisSugerencias } from "../../api/suggestions";
 import { Users, Gamepad2, Lightbulb, UserPlus, BookOpen } from "lucide-react";
@@ -59,7 +58,7 @@ const ProfesionalDashboard = () => {
     <DashboardLayout>
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
           ¡Hola, {user?.nombre}! 👨‍⚕️
         </h1>
         <p className="text-gray-600 mt-2">
@@ -135,8 +134,8 @@ const ProfesionalDashboard = () => {
 
       {/* Sugerencias */}
       <Card className="mb-6 bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
-        <div className="flex items-start gap-4">
-          <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+        <div className="flex flex-col sm:flex-row items-start gap-4">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
             <Lightbulb className="h-6 w-6 text-white" />
           </div>
           <div className="flex-1">
@@ -147,7 +146,7 @@ const ProfesionalDashboard = () => {
               Sugiere juegos educativos para tus pacientes. El equipo de
               Didactifonis revisará tu propuesta y te dará feedback.
             </p>
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-2">
               <Button
                 variant="primary"
                 onClick={() => navigate("/profesional/sugerir-juego")}
