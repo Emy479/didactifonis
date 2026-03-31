@@ -7,31 +7,55 @@ import { useState, useEffect, useCallback } from "react";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
-export default function ModalAsignarPaciente({ juego, onClose, onAsignado }) {
+export default function ModalAsignarPaciente({
+  juego,
+  onClose,
+  onAsignado,
+  pacientesYaAsignados = [],
+}) {
   const [pacientes, setPacientes] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
   const [asignando, setAsignando] = useState(null);
-  const [exitosos, setExitosos] = useState([]);
+  const [exitosos, setExitosos] = useState(pacientesYaAsignados);
 
   const cargarPacientes = useCallback(async () => {
     setCargando(true);
     setError(null);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${API}/patients`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (!data.success)
-        throw new Error(data.error || "Error al cargar pacientes");
-      setPacientes(data.data);
+
+      // Cargar pacientes y asignaciones existentes en paralelo
+      const [resPacientes, resAsignaciones] = await Promise.all([
+        fetch(`${API}/patients`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetch(`${API}/assignments/juego/${juego._id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ]);
+
+      const dataPacientes = await resPacientes.json();
+      const dataAsignaciones = await resAsignaciones.json();
+
+      if (!dataPacientes.success)
+        throw new Error(dataPacientes.error || "Error al cargar pacientes");
+
+      setPacientes(dataPacientes.data);
+
+      // Marcar pacientes que ya tienen este juego asignado
+      if (dataAsignaciones.success && dataAsignaciones.data) {
+        const yaAsignados = dataAsignaciones.data
+          .map((a) => a.paciente?._id || a.paciente)
+          .filter(Boolean);
+        setExitosos((prev) => [...new Set([...prev, ...yaAsignados])]);
+      }
     } catch (err) {
       setError(err.message);
     } finally {
       setCargando(false);
     }
-  }, []);
+  }, [juego._id]);
 
   useEffect(() => {
     cargarPacientes();
@@ -52,14 +76,15 @@ export default function ModalAsignarPaciente({ juego, onClose, onAsignado }) {
       });
       const data = await res.json();
       if (!data.success) {
-        if (data.error?.includes("ya está asignado")) {
+        if (data.error?.includes("asignado")) {
           setExitosos((prev) => [...prev, paciente._id]);
+          onAsignado?.(`${paciente.nombre} ${paciente.apellido}`, paciente._id); // 🔔 persistir
         } else {
           throw new Error(data.error || "Error al asignar juego");
         }
       } else {
         setExitosos((prev) => [...prev, paciente._id]);
-        onAsignado?.(`${paciente.nombre} ${paciente.apellido}`);
+        onAsignado?.(`${paciente.nombre} ${paciente.apellido}`, paciente._id);
       }
     } catch (err) {
       setError(err.message);
@@ -73,13 +98,19 @@ export default function ModalAsignarPaciente({ juego, onClose, onAsignado }) {
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center p-4"
+      className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center sm:p-4"
       style={{ backgroundColor: "rgba(0,0,0,0.4)" }}
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="relative w-full max-w-md bg-white rounded-2xl overflow-hidden shadow-2xl border border-gray-200">
+      <div
+        className="relative w-full sm:max-w-md bg-white sm:rounded-2xl rounded-t-2xl overflow-hidden shadow-2xl border border-gray-200 flex flex-col"
+        style={{ maxHeight: "92vh" }}
+      >
+        {/* Handle mobile */}
+        <div className="sm:hidden w-10 h-1 bg-gray-300 rounded-full mx-auto mt-3 mb-1 flex-shrink-0" />
+
         {/* Header */}
-        <div className="px-6 pt-6 pb-4 border-b border-gray-200">
+        <div className="px-5 pt-4 pb-4 border-b border-gray-200 flex-shrink-0">
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-xs font-semibold uppercase tracking-widest mb-1 text-blue-600">
@@ -102,7 +133,7 @@ export default function ModalAsignarPaciente({ juego, onClose, onAsignado }) {
         </div>
 
         {/* Cuerpo */}
-        <div className="p-4 max-h-[420px] overflow-y-auto">
+        <div className="p-4 overflow-y-auto flex-1">
           {error && (
             <div className="mb-3 px-3 py-2 rounded-lg text-sm bg-red-50 text-red-600 border border-red-200">
               {error}
@@ -207,7 +238,7 @@ export default function ModalAsignarPaciente({ juego, onClose, onAsignado }) {
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+        <div className="px-5 py-4 border-t border-gray-200 bg-gray-50 flex-shrink-0">
           <button
             onClick={onClose}
             className="w-full py-2.5 rounded-xl text-sm font-medium bg-white border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors"

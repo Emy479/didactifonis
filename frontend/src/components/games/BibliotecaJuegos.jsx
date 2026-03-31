@@ -44,6 +44,7 @@ export default function BibliotecaJuegos() {
   const [orden, setOrden] = useState("relevancia");
   const [juegoDetalle, setJuegoDetalle] = useState(null);
   const [juegoAsignar, setJuegoAsignar] = useState(null);
+  const [asignacionesRealizadas, setAsignacionesRealizadas] = useState({});
   const [mostrarFiltros, setMostrarFiltros] = useState(false);
   const toast = useToast();
 
@@ -126,8 +127,11 @@ export default function BibliotecaJuegos() {
   const hayFiltros =
     areasActivas.length > 0 || difsActivas.length > 0 || rangoEdad || busqueda;
 
-  const handleAsignado = (nombre) => {
-    setJuegoAsignar(null);
+  const handleAsignado = (nombre, pacienteId) => {
+    setAsignacionesRealizadas((prev) => ({
+      ...prev,
+      [juegoAsignar._id]: [...(prev[juegoAsignar._id] || []), pacienteId],
+    }));
     toast.exito(`Juego asignado a ${nombre}`);
   };
 
@@ -135,14 +139,22 @@ export default function BibliotecaJuegos() {
     <div className="p-5">
       <div className="flex items-center justify-between mb-5">
         <h3 className="font-bold text-gray-900">Filtros</h3>
-        {hayFiltros && (
+        <div className="flex items-center gap-2">
+          {hayFiltros && (
+            <button
+              onClick={limpiarFiltros}
+              className="text-xs px-2 py-1 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-colors"
+            >
+              Limpiar
+            </button>
+          )}
           <button
-            onClick={limpiarFiltros}
-            className="text-xs px-2 py-1 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-colors"
+            onClick={() => setMostrarFiltros(false)}
+            className="md:hidden text-gray-400 hover:text-gray-700 text-xl leading-none"
           >
-            Limpiar
+            ✕
           </button>
-        )}
+        </div>
       </div>
       <FilterSection title="Área Terapéutica">
         {AREAS.map((area) => (
@@ -197,15 +209,6 @@ export default function BibliotecaJuegos() {
             className="absolute top-0 left-0 h-full w-72 max-w-[85vw] bg-white overflow-y-auto shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between px-5 pt-5 pb-2">
-              <span className="font-bold text-gray-900">Filtros</span>
-              <button
-                onClick={() => setMostrarFiltros(false)}
-                className="text-gray-400 hover:text-gray-700 text-xl"
-              >
-                ✕
-              </button>
-            </div>
             {PanelFiltros}
           </div>
         </div>
@@ -370,6 +373,7 @@ export default function BibliotecaJuegos() {
           juego={juegoAsignar}
           onClose={() => setJuegoAsignar(null)}
           onAsignado={handleAsignado}
+          pacientesYaAsignados={asignacionesRealizadas[juegoAsignar._id] || []}
         />
       )}
     </div>

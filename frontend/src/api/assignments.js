@@ -28,3 +28,11 @@ export const desactivarAsignacion = async (asignacionId) => {
   const response = await api.delete(`/assignments/${asignacionId}`);
   return response.data;
 };
+
+/**
+ * Obtener asignaciones de un juego
+ */
+export const obtenerAsignacionesJuego = async (juegoId) => {
+  const response = await api.get(`/assignments/juego/${juegoId}`);
+  return response.data;
+};

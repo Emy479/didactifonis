@@ -225,8 +225,9 @@ const obtenerPorJuego = async (req, res) => {
       });
     }
 
-    // Obtener asignaciones
+    // Obtener asignaciones — filtrar pacientes null (eliminados)
     let asignaciones = await Assignment.obtenerPacientesJuego(juegoId);
+    asignaciones = asignaciones.filter((a) => a.paciente !== null);
 
     // Filtrar según el rol del usuario
     if (req.user.role === "tutor") {
