@@ -28,6 +28,7 @@ import JugarPage from "../pages/jugar/JugarPage";
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import GestionJuegos from "../pages/admin/GestionJuegos";
 import GestionSugerencias from "../pages/admin/GestionSugerencias";
+import GestionUsuarios from "../pages/admin/GestionUsuarios";
 
 // Componentes de protección
 import ProtectedRoute from "./ProtectedRoute";
@@ -213,9 +214,17 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
+      {/* Gestión de usuario */}
+      <Route
+        path="/admin/usuarios"
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <GestionUsuarios />
+          </ProtectedRoute>
+        }
+      />
       {/* Ruta pública para pacientes - acceso por token */}
       <Route path="/jugar" element={<JugarPage />} />
-
       {/* Ruta 404 */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

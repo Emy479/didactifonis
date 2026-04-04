@@ -219,3 +219,6 @@ Authorization: Bearer {{tokenProfesional}}
 ### 4.3 - MARÍA INTENTA DESACTIVAR ASIGNACIÓN DE EMMA (DEBERÍA FALLAR)
 DELETE {{baseUrl}}/api/assignments/{{asignacionIdEmma}}
 Authorization: Bearer {{tokenTutor}}
+
+### Test
+GET {{baseUrl}}/api/admin/stats

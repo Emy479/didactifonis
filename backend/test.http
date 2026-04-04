@@ -1317,3 +1317,5 @@ Content-Type: application/json
     "dispositivo": "web"
 }
 
+### Test
+GET {{baseUrl}}/api/admin/stats

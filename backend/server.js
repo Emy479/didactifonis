@@ -24,6 +24,7 @@ const logger = require("./src/middleware/logger");
 const authRoutes = require("./src/routes/authRoutes");
 const patientsRoutes = require("./src/routes/patientsRoutes");
 const tareasRoutes = require("./src/routes/tareasRoutes");
+const adminRoutes = require("./src/routes/adminRoutes");
 const gamesRoutes = require("./src/routes/gamesRoutes");
 const assignmentsRoutes = require("./src/routes/assignmentsRoutes");
 const progressRoutes = require("./src/routes/progressRoutes");
@@ -83,6 +84,7 @@ app.get("/health", (req, res) => {
 });
 
 // Montar rutas de la API
+app.use("/api/admin", adminRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/patients", patientsRoutes);
 app.use("/api/tareas", tareasRoutes);

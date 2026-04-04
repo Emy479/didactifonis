@@ -1,8 +1,8 @@
 ### VARIABLES GLOBALES
-@baseUrl = http://localhost:3000
+@baseUrl = http://localhost:3001
 
 ### TOKENS (se actualizan en cada paso)
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWIxZGUxY2ExN2UyZGY3YWMxZGNjYWYiLCJlbWFpbCI6Im1hcmlhLnRlc3RAZWplbXBsby5jb20iLCJyb2xlIjoidHV0b3IiLCJpYXQiOjE3NzMyODU2NTUsImV4cCI6MTc3Mzg5MDQ1NX0.7892Ww_zXggf0LQjQ_BTf_w1VhWo2Stuwqx0xiy0Lj0
+###@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWIxZGUxY2ExN2UyZGY3YWMxZGNjYWYiLCJlbWFpbCI6Im1hcmlhLnRlc3RAZWplbXBsby5jb20iLCJyb2xlIjoidHV0b3IiLCJpYXQiOjE3NzMyODU2NTUsImV4cCI6MTc3Mzg5MDQ1NX0.7892Ww_zXggf0LQjQ_BTf_w1VhWo2Stuwqx0xiy0Lj0
 @tokenTutor = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWIxZGUxY2ExN2UyZGY3YWMxZGNjYWYiLCJlbWFpbCI6Im1hcmlhLnRlc3RAZWplbXBsby5jb20iLCJyb2xlIjoidHV0b3IiLCJpYXQiOjE3NzMyNjQ3OTAsImV4cCI6MTc3Mzg2OTU5MH0.3EXZnhFEnHyboPHtRO2kNSCRn6o8wHWWqr9GiEooago
 @tokenProfesional = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWIxZTBhNWExN2UyZGY3YWMxZGNjYmEiLCJlbWFpbCI6ImNhcmxvcy50ZXN0QGVqZW1wbG8uY29tIiwicm9sZSI6InByb2Zlc2lvbmFsIiwiaWF0IjoxNzczMjY1MDg3LCJleHAiOjE3NzM4Njk4ODd9.WP0Y-WhjsDTdBxjEdqinMt1j-b2gf5NX_xaQj4lCJEU
 @accessTokenPaciente = 732fed27170e299a50f60661deaccfb0ec12ede17bddf8c750369da713df4d9d
@@ -74,3 +74,17 @@ Content-Type: application/json
 
 ### TEST 5: RUTA 404
 GET {{baseUrl}}/api/ruta-que-no-existe
+
+### Admin Login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "admin@didactifonis.com",
+    "password": "password"
+}
+
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWJlYzA4NmM2ZDgzMGE3YjFmMDRhZDQiLCJlbWFpbCI6ImFkbWluQGRpZGFjdGlmb25pcy5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NzUyNzE0MzUsImV4cCI6MTc3NTg3NjIzNX0.8xOJjgVxvAFgziRdn-Y2DR3r8bCBYkuBXOhoY6QwVd0
+
+### Test Stats Admin
+GET {{baseUrl}}/api/admin/stats

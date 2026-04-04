@@ -1,34 +1,42 @@
 /**
  * Panel de Administración
- * Dashboard principal del admin con acceso a gestión de juegos y sugerencias
+ * Dashboard principal del admin con acceso a gestión de juegos, sugerencias y usuarios
  */
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../../components/layout/DashboardLayout";
-import { obtenerJuegos, obtenerSugerencias } from "../../api/games";
+import { obtenerJuegos } from "../../api/games";
+import { obtenerSugerencias } from "../../api/games";
+import { obtenerStatsAdmin } from "../../api/admin";
 import { Gamepad2, Lightbulb, Users, CheckCircle } from "lucide-react";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+
   const [stats, setStats] = useState({
     totalJuegos: 0,
     juegosPublicados: 0,
     sugerenciasPendientes: 0,
     sugerenciasEnRevision: 0,
+    totalUsuarios: 0,
+    profesionalesPendientes: 0,
   });
+
   const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
     const cargarStats = async () => {
       try {
-        const [resJuegos, resSugerencias] = await Promise.all([
+        const [resJuegos, resSugerencias, resAdmin] = await Promise.all([
           obtenerJuegos(),
           obtenerSugerencias(),
+          obtenerStatsAdmin(),
         ]);
 
         const juegos = resJuegos.data;
         const sugerencias = resSugerencias.data;
+        const admin = resAdmin.data;
 
         setStats({
           totalJuegos: juegos.length,
@@ -39,6 +47,8 @@ const AdminDashboard = () => {
           sugerenciasEnRevision: sugerencias.filter(
             (s) => s.estado === "en_revision",
           ).length,
+          totalUsuarios: admin.totalUsuarios || 0,
+          profesionalesPendientes: admin.profesionalesPendientes || 0,
         });
       } catch (err) {
         console.error("Error al cargar stats:", err);
@@ -46,6 +56,7 @@ const AdminDashboard = () => {
         setCargando(false);
       }
     };
+
     cargarStats();
   }, []);
 
@@ -68,6 +79,15 @@ const AdminDashboard = () => {
       ruta: "/admin/sugerencias",
       accion: "Ver Sugerencias",
     },
+    {
+      titulo: "Gestión de Usuarios",
+      valor: stats.totalUsuarios,
+      subtitulo: `${stats.profesionalesPendientes} profesionales pendientes`,
+      icono: Users,
+      color: "green",
+      ruta: "/admin/usuarios",
+      accion: "Gestionar Usuarios",
+    },
   ];
 
   const colores = {
@@ -83,6 +103,12 @@ const AdminDashboard = () => {
       text: "text-yellow-600",
       btn: "bg-yellow-500 hover:bg-yellow-600",
     },
+    green: {
+      bg: "bg-green-50",
+      icon: "bg-green-100",
+      text: "text-green-600",
+      btn: "bg-green-600 hover:bg-green-700",
+    },
   };
 
   return (
@@ -94,12 +120,12 @@ const AdminDashboard = () => {
             Panel de Administración
           </h1>
           <p className="text-gray-500 text-sm mt-1">
-            Gestiona los juegos oficiales y las sugerencias de profesionales
+            Gestiona los juegos oficiales, sugerencias y usuarios de la plataforma
           </p>
         </div>
 
         {/* Tarjetas de acceso rápido */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {tarjetas.map((t) => {
             const c = colores[t.color];
             const Icono = t.icono;
