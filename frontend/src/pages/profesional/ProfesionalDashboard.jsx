@@ -47,8 +47,20 @@ const ProfesionalDashboard = () => {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center h-64">
-          <Spinner size="lg" />
+        {/* Cabecera skeleton */}
+        <div className="mb-8 space-y-2">
+          <div className="h-8 w-64 bg-gray-200 rounded animate-pulse" />
+          <div className="h-4 w-48 bg-gray-200 rounded animate-pulse" />
+        </div>
+        {/* Stats skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div className="h-28 bg-gray-200 rounded-xl animate-pulse" />
+          <div className="h-28 bg-gray-200 rounded-xl animate-pulse" />
+        </div>
+        {/* Cards skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="h-44 bg-gray-200 rounded-xl animate-pulse" />
+          <div className="h-44 bg-gray-200 rounded-xl animate-pulse" />
         </div>
       </DashboardLayout>
     );

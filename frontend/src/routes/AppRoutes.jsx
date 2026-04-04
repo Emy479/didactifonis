@@ -17,6 +17,7 @@ import SuggestGame from "../pages/profesional/SuggestGame";
 import SuggestionsList from "../pages/profesional/SuggestionsList";
 
 // Imports
+import PerfilUsuario from "../pages/shared/PerfilUsuario";
 import CreatePatient from "../pages/shared/CreatePatient";
 import PatientsList from "../pages/shared/PatientsList";
 import BibliotecaPage from "../pages/shared/BibliotecaPage";
@@ -203,7 +204,15 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
-
+      {/* Perfil de usuario - todos los roles */}
+      <Route
+        path="/perfil"
+        element={
+          <ProtectedRoute allowedRoles={["tutor", "profesional", "admin"]}>
+            <PerfilUsuario />
+          </ProtectedRoute>
+        }
+      />
       {/* Ruta pública para pacientes - acceso por token */}
       <Route path="/jugar" element={<JugarPage />} />
 

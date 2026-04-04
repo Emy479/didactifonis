@@ -3,10 +3,10 @@
  * Barra de navegación superior con menú de usuario
  */
 
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
-import { LogOut, User, Settings, Menu, X } from 'lucide-react';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import { LogOut, User, Settings, Menu, X } from "lucide-react";
 
 const Navbar = ({ onMenuClick }) => {
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ const Navbar = ({ onMenuClick }) => {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate("/login");
   };
 
   return (
@@ -49,9 +49,7 @@ const Navbar = ({ onMenuClick }) => {
                 <p className="text-sm font-medium text-gray-700">
                   {user?.nombre}
                 </p>
-                <p className="text-xs text-gray-500 capitalize">
-                  {user?.role}
-                </p>
+                <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
               </div>
               <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold">
                 {user?.nombre?.charAt(0).toUpperCase()}
@@ -72,7 +70,7 @@ const Navbar = ({ onMenuClick }) => {
                   <button
                     onClick={() => {
                       setShowUserMenu(false);
-                      navigate('/profile');
+                      navigate("/perfil");
                     }}
                     className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
                   >
@@ -83,7 +81,7 @@ const Navbar = ({ onMenuClick }) => {
                   <button
                     onClick={() => {
                       setShowUserMenu(false);
-                      navigate('/settings');
+                      navigate("/settings");
                     }}
                     className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
                   >
