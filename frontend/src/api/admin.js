@@ -1,6 +1,6 @@
 /**
- * API de Administración
- * Funciones para llamar endpoints de /api/admin
+ * API de Administración y Offboarding
+ * Funciones para llamar endpoints de /api/admin y /api/offboarding
  */
 
 import api from "./axios";
@@ -35,5 +35,22 @@ export const listarPacientesInactivos = async () => {
 
 export const reactivarPaciente = async (id) => {
   const response = await api.put(`/admin/pacientes/${id}/reactivar`);
+  return response.data;
+};
+
+// ── Offboarding ───────────────────────────────────────────────────────────────
+
+export const desactivarCuenta = async (feedbackData) => {
+  const response = await api.post("/offboarding/desactivar", feedbackData);
+  return response.data;
+};
+
+export const listarFeedbacksOffboarding = async (filtros = {}) => {
+  const response = await api.get("/offboarding/feedbacks", { params: filtros });
+  return response.data;
+};
+
+export const obtenerStatsOffboarding = async () => {
+  const response = await api.get("/offboarding/feedbacks/stats");
   return response.data;
 };

@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "La contraseña es obligatoria"],
       minlength: [6, "La contraseña debe tener al menos 6 caracteres"],
-      select: false, // No devolver la contraseña por defecto en consultas
+      select: false,
     },
 
     // Rol del usuario
@@ -80,8 +80,6 @@ const userSchema = new mongoose.Schema(
     verificado: {
       type: Boolean,
       default: function () {
-        // Tutores verificados automáticamente
-        // Profesionales requieren verificación
         return this.role === "tutor";
       },
     },
@@ -91,6 +89,47 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+
+    // ============================================
+    // HISTORIAL DE ESTADOS — para CRM interno
+    // ============================================
+
+    // Fecha en que la cuenta fue desactivada por última vez
+    fechaDesactivacion: {
+      type: Date,
+      default: null,
+    },
+
+    // Fecha en que la cuenta fue reactivada por última vez
+    fechaReactivacion: {
+      type: Date,
+      default: null,
+    },
+
+    // Log completo de cambios de estado
+    historialEstados: [
+      {
+        estado: {
+          type: String,
+          enum: ["activo", "inactivo"],
+          required: true,
+        },
+        fecha: {
+          type: Date,
+          default: Date.now,
+        },
+        motivo: {
+          type: String,
+          enum: ["registro", "voluntario", "pago_pendiente", "admin", "reactivacion"],
+          default: "admin",
+        },
+        cambiadoPor: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          default: null, // null si fue automático (ej: pago vencido)
+        },
+      },
+    ],
 
     // Último login
     ultimoLogin: {
@@ -104,23 +143,64 @@ const userSchema = new mongoose.Schema(
 );
 
 // ============================================
-// MIDDLEWARE PRE-SAVE (antes de guardar)
+// MIDDLEWARE PRE-SAVE
 // ============================================
 
 /**
- * Hashear contraseña antes de guardar
+ * Hashear contraseña si fue modificada
  */
 userSchema.pre("save", async function () {
-  // Solo hashear si la contraseña fue modificada
-  if (!this.isModified("password")) {
-    return;
+  if (!this.isModified("password")) return;
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+});
+
+/**
+ * Registrar automáticamente cambios de estado en historialEstados
+ * y setear fechaDesactivacion / fechaReactivacion
+ */
+userSchema.pre("save", function () {
+  // Solo actuar si el campo 'activo' fue modificado
+  if (!this.isModified("activo")) return;
+
+  const ahora = new Date();
+
+  if (this.activo === false) {
+    // Cuenta se desactiva
+    this.fechaDesactivacion = ahora;
+    this.historialEstados.push({
+      estado: "inactivo",
+      fecha: ahora,
+      motivo: this._motivoCambioEstado || "admin",
+      cambiadoPor: this._cambiadoPor || null,
+    });
+  } else if (this.activo === true) {
+    // Cuenta se reactiva
+    this.fechaReactivacion = ahora;
+    this.historialEstados.push({
+      estado: "activo",
+      fecha: ahora,
+      motivo: "reactivacion",
+      cambiadoPor: this._cambiadoPor || null,
+    });
   }
 
-  // Generar salt (random string para hacer el hash único)
-  const salt = await bcrypt.genSalt(10);
+  // Limpiar propiedades temporales
+  delete this._motivoCambioEstado;
+  delete this._cambiadoPor;
+});
 
-  // Hashear la contraseña
-  this.password = await bcrypt.hash(this.password, salt);
+/**
+ * Al crear un usuario nuevo, registrar el estado inicial en el historial
+ */
+userSchema.post("save", async function (doc) {
+  // Solo en la primera creación (historial vacío antes del save)
+  if (doc.historialEstados.length === 1 && doc.historialEstados[0].motivo === "admin") {
+    // Corregir el motivo del primer registro a "registro"
+    await doc.constructor.findByIdAndUpdate(doc._id, {
+      $set: { "historialEstados.0.motivo": "registro" },
+    });
+  }
 });
 
 // ============================================
@@ -129,8 +209,6 @@ userSchema.pre("save", async function () {
 
 /**
  * Comparar contraseña ingresada con la hasheada
- * @param {string} passwordIngresado
- * @returns {boolean}
  */
 userSchema.methods.compararPassword = async function (passwordIngresado) {
   return await bcrypt.compare(passwordIngresado, this.password);
@@ -167,6 +245,31 @@ userSchema.methods.getDatosPublicos = function () {
     especialidad: this.especialidad,
     verificado: this.verificado,
     activo: this.activo,
+    fechaDesactivacion: this.fechaDesactivacion,
+    fechaReactivacion: this.fechaReactivacion,
+    createdAt: this.createdAt,
+    updatedAt: this.updatedAt,
+  };
+};
+
+/**
+ * Obtener datos completos incluyendo historial (para admin)
+ */
+userSchema.methods.getDatosAdmin = function () {
+  return {
+    _id: this._id,
+    nombre: this.nombre,
+    email: this.email,
+    role: this.role,
+    telefono: this.telefono,
+    especialidad: this.especialidad,
+    numeroRegistro: this.numeroRegistro,
+    verificado: this.verificado,
+    activo: this.activo,
+    fechaDesactivacion: this.fechaDesactivacion,
+    fechaReactivacion: this.fechaReactivacion,
+    historialEstados: this.historialEstados,
+    ultimoLogin: this.ultimoLogin,
     createdAt: this.createdAt,
     updatedAt: this.updatedAt,
   };
@@ -192,6 +295,15 @@ userSchema.statics.obtenerProfesionales = function () {
     verificado: true,
     activo: true,
   });
+};
+
+/**
+ * Obtener usuarios inactivos ordenados por fecha de desactivación
+ */
+userSchema.statics.obtenerInactivos = function () {
+  return this.find({ activo: false })
+    .select("-password")
+    .sort({ fechaDesactivacion: -1 });
 };
 
 // ============================================

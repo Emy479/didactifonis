@@ -29,6 +29,7 @@ const gamesRoutes = require("./src/routes/gamesRoutes");
 const assignmentsRoutes = require("./src/routes/assignmentsRoutes");
 const progressRoutes = require("./src/routes/progressRoutes");
 const suggestionsRoutes = require("./src/routes/suggestionsRoutes");
+const offboardingRoutes = require("./src/routes/offboardingRoutes");
 
 // ============================================
 // CREAR APLICACIÓN EXPRESS
@@ -92,6 +93,7 @@ app.use("/api/games", gamesRoutes);
 app.use("/api/assignments", assignmentsRoutes);
 app.use("/api/progress", progressRoutes);
 app.use("/api/suggestions", suggestionsRoutes);
+app.use("/api/offboarding", offboardingRoutes);
 
 // Ruta 404
 app.use((req, res) => {
