@@ -445,6 +445,103 @@ const DidactiEngine = (() => {
         border-radius: var(--radius);
         box-shadow: var(--sombra);
       }
+
+      /* ── Mecánica: tipeo ── */
+      #dg-tipeo-wrap {
+        width: 100%; max-width: 480px;
+        display: flex; flex-direction: column;
+        align-items: center; gap: 20px;
+      }
+      #dg-tipeo-prompt {
+        display: flex; flex-direction: column;
+        align-items: center; gap: 10px;
+      }
+      #dg-tipeo-prompt .dg-emoji { font-size: clamp(64px, 15vw, 96px); }
+      #dg-tipeo-prompt img { max-height: 160px; object-fit: contain; border-radius: var(--radius); box-shadow: var(--sombra); }
+      #dg-tipeo-blancos {
+        display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;
+      }
+      .dg-blanco {
+        min-width: 34px; height: 46px;
+        border-bottom: 3px solid var(--acento);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 22px; font-weight: 700; color: var(--texto);
+        transition: border-color 0.2s, color 0.2s;
+        padding: 0 4px;
+      }
+      .dg-blanco.correcto { border-color: #22c55e; color: #22c55e; }
+      #dg-tipeo-input-wrap { display: flex; gap: 8px; width: 100%; }
+      #dg-tipeo-input {
+        flex: 1; border: 2px solid #e5e7eb;
+        border-radius: var(--radius);
+        padding: 12px 16px; font-size: 18px; font-weight: 600;
+        color: var(--texto); outline: none; text-align: center;
+        transition: border-color 0.2s; font-family: inherit;
+      }
+      #dg-tipeo-input:focus   { border-color: var(--acento); }
+      #dg-tipeo-input.correcto   { border-color: #22c55e; background: #f0fdf4; }
+      #dg-tipeo-input.incorrecto { border-color: #ef4444; background: #fef2f2; animation: dg-sacudir 0.4s ease; }
+      #dg-tipeo-pista { font-size: 13px; color: #6b7280; cursor: pointer; text-decoration: underline; }
+      #dg-tipeo-pista:hover { color: var(--acento); }
+
+      /* ── Mecánica: memoria ── */
+      #dg-memoria-wrap { width: 100%; max-width: 620px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+      #dg-memoria-grid {
+        display: grid; gap: clamp(6px, 1.5vw, 12px);
+        width: 100%; grid-template-columns: repeat(4, 1fr);
+      }
+      @media (max-width: 380px) { #dg-memoria-grid { grid-template-columns: repeat(3, 1fr); } }
+      #dg-memoria-info { font-size: 13px; color: #6b7280; text-align: center; }
+      .dg-carta {
+        aspect-ratio: 1; border-radius: var(--radius);
+        box-shadow: var(--sombra); cursor: pointer;
+        position: relative; transform-style: preserve-3d;
+        transition: transform 0.4s ease;
+        user-select: none; -webkit-tap-highlight-color: transparent;
+      }
+      .dg-carta.volteada   { transform: rotateY(180deg); }
+      .dg-carta.emparejada { transform: rotateY(180deg); pointer-events: none; }
+      .dg-carta-dorso, .dg-carta-frente {
+        position: absolute; inset: 0;
+        display: flex; align-items: center; justify-content: center;
+        border-radius: var(--radius);
+        backface-visibility: hidden; -webkit-backface-visibility: hidden;
+      }
+      .dg-carta-dorso {
+        background: var(--acento); color: white;
+        font-size: clamp(20px, 5vw, 32px);
+      }
+      .dg-carta-frente {
+        background: var(--tarjeta); border: 2px solid var(--acento);
+        transform: rotateY(180deg);
+        flex-direction: column; gap: 4px; padding: 6px;
+      }
+      .dg-carta-frente img { width: 60%; height: 60%; object-fit: contain; }
+      .dg-carta-frente .dg-emoji { font-size: clamp(22px, 6vw, 40px); }
+      .dg-carta-frente .dg-label { font-size: clamp(9px, 2vw, 13px); font-weight: 600; color: var(--texto); text-align: center; word-break: break-word; }
+      .dg-carta.emparejada .dg-carta-frente { background: #f0fdf4; border-color: #22c55e; }
+
+      /* ── Mecánica: emparejar ── */
+      #dg-emparejar-wrap {
+        width: 100%; max-width: 640px;
+        display: grid; grid-template-columns: 1fr 1fr;
+        gap: clamp(8px, 2vw, 16px); align-items: start;
+      }
+      .dg-emp-col { display: flex; flex-direction: column; gap: 8px; }
+      .dg-emp-item {
+        background: var(--tarjeta); border: 2px solid #e5e7eb;
+        border-radius: var(--radius); padding: 10px 14px; cursor: pointer;
+        display: flex; align-items: center; gap: 8px;
+        font-size: clamp(13px, 3vw, 16px); font-weight: 600; color: var(--texto);
+        transition: border-color 0.2s, background 0.2s, transform 0.15s;
+        box-shadow: var(--sombra); user-select: none; min-height: 56px;
+      }
+      .dg-emp-item:hover       { transform: translateX(3px); border-color: var(--acento); }
+      .dg-emp-item.seleccionado { border-color: var(--acento); background: rgba(59,130,246,0.08); transform: translateX(3px); }
+      .dg-emp-item.correcto    { border-color: #22c55e; background: #f0fdf4; pointer-events: none; }
+      .dg-emp-item.incorrecto  { border-color: #ef4444; background: #fef2f2; animation: dg-sacudir 0.4s ease; }
+      .dg-emp-item .dg-emoji   { font-size: clamp(20px, 5vw, 30px); flex-shrink: 0; }
+      .dg-emp-item img         { width: 40px; height: 40px; object-fit: contain; flex-shrink: 0; }
     `;
 
     const tag = document.createElement('style');
@@ -1019,6 +1116,471 @@ const DidactiEngine = (() => {
     }
   };
 
+  // ── Mecánica: tipeo ────────────────────────────────────────────────────────
+  const mecTipeo = {
+    pistaActual: -1,
+    pistas: [],
+    respuestaNorm: '',
+
+    renderizar(ronda) {
+      this.pistaActual = -1;
+      this.pistas = ronda.pistas || [];
+      this.respuestaNorm = this.normalizar(ronda.textoRespuesta || '');
+      intentos = 0;
+      tiempoRondaInicio = Date.now();
+
+      renderizarInstruccion(ronda);
+
+      const contenido = document.getElementById('dg-contenido');
+      contenido.innerHTML = '';
+
+      const wrap = document.createElement('div');
+      wrap.id = 'dg-tipeo-wrap';
+
+      // Prompt visual
+      const prompt = document.createElement('div');
+      prompt.id = 'dg-tipeo-prompt';
+      if (ronda.imagen) {
+        const img = document.createElement('img');
+        img.src = ronda.imagen; img.alt = '';
+        prompt.appendChild(img);
+      } else if (ronda.emoji) {
+        const span = document.createElement('span');
+        span.className = 'dg-emoji';
+        span.textContent = ronda.emoji;
+        prompt.appendChild(span);
+      }
+      if (ronda.audioPrompt || ronda.audioInstruccion) {
+        const btn = document.createElement('button');
+        btn.className = 'dg-btn-audio';
+        btn.textContent = '🔊';
+        btn.onclick = () => audio.reproducir(ronda.audioPrompt || ronda.audioInstruccion, ronda.textoRespuesta);
+        prompt.appendChild(btn);
+      }
+      wrap.appendChild(prompt);
+
+      // Blancos (uno por carácter no espacio)
+      const respuesta = (ronda.textoRespuesta || '').toLowerCase();
+      const blancosWrap = document.createElement('div');
+      blancosWrap.id = 'dg-tipeo-blancos';
+      for (const c of respuesta) {
+        if (c === ' ') {
+          const sep = document.createElement('div');
+          sep.style.width = '16px';
+          blancosWrap.appendChild(sep);
+        } else {
+          const b = document.createElement('div');
+          b.className = 'dg-blanco';
+          blancosWrap.appendChild(b);
+        }
+      }
+      wrap.appendChild(blancosWrap);
+
+      // Input + botón verificar
+      const inputWrap = document.createElement('div');
+      inputWrap.id = 'dg-tipeo-input-wrap';
+
+      const input = document.createElement('input');
+      input.id = 'dg-tipeo-input';
+      input.type = 'text';
+      input.placeholder = 'Escribí la respuesta...';
+      input.autocomplete = 'off';
+      input.autocorrect = 'off';
+      input.autocapitalize = 'off';
+      input.spellcheck = false;
+
+      const respSinEsp = respuesta.replace(/\s/g, '');
+      input.addEventListener('input', () => {
+        const valSinEsp = input.value.toLowerCase().replace(/\s/g, '');
+        const blancos = Array.from(blancosWrap.querySelectorAll('.dg-blanco'));
+        blancos.forEach((b, i) => {
+          const ch = valSinEsp[i] || '';
+          b.textContent = ch;
+          b.classList.toggle('correcto', !!ch && ch === respSinEsp[i]);
+        });
+      });
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') btnOk.click(); });
+
+      const btnOk = document.createElement('button');
+      btnOk.className = 'dg-btn-primario';
+      btnOk.textContent = '✓';
+      btnOk.style.cssText = 'padding:12px 20px;border-radius:var(--radius);font-size:20px;';
+      btnOk.onclick = () => this.verificar(ronda, input, blancosWrap);
+
+      inputWrap.appendChild(input);
+      inputWrap.appendChild(btnOk);
+      wrap.appendChild(inputWrap);
+
+      // Pista
+      if (this.pistas.length > 0) {
+        const pistaEl = document.createElement('div');
+        pistaEl.id = 'dg-tipeo-pista';
+        pistaEl.textContent = '¿Necesitás una pista?';
+        pistaEl.onclick = () => this.mostrarPista(input);
+        wrap.appendChild(pistaEl);
+      }
+
+      contenido.appendChild(wrap);
+      setTimeout(() => input.focus(), 400);
+    },
+
+    normalizar(str) {
+      return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '').trim();
+    },
+
+    verificar(ronda, input, blancosWrap) {
+      const escrito = this.normalizar(input.value);
+      if (escrito === this.respuestaNorm) {
+        input.classList.add('correcto');
+        input.disabled = true;
+        blancosWrap.querySelectorAll('.dg-blanco').forEach(b => b.classList.add('correcto'));
+
+        const pts = intentos === 0
+          ? (config.puntajePorAcierto || 10)
+          : (config.puntajePorAciertoSegundoIntento || 5);
+        puntaje += pts;
+        mostrarFeedback('¡Muy bien! ✅');
+        audio.reproducirAleatorio(config.feedback?.correcto || [{ texto: '¡Muy bien!', audio: null }]);
+        detalleRondas.push({ ronda: rondaActual + 1, correcta: true, intentos: intentos + 1, tiempoRonda: Math.round((Date.now() - tiempoRondaInicio) / 1000) });
+        actualizarUI();
+        setTimeout(() => {
+          rondaActual++;
+          rondaActual >= config.rondasTotal ? mostrarResultados() : this.renderizar(rondas[rondaActual]);
+        }, 1400);
+      } else {
+        intentos++;
+        input.classList.add('incorrecto');
+        setTimeout(() => input.classList.remove('incorrecto'), 500);
+        mostrarFeedback('¡Inténtalo de nuevo! 🤔');
+        audio.reproducirAleatorio(config.feedback?.error || [{ texto: '¡Inténtalo!', audio: null }]);
+
+        if (intentos >= (config.intentosPorRonda || 3)) {
+          input.value = ronda.textoRespuesta;
+          input.classList.add('correcto');
+          input.disabled = true;
+          const respSinEsp = (ronda.textoRespuesta || '').toLowerCase().replace(/\s/g, '');
+          blancosWrap.querySelectorAll('.dg-blanco').forEach((b, i) => {
+            b.textContent = respSinEsp[i] || '';
+            b.classList.add('correcto');
+          });
+          detalleRondas.push({ ronda: rondaActual + 1, correcta: false, intentos, tiempoRonda: Math.round((Date.now() - tiempoRondaInicio) / 1000) });
+          setTimeout(() => {
+            rondaActual++;
+            rondaActual >= config.rondasTotal ? mostrarResultados() : this.renderizar(rondas[rondaActual]);
+          }, 2000);
+        }
+      }
+    },
+
+    mostrarPista(input) {
+      this.pistaActual = Math.min(this.pistaActual + 1, this.pistas.length - 1);
+      const pista = this.pistas[this.pistaActual];
+      if (pista) mostrarFeedback(`Pista: ${pista}`, 2500);
+      const pistaEl = document.getElementById('dg-tipeo-pista');
+      if (pistaEl && this.pistaActual >= this.pistas.length - 1) {
+        pistaEl.textContent = 'Sin más pistas';
+        pistaEl.style.cursor = 'default';
+        pistaEl.onclick = null;
+      }
+      input.focus();
+    }
+  };
+
+  // ── Mecánica: memoria ───────────────────────────────────────────────────────
+  const mecMemoria = {
+    cartasVolteadas: [],
+    paresEncontrados: 0,
+    totalPares: 0,
+    bloqueado: false,
+    movimientos: 0,
+
+    renderizar(ronda) {
+      this.cartasVolteadas = [];
+      this.paresEncontrados = 0;
+      this.totalPares = ronda.pares.length;
+      this.bloqueado = false;
+      this.movimientos = 0;
+      intentos = 0;
+      tiempoRondaInicio = Date.now();
+
+      renderizarInstruccion(ronda);
+
+      const contenido = document.getElementById('dg-contenido');
+      contenido.innerHTML = '';
+
+      const wrap = document.createElement('div');
+      wrap.id = 'dg-memoria-wrap';
+
+      const info = document.createElement('div');
+      info.id = 'dg-memoria-info';
+      info.textContent = `0 movimientos · 0/${ronda.pares.length} pares`;
+      wrap.appendChild(info);
+
+      const grid = document.createElement('div');
+      grid.id = 'dg-memoria-grid';
+
+      // Duplicar pares y mezclar
+      const cartas = mezclar([
+        ...ronda.pares.map(p => ({ ...p, inst: 'a' })),
+        ...ronda.pares.map(p => ({ ...p, inst: 'b' }))
+      ]);
+
+      // Ajustar columnas
+      const total = cartas.length;
+      if (total <= 8)       grid.style.gridTemplateColumns = 'repeat(4, 1fr)';
+      else if (total <= 12) grid.style.gridTemplateColumns = 'repeat(4, 1fr)';
+      else                  grid.style.gridTemplateColumns = 'repeat(5, 1fr)';
+
+      cartas.forEach((carta, i) => {
+        const el = this.crearCarta(carta, i);
+        grid.appendChild(el);
+      });
+
+      wrap.appendChild(grid);
+      contenido.appendChild(wrap);
+
+      // Preview breve al inicio
+      const durPreview = Math.min(1200 + total * 80, 2500);
+      grid.querySelectorAll('.dg-carta').forEach(c => c.classList.add('volteada'));
+      setTimeout(() => {
+        grid.querySelectorAll('.dg-carta:not(.emparejada)').forEach(c => c.classList.remove('volteada'));
+      }, durPreview);
+    },
+
+    crearCarta(carta, idx) {
+      const el = document.createElement('div');
+      el.className = 'dg-carta';
+      el.dataset.id = carta.id;
+      el.dataset.inst = carta.inst;
+      el.style.animationDelay = `${idx * 0.04}s`;
+
+      const dorso = document.createElement('div');
+      dorso.className = 'dg-carta-dorso';
+      dorso.textContent = config?.memoria?.simboloDorso || '❓';
+      el.appendChild(dorso);
+
+      const frente = document.createElement('div');
+      frente.className = 'dg-carta-frente';
+      if (carta.imagen) {
+        const img = document.createElement('img');
+        img.src = carta.imagen; img.alt = carta.texto || '';
+        frente.appendChild(img);
+      } else if (carta.emoji) {
+        const span = document.createElement('span');
+        span.className = 'dg-emoji';
+        span.textContent = carta.emoji;
+        frente.appendChild(span);
+      }
+      if (carta.texto && config?.accesibilidad?.textoVisible !== false) {
+        const lbl = document.createElement('div');
+        lbl.className = 'dg-label';
+        lbl.textContent = carta.texto;
+        frente.appendChild(lbl);
+      }
+      el.appendChild(frente);
+
+      el.addEventListener('click', () => this.voltear(el, carta));
+      return el;
+    },
+
+    voltear(el, carta) {
+      if (this.bloqueado) return;
+      if (el.classList.contains('volteada') || el.classList.contains('emparejada')) return;
+
+      el.classList.add('volteada');
+      if (carta.audioNombre || carta.texto) {
+        audio.reproducir(carta.audioNombre, carta.texto);
+      }
+      this.cartasVolteadas.push({ el, carta });
+
+      if (this.cartasVolteadas.length === 2) {
+        this.movimientos++;
+        this.actualizarInfo();
+        this.bloqueado = true;
+        setTimeout(() => this.verificarPar(), 750);
+      }
+    },
+
+    verificarPar() {
+      const [a, b] = this.cartasVolteadas;
+      const coinciden = a.carta.id === b.carta.id && a.carta.inst !== b.carta.inst;
+
+      if (coinciden) {
+        a.el.classList.replace('volteada', 'emparejada');
+        b.el.classList.replace('volteada', 'emparejada');
+        this.paresEncontrados++;
+        puntaje += Math.floor((config.puntajePorAcierto || 10) / this.totalPares) || 1;
+        mostrarFeedback('¡Par encontrado! 🎉');
+        actualizarUI();
+        this.actualizarInfo();
+
+        if (this.paresEncontrados === this.totalPares) {
+          detalleRondas.push({ ronda: rondaActual + 1, correcta: true, intentos: this.movimientos, tiempoRonda: Math.round((Date.now() - tiempoRondaInicio) / 1000) });
+          mostrarFeedback('¡Ronda completa! 🏆', 2000);
+          setTimeout(() => {
+            rondaActual++;
+            rondaActual >= config.rondasTotal ? mostrarResultados() : this.renderizar(rondas[rondaActual]);
+          }, 2000);
+        }
+      } else {
+        a.el.classList.remove('volteada');
+        b.el.classList.remove('volteada');
+        intentos++;
+      }
+
+      this.cartasVolteadas = [];
+      this.bloqueado = false;
+    },
+
+    actualizarInfo() {
+      const el = document.getElementById('dg-memoria-info');
+      if (el) el.textContent = `${this.movimientos} movimientos · ${this.paresEncontrados}/${this.totalPares} pares`;
+    }
+  };
+
+  // ── Mecánica: emparejar ─────────────────────────────────────────────────────
+  const mecEmparejar = {
+    seleccionadoIzq: null,
+    paresCompletados: 0,
+    totalPares: 0,
+    mapaPares: {},
+
+    renderizar(ronda) {
+      this.seleccionadoIzq = null;
+      this.paresCompletados = 0;
+      this.totalPares = ronda.pares.length;
+      this.mapaPares = {};
+      intentos = 0;
+      tiempoRondaInicio = Date.now();
+
+      ronda.pares.forEach(p => { this.mapaPares[p.izquierda.id] = p.derecha.id; });
+
+      renderizarInstruccion(ronda);
+
+      const contenido = document.getElementById('dg-contenido');
+      contenido.innerHTML = '';
+
+      const wrap = document.createElement('div');
+      wrap.id = 'dg-emparejar-wrap';
+
+      const colIzq = document.createElement('div');
+      colIzq.className = 'dg-emp-col';
+      const colDer = document.createElement('div');
+      colDer.className = 'dg-emp-col';
+
+      const izqItems = mezclar(ronda.pares.map(p => p.izquierda));
+      const derItems = mezclar(ronda.pares.map(p => p.derecha));
+
+      izqItems.forEach(item => {
+        const el = this.crearItem(item, 'izq');
+        el.addEventListener('click', () => this.seleccionarIzq(item, el));
+        colIzq.appendChild(el);
+      });
+
+      derItems.forEach(item => {
+        const el = this.crearItem(item, 'der');
+        el.addEventListener('click', () => this.intentarPar(item, el, ronda));
+        colDer.appendChild(el);
+      });
+
+      wrap.appendChild(colIzq);
+      wrap.appendChild(colDer);
+      contenido.appendChild(wrap);
+    },
+
+    crearItem(item, lado) {
+      const el = document.createElement('div');
+      el.className = 'dg-emp-item';
+      el.dataset.id = item.id;
+
+      if (item.imagen) {
+        const img = document.createElement('img');
+        img.src = item.imagen; img.alt = item.texto || '';
+        el.appendChild(img);
+      } else if (item.emoji) {
+        const span = document.createElement('span');
+        span.className = 'dg-emoji';
+        span.textContent = item.emoji;
+        el.appendChild(span);
+      }
+
+      if (item.texto) {
+        const lbl = document.createElement('span');
+        lbl.textContent = item.texto;
+        el.appendChild(lbl);
+      }
+
+      // Audio al hacer clic derecho / long press
+      if (item.audio || item.texto) {
+        el.addEventListener('contextmenu', e => {
+          e.preventDefault();
+          audio.reproducir(item.audio, item.texto);
+        });
+      }
+
+      return el;
+    },
+
+    seleccionarIzq(item, el) {
+      if (el.classList.contains('correcto')) return;
+      document.querySelectorAll('.dg-emp-item.seleccionado').forEach(e => e.classList.remove('seleccionado'));
+      this.seleccionadoIzq = { item, el };
+      el.classList.add('seleccionado');
+      audio.reproducir(item.audio, item.texto);
+    },
+
+    intentarPar(itemDer, elDer, ronda) {
+      if (!this.seleccionadoIzq) {
+        mostrarFeedback('Primero elegí un elemento de la izquierda');
+        return;
+      }
+      if (elDer.classList.contains('correcto')) return;
+
+      const { item: itemIzq, el: elIzq } = this.seleccionadoIzq;
+      const esCorrecta = this.mapaPares[itemIzq.id] === itemDer.id;
+
+      if (esCorrecta) {
+        elIzq.classList.remove('seleccionado');
+        elIzq.classList.add('correcto');
+        elDer.classList.add('correcto');
+        this.paresCompletados++;
+        puntaje += Math.floor((config.puntajePorAcierto || 10) / this.totalPares) || 1;
+        mostrarFeedback('¡Par correcto! ✅');
+        audio.reproducir(itemDer.audio, itemDer.texto);
+        actualizarUI();
+
+        if (this.paresCompletados === this.totalPares) {
+          detalleRondas.push({ ronda: rondaActual + 1, correcta: true, intentos: intentos + 1, tiempoRonda: Math.round((Date.now() - tiempoRondaInicio) / 1000) });
+          setTimeout(() => {
+            rondaActual++;
+            rondaActual >= config.rondasTotal ? mostrarResultados() : this.renderizar(rondas[rondaActual]);
+          }, 1600);
+        }
+      } else {
+        intentos++;
+        elDer.classList.add('incorrecto');
+        setTimeout(() => elDer.classList.remove('incorrecto'), 500);
+        mostrarFeedback('¡Inténtalo de nuevo! 🤔');
+
+        const maxIntentos = (config.intentosPorRonda || 3) * this.totalPares;
+        if (intentos >= maxIntentos) {
+          ronda.pares.forEach(par => {
+            const elI = document.querySelector(`.dg-emp-item[data-id="${par.izquierda.id}"]`);
+            const elD = document.querySelector(`.dg-emp-item[data-id="${par.derecha.id}"]`);
+            if (elI && !elI.classList.contains('correcto')) elI.classList.add('correcto');
+            if (elD && !elD.classList.contains('correcto')) elD.classList.add('correcto');
+          });
+          detalleRondas.push({ ronda: rondaActual + 1, correcta: false, intentos, tiempoRonda: Math.round((Date.now() - tiempoRondaInicio) / 1000) });
+          setTimeout(() => {
+            rondaActual++;
+            rondaActual >= config.rondasTotal ? mostrarResultados() : this.renderizar(rondas[rondaActual]);
+          }, 2000);
+        }
+      }
+      this.seleccionadoIzq = null;
+    }
+  };
+
   // ═══════════════════════════════════════════════════════════════════════════
   // RESULTADOS Y COMUNICACIÓN CON DIDACTIFONIS
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1100,10 +1662,15 @@ const DidactiEngine = (() => {
       mecOrdenar.renderizar(ronda);
     } else if (mec === 'seleccion_secuencial') {
       mecSecuencial.renderizar(ronda);
+    } else if (mec === 'tipeo') {
+      mecTipeo.renderizar(ronda);
+    } else if (mec === 'memoria') {
+      mecMemoria.renderizar(ronda);
+    } else if (mec === 'emparejar') {
+      mecEmparejar.renderizar(ronda);
     } else {
-      // Mecánica no implementada aún
       const contenido = document.getElementById('dg-contenido');
-      contenido.innerHTML = `<p style="color:#6b7280;text-align:center;">Mecánica "${mec}" próximamente</p>`;
+      contenido.innerHTML = `<p style="color:#6b7280;text-align:center;">Mecánica "${mec}" no reconocida</p>`;
     }
   };
 

@@ -13,10 +13,10 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../../context/ToastContext";
 import DashboardLayout from "../../components/layout/DashboardLayout";
-import { crearJuegoBuilder } from "../../api/gameBuilder";
+import { crearJuegoBuilder, subirAsset } from "../../api/gameBuilder";
 import {
   ArrowLeft, ArrowRight, Gamepad2, Check,
-  Plus, Trash2, ChevronDown, ChevronUp,
+  Plus, Trash2, ChevronDown, ChevronUp, Upload,
 } from "lucide-react";
 
 // ── Constantes ────────────────────────────────────────────────────────────────
@@ -48,6 +48,27 @@ const MECANICAS = [
     descripcion: "El jugador responde 2 preguntas en secuencia para completar una ronda.",
     emoji: "👣",
     ejemplos: "Emociones y frases, causa y efecto",
+  },
+  {
+    id: "tipeo",
+    nombre: "Tipeo",
+    descripcion: "Se muestra una imagen o emoji y el jugador debe escribir la palabra correcta.",
+    emoji: "⌨️",
+    ejemplos: "Vocabulario, escritura, fonología",
+  },
+  {
+    id: "memoria",
+    nombre: "Memoria",
+    descripcion: "El jugador voltea cartas de a dos para encontrar todos los pares iguales.",
+    emoji: "🃏",
+    ejemplos: "Vocabulario, categorías, asociaciones",
+  },
+  {
+    id: "emparejar",
+    nombre: "Emparejar",
+    descripcion: "El jugador une elementos de la columna izquierda con su par en la derecha.",
+    emoji: "🔗",
+    ejemplos: "Animal-sonido, imagen-palabra, causa-efecto",
   },
 ];
 
@@ -98,6 +119,30 @@ const elementoVacio = (pos) => ({
   texto: "",
   audio: null,
   posicionCorrecta: pos,
+});
+
+const parMemoriaVacio = () => ({
+  id: `par_${Date.now()}_${Math.random().toString(36).slice(2,6)}`,
+  emoji: "",
+  texto: "",
+  imagen: "",
+  audioNombre: null,
+});
+
+const parEmparejarVacio = () => ({
+  izquierda: {
+    id: `izq_${Date.now()}_${Math.random().toString(36).slice(2,6)}`,
+    emoji: "",
+    texto: "",
+    imagen: "",
+    audio: null,
+  },
+  derecha: {
+    id: `der_${Date.now()}_${Math.random().toString(36).slice(2,6)}`,
+    texto: "",
+    imagen: "",
+    audio: null,
+  },
 });
 
 // ── Ronda vacía por mecánica ──────────────────────────────────────────────────
@@ -155,7 +200,90 @@ const rondaVaciaPorMecanica = (mecanica) => {
       ],
     };
   }
+  if (mecanica === "tipeo") {
+    return {
+      textoInstruccion: "¿Cómo se llama esto?",
+      audioInstruccion: null,
+      emoji: "",
+      imagen: "",
+      audioPrompt: null,
+      textoRespuesta: "",
+      pistas: [],
+    };
+  }
+  if (mecanica === "memoria") {
+    return {
+      textoInstruccion: "Encontrá los pares iguales",
+      audioInstruccion: null,
+      pares: [parMemoriaVacio(), parMemoriaVacio(), parMemoriaVacio(), parMemoriaVacio()],
+    };
+  }
+  if (mecanica === "emparejar") {
+    return {
+      textoInstruccion: "Uní cada elemento con su par",
+      audioInstruccion: null,
+      pares: [parEmparejarVacio(), parEmparejarVacio(), parEmparejarVacio()],
+    };
+  }
   return {};
+};
+
+// ── Categorías de assets ──────────────────────────────────────────────────────
+const CATS_IMAGEN = ["animales","frutas","transporte","ropa","hogar","emociones","fondos","palabras","colores","numeros","otros"];
+const CATS_AUDIO  = ["palabras","fonemas","silabas","instrucciones","otros"];
+
+// ── Componente: subir imagen o audio con preview ──────────────────────────────
+const UploadAsset = ({ tipo = "imagen", categoriaDefault = "otros", onUrl, urlActual = "" }) => {
+  const [subiendo, setSubiendo] = useState(false);
+  const [error, setError]       = useState("");
+  const [cat, setCat]           = useState(categoriaDefault);
+  const cats = tipo === "audio" ? CATS_AUDIO : CATS_IMAGEN;
+
+  const manejarArchivo = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setError("");
+    setSubiendo(true);
+    try {
+      const res = await subirAsset(file, tipo, cat);
+      onUrl(res.data.url);
+    } catch (err) {
+      setError(err.response?.data?.error || "Error al subir el archivo");
+    } finally {
+      setSubiendo(false);
+      e.target.value = "";
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <div className="flex items-center gap-2">
+        <select value={cat} onChange={e => setCat(e.target.value)}
+          className="text-xs rounded-lg border border-gray-200 px-2 py-1 focus:outline-none focus:ring-1 focus:ring-purple-400">
+          {cats.map(c => <option key={c} value={c}>{c}</option>)}
+        </select>
+        <label className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors ${
+          subiendo ? "bg-gray-100 text-gray-400" : "bg-purple-50 text-purple-700 hover:bg-purple-100"
+        }`}>
+          <Upload className="h-3.5 w-3.5" />
+          {subiendo ? "Subiendo..." : `Subir ${tipo}`}
+          <input type="file" className="hidden" disabled={subiendo}
+            accept={tipo === "audio" ? "audio/*" : "image/*"}
+            onChange={manejarArchivo} />
+        </label>
+      </div>
+      {error && <p className="text-xs text-red-500">{error}</p>}
+      {urlActual && (
+        <div className="flex items-center gap-2 mt-0.5">
+          {tipo === "imagen"
+            ? <img src={urlActual} alt="" className="w-10 h-10 object-contain rounded border border-gray-200 bg-gray-50" />
+            : <span className="text-xs text-green-600 truncate max-w-[200px]">🔊 {urlActual.split("/").pop()}</span>
+          }
+          <span className="text-xs text-gray-400 truncate max-w-[180px]">{urlActual}</span>
+        </div>
+      )}
+    </div>
+  );
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -800,6 +928,176 @@ const FormularioRonda = ({ mecanica, ronda, rondaIdx, onActualizar, onActualizar
             </div>
           </div>
         ))}
+      </div>
+    );
+  }
+
+  // ── tipeo ───────────────────────────────────────────────────────────────────
+  if (mecanica === "tipeo") {
+    const pistas = ronda.pistas || [];
+    return (
+      <div className="space-y-4">
+        <CampoInstruccion placeholder="¿Cómo se llama esto?" />
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">Emoji (si no hay imagen)</label>
+            <input value={ronda.emoji || ""} onChange={e => onActualizar(rondaIdx, "emoji", e.target.value)}
+              placeholder="🐶" maxLength={2}
+              className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-xl text-center focus:outline-none focus:ring-2 focus:ring-purple-500" />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">Respuesta correcta <span className="text-red-500">*</span></label>
+            <input value={ronda.textoRespuesta || ""} onChange={e => onActualizar(rondaIdx, "textoRespuesta", e.target.value)}
+              placeholder="perro"
+              className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
+          </div>
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-500 mb-1">Imagen (opcional)</label>
+          <UploadAsset tipo="imagen" categoriaDefault="otros"
+            urlActual={ronda.imagen || ""}
+            onUrl={url => onActualizar(rondaIdx, "imagen", url)} />
+          <input value={ronda.imagen || ""} onChange={e => onActualizar(rondaIdx, "imagen", e.target.value)}
+            placeholder="/games/assets/imagenes/animales/perro.png"
+            className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 mt-1" />
+        </div>
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-xs font-medium text-gray-500">Pistas (opcional, de más fácil a más difícil)</label>
+            <button onClick={() => onActualizar(rondaIdx, "pistas", [...pistas, ""])}
+              className="text-xs text-purple-600 hover:underline">+ Agregar pista</button>
+          </div>
+          {pistas.map((p, pIdx) => (
+            <div key={pIdx} className="flex items-center gap-2 mb-1.5">
+              <span className="text-xs text-gray-400 w-4">{pIdx + 1}.</span>
+              <input value={p} onChange={e => {
+                const arr = [...pistas];
+                arr[pIdx] = e.target.value;
+                onActualizar(rondaIdx, "pistas", arr);
+              }} placeholder={`Pista ${pIdx + 1}`}
+                className="flex-1 rounded-lg border border-gray-200 px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-purple-400" />
+              <button onClick={() => onActualizar(rondaIdx, "pistas", pistas.filter((_, i) => i !== pIdx))}
+                className="text-gray-400 hover:text-red-500 text-xs px-1">✕</button>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // ── memoria ─────────────────────────────────────────────────────────────────
+  if (mecanica === "memoria") {
+    return (
+      <div className="space-y-4">
+        <CampoInstruccion placeholder="Encontrá los pares iguales" />
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs font-medium text-gray-500">
+              Pares de cartas — cada par aparece dos veces en el tablero
+            </p>
+            <button onClick={() => onActualizar(rondaIdx, "pares", [...(ronda.pares || []), parMemoriaVacio()])}
+              className="text-xs text-purple-600 hover:underline">+ Par</button>
+          </div>
+          <div className="space-y-2">
+            {(ronda.pares || []).map((par, pIdx) => (
+              <div key={par.id} className="p-3 rounded-xl border border-gray-200 bg-gray-50 space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-400 w-4 flex-shrink-0">{pIdx + 1}</span>
+                  <input value={par.emoji || ""} onChange={e => {
+                    const pares = [...ronda.pares];
+                    pares[pIdx] = { ...pares[pIdx], emoji: e.target.value };
+                    onActualizar(rondaIdx, "pares", pares);
+                  }} placeholder="🐶" maxLength={2}
+                    className="w-12 text-center rounded-lg border border-gray-200 px-1 py-1.5 text-lg bg-white focus:outline-none focus:ring-1 focus:ring-purple-400" />
+                  <input value={par.texto || ""} onChange={e => {
+                    const pares = [...ronda.pares];
+                    pares[pIdx] = { ...pares[pIdx], texto: e.target.value };
+                    onActualizar(rondaIdx, "pares", pares);
+                  }} placeholder="Texto visible"
+                    className="flex-1 rounded-lg border border-gray-200 px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-purple-400" />
+                  <button onClick={() => onActualizar(rondaIdx, "pares", ronda.pares.filter((_, i) => i !== pIdx))}
+                    className="p-1 text-gray-400 hover:text-red-500 flex-shrink-0">
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+                <UploadAsset tipo="imagen" categoriaDefault="otros"
+                  urlActual={par.imagen || ""}
+                  onUrl={url => {
+                    const pares = [...ronda.pares];
+                    pares[pIdx] = { ...pares[pIdx], imagen: url };
+                    onActualizar(rondaIdx, "pares", pares);
+                  }} />
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-gray-400 mt-2">
+            Recomendado: 4-6 pares (8-12 cartas en total)
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // ── emparejar ───────────────────────────────────────────────────────────────
+  if (mecanica === "emparejar") {
+    return (
+      <div className="space-y-4">
+        <CampoInstruccion placeholder="Uní cada elemento con su par" />
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs font-medium text-gray-500">Pares</p>
+            <button onClick={() => onActualizar(rondaIdx, "pares", [...(ronda.pares || []), parEmparejarVacio()])}
+              className="text-xs text-purple-600 hover:underline">+ Par</button>
+          </div>
+          <div className="space-y-3">
+            {(ronda.pares || []).map((par, pIdx) => (
+              <div key={pIdx} className="border border-gray-200 rounded-xl p-3 space-y-2 bg-gray-50">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-purple-600">Par {pIdx + 1}</span>
+                  <button onClick={() => onActualizar(rondaIdx, "pares", ronda.pares.filter((_, i) => i !== pIdx))}
+                    className="p-1 text-gray-400 hover:text-red-500">
+                    <Trash2 className="h-3 w-3" />
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {/* Izquierda */}
+                  <div className="space-y-1">
+                    <p className="text-xs text-gray-400 font-medium">← Izquierda</p>
+                    <input value={par.izquierda.emoji || ""} onChange={e => {
+                      const pares = [...ronda.pares];
+                      pares[pIdx] = { ...pares[pIdx], izquierda: { ...pares[pIdx].izquierda, emoji: e.target.value } };
+                      onActualizar(rondaIdx, "pares", pares);
+                    }} placeholder="🐶" maxLength={2}
+                      className="block w-full text-center rounded-lg border border-gray-200 px-2 py-1.5 text-lg bg-white focus:outline-none focus:ring-1 focus:ring-purple-400" />
+                    <input value={par.izquierda.texto || ""} onChange={e => {
+                      const pares = [...ronda.pares];
+                      pares[pIdx] = { ...pares[pIdx], izquierda: { ...pares[pIdx].izquierda, texto: e.target.value } };
+                      onActualizar(rondaIdx, "pares", pares);
+                    }} placeholder="Texto / etiqueta"
+                      className="block w-full rounded-lg border border-gray-200 px-2 py-1.5 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-purple-400" />
+                  </div>
+                  {/* Derecha */}
+                  <div className="space-y-1">
+                    <p className="text-xs text-gray-400 font-medium">→ Derecha</p>
+                    <input value={par.derecha.emoji || ""} onChange={e => {
+                      const pares = [...ronda.pares];
+                      pares[pIdx] = { ...pares[pIdx], derecha: { ...pares[pIdx].derecha, emoji: e.target.value } };
+                      onActualizar(rondaIdx, "pares", pares);
+                    }} placeholder="🔊" maxLength={2}
+                      className="block w-full text-center rounded-lg border border-gray-200 px-2 py-1.5 text-lg bg-white focus:outline-none focus:ring-1 focus:ring-purple-400" />
+                    <input value={par.derecha.texto || ""} onChange={e => {
+                      const pares = [...ronda.pares];
+                      pares[pIdx] = { ...pares[pIdx], derecha: { ...pares[pIdx].derecha, texto: e.target.value } };
+                      onActualizar(rondaIdx, "pares", pares);
+                    }} placeholder="Texto / etiqueta"
+                      className="block w-full rounded-lg border border-gray-200 px-2 py-1.5 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-purple-400" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-gray-400 mt-2">Recomendado: 3-5 pares por ronda</p>
+        </div>
       </div>
     );
   }

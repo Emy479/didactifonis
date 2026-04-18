@@ -9,12 +9,61 @@
  * POST /api/game-builder/crear
  */
 
-const fs   = require("fs");
-const path = require("path");
-const Game = require("../models/Game");
+const fs     = require("fs");
+const path   = require("path");
+const multer = require("multer");
+const Game   = require("../models/Game");
 
 // Ruta base donde viven los juegos (frontend/public/games/html5)
-const GAMES_DIR = path.join(__dirname, "..", "..", "..", "frontend", "public", "games", "html5");
+const GAMES_DIR   = path.join(__dirname, "..", "..", "..", "frontend", "public", "games", "html5");
+// Ruta base de assets estáticos
+const ASSETS_DIR  = path.join(__dirname, "..", "..", "..", "frontend", "public", "games", "assets");
+
+// ── Categorías y tipos de asset permitidos ───────────────────────────────────
+const CATEGORIAS_IMAGEN = ["animales", "frutas", "transporte", "ropa", "hogar", "emociones", "fondos", "palabras", "colores", "numeros", "otros"];
+const CATEGORIAS_AUDIO  = ["palabras", "fonemas", "silabas", "instrucciones", "feedback"];
+const MIME_IMAGEN = ["image/png", "image/jpeg", "image/gif", "image/webp", "image/svg+xml"];
+const MIME_AUDIO  = ["audio/mpeg", "audio/mp3", "audio/ogg", "audio/wav", "audio/webm"];
+const MAX_SIZE    = 5 * 1024 * 1024; // 5 MB
+
+// ── Storage dinámico con multer ──────────────────────────────────────────────
+const storage = multer.diskStorage({
+  destination(req, _file, cb) {
+    const { tipo, categoria } = req.query;
+    const subcarpeta = tipo === "audio" ? "audios" : "imagenes";
+    const cat = (CATEGORIAS_IMAGEN.includes(categoria) || CATEGORIAS_AUDIO.includes(categoria))
+      ? categoria
+      : "otros";
+    const destino = path.join(ASSETS_DIR, subcarpeta, cat);
+    fs.mkdirSync(destino, { recursive: true });
+    cb(null, destino);
+  },
+  filename(_req, file, cb) {
+    // Nombre limpio: sin tildes, solo alfanumérico + guiones
+    const base = path.parse(file.originalname).name
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]/g, "-")
+      .replace(/-+/g, "-")
+      .slice(0, 60);
+    const ext  = path.extname(file.originalname).toLowerCase();
+    const unico = `${base}-${Date.now()}${ext}`;
+    cb(null, unico);
+  }
+});
+
+const fileFilter = (req, file, cb) => {
+  const { tipo } = req.query;
+  const permitidos = tipo === "audio" ? MIME_AUDIO : MIME_IMAGEN;
+  if (permitidos.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error(`Tipo de archivo no permitido: ${file.mimetype}`));
+  }
+};
+
+const upload = multer({ storage, fileFilter, limits: { fileSize: MAX_SIZE } });
 
 // ── Helper: generar slug limpio desde el nombre ──────────────────────────────
 const generarSlug = (nombre) =>
@@ -275,4 +324,48 @@ const previsualizar = (req, res) => {
   });
 };
 
-module.exports = { crearJuego, actualizarJuego, previsualizar };
+// ─────────────────────────────────────────────────────────────────────────────
+// SUBIR ASSET (imagen o audio)
+// ─────────────────────────────────────────────────────────────────────────────
+/**
+ * POST /api/game-builder/upload-asset?tipo=imagen&categoria=animales
+ * Body: multipart/form-data con campo "archivo"
+ * Devuelve la URL pública del archivo subido.
+ */
+const subirAssetMiddleware = upload.single("archivo");
+
+const subirAsset = (req, res) => {
+  subirAssetMiddleware(req, res, (err) => {
+    if (err) {
+      if (err.code === "LIMIT_FILE_SIZE") {
+        return res.status(400).json({ success: false, error: "El archivo supera el máximo de 5 MB" });
+      }
+      return res.status(400).json({ success: false, error: err.message || "Error al subir el archivo" });
+    }
+    if (!req.file) {
+      return res.status(400).json({ success: false, error: "No se recibió ningún archivo" });
+    }
+
+    const { tipo, categoria } = req.query;
+    const subcarpeta = tipo === "audio" ? "audios" : "imagenes";
+    const cat = (CATEGORIAS_IMAGEN.includes(categoria) || CATEGORIAS_AUDIO.includes(categoria))
+      ? categoria
+      : "otros";
+
+    const urlPublica = `/games/assets/${subcarpeta}/${cat}/${req.file.filename}`;
+
+    res.json({
+      success: true,
+      message: "Archivo subido correctamente",
+      data: {
+        url: urlPublica,
+        filename: req.file.filename,
+        size: req.file.size,
+        tipo,
+        categoria: cat,
+      }
+    });
+  });
+};
+
+module.exports = { crearJuego, actualizarJuego, previsualizar, subirAsset };
