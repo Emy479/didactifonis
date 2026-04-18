@@ -100,6 +100,7 @@ const TEMAS = [
 const itemVacio = () => ({
   id: `item_${Date.now()}_${Math.random().toString(36).slice(2,6)}`,
   emoji: "",
+  imagen: "",
   texto: "",
   audioNombre: null,
   esIntruso: false,
@@ -109,6 +110,7 @@ const itemVacio = () => ({
 const opcionVacia = () => ({
   id: `op_${Date.now()}_${Math.random().toString(36).slice(2,6)}`,
   emoji: "",
+  imagen: "",
   texto: "",
   audioNombre: null,
   correcta: false,
@@ -183,18 +185,18 @@ const rondaVaciaPorMecanica = (mecanica) => {
           pregunta: "",
           audioPregunta: null,
           opciones: [
-            { ...opcionVacia(), correcta: true },
-            opcionVacia(),
-            opcionVacia(),
+            { ...opcionVacia(), correcta: true, emoji: "" },
+            { ...opcionVacia(), emoji: "" },
+            { ...opcionVacia(), emoji: "" },
           ],
         },
         {
           pregunta: "",
           audioPregunta: null,
           opciones: [
-            { ...opcionVacia(), correcta: true },
-            opcionVacia(),
-            opcionVacia(),
+            { ...opcionVacia(), correcta: true, emoji: "" },
+            { ...opcionVacia(), emoji: "" },
+            { ...opcionVacia(), emoji: "" },
           ],
         },
       ],
@@ -774,31 +776,36 @@ const FormularioRonda = ({ mecanica, ronda, rondaIdx, onActualizar, onActualizar
         <CampoInstruccion placeholder="¿Cuál no es un animal?" />
         <div>
           <p className="text-xs font-medium text-gray-500 mb-2">
-            Ítems — marca cuál es el intruso con el botón 🔍
+            Ítems — marca cuál es el intruso con 🔍
           </p>
           <div className="space-y-2">
             {(ronda.items || []).map((item, iIdx) => (
-              <div key={item.id} className={`flex items-center gap-2 p-3 rounded-xl border transition-colors ${
+              <div key={item.id} className={`p-3 rounded-xl border transition-colors space-y-2 ${
                 item.esIntruso ? "border-orange-400 bg-orange-50" : "border-gray-200 bg-gray-50"
               }`}>
-                <input value={item.emoji} onChange={e => onActualizarItem(rondaIdx, iIdx, "emoji", e.target.value)}
-                  placeholder="🐶" maxLength={2}
-                  className="w-12 text-center rounded-lg border border-gray-200 px-1 py-1.5 text-lg bg-white focus:outline-none focus:ring-1 focus:ring-purple-400" />
-                <input value={item.texto} onChange={e => onActualizarItem(rondaIdx, iIdx, "texto", e.target.value)}
-                  placeholder="Nombre del elemento"
-                  className="flex-1 rounded-lg border border-gray-200 px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-purple-400" />
-                <button onClick={() => onMarcarCorrecta(rondaIdx, iIdx)}
-                  title="Marcar como intruso"
-                  className={`w-8 h-8 rounded-lg text-sm transition-colors flex-shrink-0 ${
-                    item.esIntruso ? "bg-orange-500 text-white" : "bg-gray-200 text-gray-500 hover:bg-orange-100"
-                  }`}>
-                  🔍
-                </button>
+                <div className="flex items-center gap-2">
+                  <input value={item.emoji} onChange={e => onActualizarItem(rondaIdx, iIdx, "emoji", e.target.value)}
+                    placeholder="🐶" maxLength={2}
+                    className="w-12 text-center rounded-lg border border-gray-200 px-1 py-1.5 text-lg bg-white focus:outline-none focus:ring-1 focus:ring-purple-400" />
+                  <input value={item.texto} onChange={e => onActualizarItem(rondaIdx, iIdx, "texto", e.target.value)}
+                    placeholder="Nombre del elemento"
+                    className="flex-1 rounded-lg border border-gray-200 px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-purple-400" />
+                  <button onClick={() => onMarcarCorrecta(rondaIdx, iIdx)}
+                    title="Marcar como intruso"
+                    className={`w-8 h-8 rounded-lg text-sm transition-colors flex-shrink-0 ${
+                      item.esIntruso ? "bg-orange-500 text-white" : "bg-gray-200 text-gray-500 hover:bg-orange-100"
+                    }`}>
+                    🔍
+                  </button>
+                </div>
+                <UploadAsset tipo="imagen" categoriaDefault="otros"
+                  urlActual={item.imagen || ""}
+                  onUrl={url => onActualizarItem(rondaIdx, iIdx, "imagen", url)} />
               </div>
             ))}
           </div>
           <p className="text-xs text-gray-400 mt-2">
-            El elemento marcado con 🔍 naranja es el intruso. Toca el botón para cambiarlo.
+            El elemento marcado con 🔍 naranja es el intruso.
           </p>
         </div>
       </div>
@@ -816,22 +823,27 @@ const FormularioRonda = ({ mecanica, ronda, rondaIdx, onActualizar, onActualizar
           </p>
           <div className="space-y-2">
             {(ronda.opciones || []).map((op, oIdx) => (
-              <div key={op.id} className={`flex items-center gap-2 p-3 rounded-xl border transition-colors ${
+              <div key={op.id} className={`p-3 rounded-xl border transition-colors space-y-2 ${
                 op.correcta ? "border-green-400 bg-green-50" : "border-gray-200 bg-gray-50"
               }`}>
-                <input value={op.emoji} onChange={e => onActualizarItem(rondaIdx, oIdx, "emoji", e.target.value)}
-                  placeholder="🐶" maxLength={2}
-                  className="w-12 text-center rounded-lg border border-gray-200 px-1 py-1.5 text-lg bg-white focus:outline-none focus:ring-1 focus:ring-purple-400" />
-                <input value={op.texto} onChange={e => onActualizarItem(rondaIdx, oIdx, "texto", e.target.value)}
-                  placeholder="Opción"
-                  className="flex-1 rounded-lg border border-gray-200 px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-purple-400" />
-                <button onClick={() => onMarcarCorrecta(rondaIdx, oIdx)}
-                  title="Marcar como correcta"
-                  className={`w-8 h-8 rounded-lg text-sm transition-colors flex-shrink-0 font-bold ${
-                    op.correcta ? "bg-green-500 text-white" : "bg-gray-200 text-gray-500 hover:bg-green-100"
-                  }`}>
-                  ✓
-                </button>
+                <div className="flex items-center gap-2">
+                  <input value={op.emoji} onChange={e => onActualizarItem(rondaIdx, oIdx, "emoji", e.target.value)}
+                    placeholder="🐶" maxLength={2}
+                    className="w-12 text-center rounded-lg border border-gray-200 px-1 py-1.5 text-lg bg-white focus:outline-none focus:ring-1 focus:ring-purple-400" />
+                  <input value={op.texto} onChange={e => onActualizarItem(rondaIdx, oIdx, "texto", e.target.value)}
+                    placeholder="Opción"
+                    className="flex-1 rounded-lg border border-gray-200 px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-purple-400" />
+                  <button onClick={() => onMarcarCorrecta(rondaIdx, oIdx)}
+                    title="Marcar como correcta"
+                    className={`w-8 h-8 rounded-lg text-sm transition-colors flex-shrink-0 font-bold ${
+                      op.correcta ? "bg-green-500 text-white" : "bg-gray-200 text-gray-500 hover:bg-green-100"
+                    }`}>
+                    ✓
+                  </button>
+                </div>
+                <UploadAsset tipo="imagen" categoriaDefault="otros"
+                  urlActual={op.imagen || ""}
+                  onUrl={url => onActualizarItem(rondaIdx, oIdx, "imagen", url)} />
               </div>
             ))}
           </div>
@@ -851,10 +863,13 @@ const FormularioRonda = ({ mecanica, ronda, rondaIdx, onActualizar, onActualizar
             className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-500 mb-1">URL imagen de apoyo (opcional)</label>
+          <label className="block text-xs font-medium text-gray-500 mb-1">Imagen de apoyo (opcional)</label>
+          <UploadAsset tipo="imagen" categoriaDefault="palabras"
+            urlActual={ronda.imagenApoyo || ""}
+            onUrl={url => onActualizar(rondaIdx, "imagenApoyo", url)} />
           <input value={ronda.imagenApoyo || ""} onChange={e => onActualizar(rondaIdx, "imagenApoyo", e.target.value)}
             placeholder="/games/assets/imagenes/palabras/mariposa.png"
-            className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
+            className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 mt-1" />
         </div>
         <div>
           <p className="text-xs font-medium text-gray-500 mb-2">
@@ -888,10 +903,13 @@ const FormularioRonda = ({ mecanica, ronda, rondaIdx, onActualizar, onActualizar
     return (
       <div className="space-y-4">
         <div>
-          <label className="block text-xs font-medium text-gray-500 mb-1">URL imagen principal (opcional)</label>
+          <label className="block text-xs font-medium text-gray-500 mb-1">Imagen principal (opcional)</label>
+          <UploadAsset tipo="imagen" categoriaDefault="emociones"
+            urlActual={ronda.imagen || ""}
+            onUrl={url => onActualizar(rondaIdx, "imagen", url)} />
           <input value={ronda.imagen || ""} onChange={e => onActualizar(rondaIdx, "imagen", e.target.value)}
             placeholder="/games/assets/imagenes/emociones/alegre.png"
-            className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
+            className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 mt-1" />
         </div>
         {(ronda.pasos || []).map((paso, pIdx) => (
           <div key={pIdx} className="border border-gray-200 rounded-xl p-4 space-y-3">
@@ -904,25 +922,44 @@ const FormularioRonda = ({ mecanica, ronda, rondaIdx, onActualizar, onActualizar
               className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
             <div className="space-y-2">
               {paso.opciones.map((op, oIdx) => (
-                <div key={op.id} className={`flex items-center gap-2 p-2 rounded-xl border transition-colors ${
+                <div key={op.id} className={`p-2 rounded-xl border transition-colors space-y-1.5 ${
                   op.correcta ? "border-green-400 bg-green-50" : "border-gray-200 bg-gray-50"
                 }`}>
-                  <input value={op.texto} onChange={e => {
-                    const pasos = [...ronda.pasos];
-                    const opciones = [...pasos[pIdx].opciones];
-                    opciones[oIdx] = { ...opciones[oIdx], texto: e.target.value };
-                    pasos[pIdx] = { ...pasos[pIdx], opciones };
-                    onActualizar(rondaIdx, "pasos", pasos);
-                  }} placeholder="Opción"
-                    className="flex-1 rounded-lg border border-gray-200 px-3 py-1.5 text-sm bg-white focus:outline-none" />
-                  <button onClick={() => {
-                    const pasos = [...ronda.pasos];
-                    const opciones = pasos[pIdx].opciones.map((o, j) => ({ ...o, correcta: j === oIdx }));
-                    pasos[pIdx] = { ...pasos[pIdx], opciones };
-                    onActualizar(rondaIdx, "pasos", pasos);
-                  }} className={`w-7 h-7 rounded-lg text-xs font-bold flex-shrink-0 ${
-                    op.correcta ? "bg-green-500 text-white" : "bg-gray-200 text-gray-500"
-                  }`}>✓</button>
+                  <div className="flex items-center gap-2">
+                    <input value={op.emoji || ""} onChange={e => {
+                      const pasos = [...ronda.pasos];
+                      const opciones = [...pasos[pIdx].opciones];
+                      opciones[oIdx] = { ...opciones[oIdx], emoji: e.target.value };
+                      pasos[pIdx] = { ...pasos[pIdx], opciones };
+                      onActualizar(rondaIdx, "pasos", pasos);
+                    }} placeholder="🐶" maxLength={2}
+                      className="w-10 text-center rounded-lg border border-gray-200 px-1 py-1.5 text-base bg-white focus:outline-none" />
+                    <input value={op.texto} onChange={e => {
+                      const pasos = [...ronda.pasos];
+                      const opciones = [...pasos[pIdx].opciones];
+                      opciones[oIdx] = { ...opciones[oIdx], texto: e.target.value };
+                      pasos[pIdx] = { ...pasos[pIdx], opciones };
+                      onActualizar(rondaIdx, "pasos", pasos);
+                    }} placeholder="Opción"
+                      className="flex-1 rounded-lg border border-gray-200 px-3 py-1.5 text-sm bg-white focus:outline-none" />
+                    <button onClick={() => {
+                      const pasos = [...ronda.pasos];
+                      const opciones = pasos[pIdx].opciones.map((o, j) => ({ ...o, correcta: j === oIdx }));
+                      pasos[pIdx] = { ...pasos[pIdx], opciones };
+                      onActualizar(rondaIdx, "pasos", pasos);
+                    }} className={`w-7 h-7 rounded-lg text-xs font-bold flex-shrink-0 ${
+                      op.correcta ? "bg-green-500 text-white" : "bg-gray-200 text-gray-500"
+                    }`}>✓</button>
+                  </div>
+                  <UploadAsset tipo="imagen" categoriaDefault="otros"
+                    urlActual={op.imagen || ""}
+                    onUrl={url => {
+                      const pasos = [...ronda.pasos];
+                      const opciones = [...pasos[pIdx].opciones];
+                      opciones[oIdx] = { ...opciones[oIdx], imagen: url };
+                      pasos[pIdx] = { ...pasos[pIdx], opciones };
+                      onActualizar(rondaIdx, "pasos", pasos);
+                    }} />
                 </div>
               ))}
             </div>
