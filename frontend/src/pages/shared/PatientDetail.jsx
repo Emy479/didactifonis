@@ -28,10 +28,12 @@ import {
   UserCog,
   Trash2,
   Play,
+  Download,
 } from "lucide-react";
 import ProgresoPaciente from "../../components/patients/ProgresoPaciente";
 import PlayerJuego from "../jugar/PlayerJuego";
 import ModalAsignarProfesional from "../../components/patients/ModalAsignarProfesional";
+import ModalExportarPDF from "../../components/patients/ModalExportarPDF";
 
 const AREAS_LABEL = {
   fonologia: "Fonología",
@@ -55,6 +57,7 @@ const PatientDetail = () => {
   const [confirmarEliminar, setConfirmarEliminar] = useState(false);
   const [juegoActivo, setJuegoActivo] = useState(null);
   const [mostrarAsignarProf, setMostrarAsignarProf] = useState(false);
+  const [mostrarExportarPDF, setMostrarExportarPDF] = useState(false);
 
   // ── Cargar datos del paciente y sus asignaciones ──────────────────────────
   const cargarDatos = useCallback(async () => {
@@ -124,10 +127,7 @@ const PatientDetail = () => {
     return (
       <DashboardLayout>
         <div className="max-w-4xl mx-auto">
-          {/* Botón volver skeleton */}
           <div className="h-4 w-28 bg-gray-200 rounded animate-pulse mb-6" />
-
-          {/* Cabecera skeleton */}
           <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
             <div className="flex items-start gap-5">
               <div className="w-16 h-16 rounded-full bg-gray-200 animate-pulse flex-shrink-0" />
@@ -144,8 +144,6 @@ const PatientDetail = () => {
               </div>
             </div>
           </div>
-
-          {/* Sección clínica skeleton */}
           <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6 space-y-4">
             <div className="h-5 w-36 bg-gray-200 rounded animate-pulse" />
             <div className="grid grid-cols-2 gap-4">
@@ -161,16 +159,11 @@ const PatientDetail = () => {
               <div className="h-16 bg-gray-200 rounded-lg animate-pulse" />
             </div>
           </div>
-
-          {/* Juegos asignados skeleton */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-6  ">
+          <div className="bg-white rounded-2xl border border-gray-200 p-6">
             <div className="h-5 w-40 bg-gray-200 rounded animate-pulse mb-4" />
             <div className="space-y-3">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100"
-                >
+                <div key={i} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gray-200 rounded-lg animate-pulse" />
                     <div className="space-y-1.5">
@@ -190,8 +183,6 @@ const PatientDetail = () => {
       </DashboardLayout>
     );
   }
-
-  // ── Error ─────────────────────────────────────────────────────────────────
 
   const nombreCompleto = `${paciente.nombre} ${paciente.apellido}`;
   const iniciales =
@@ -221,7 +212,6 @@ const PatientDetail = () => {
               </div>
 
               <div className="flex-1 min-w-0">
-                {/* Nombre + badge en mobile apilados */}
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <h1 className="text-xl md:text-2xl font-bold text-gray-900 leading-tight">
                     {nombreCompleto}
@@ -255,8 +245,8 @@ const PatientDetail = () => {
                   </span>
                 </div>
 
-                {/* Botones — fila en mobile */}
-                <div className="flex gap-2 mt-3">
+                {/* Botones */}
+                <div className="flex flex-wrap gap-2 mt-3">
                   <button
                     onClick={() => navigate(`/pacientes/${id}/editar`)}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs md:text-sm font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -264,6 +254,16 @@ const PatientDetail = () => {
                     <UserCog className="h-4 w-4" />
                     Editar
                   </button>
+
+                  {/* ── Botón exportar PDF ── */}
+                  <button
+                    onClick={() => setMostrarExportarPDF(true)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs md:text-sm font-medium transition-colors bg-blue-50 text-blue-600 hover:bg-blue-100"
+                  >
+                    <Download className="h-4 w-4" />
+                    Exportar PDF
+                  </button>
+
                   <button
                     onClick={() => setConfirmarEliminar(true)}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs md:text-sm font-medium transition-colors bg-red-50 text-red-600 hover:bg-red-100"
@@ -278,7 +278,7 @@ const PatientDetail = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             {/* ── DIAGNÓSTICO ── */}
-            <div className="bg-white rounded-2xl border border-gray-200 p-6  ">
+            <div className="bg-white rounded-2xl border border-gray-200 p-6">
               <h2 className="flex items-center gap-2 text-base font-bold text-gray-900 mb-4">
                 <FileText className="h-5 w-5 text-blue-500" />
                 Diagnóstico
@@ -292,7 +292,6 @@ const PatientDetail = () => {
                   Sin diagnóstico registrado
                 </p>
               )}
-
               {paciente.observaciones && (
                 <div className="mt-4 pt-4 border-t border-gray-100">
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
@@ -306,7 +305,7 @@ const PatientDetail = () => {
             </div>
 
             {/* ── ÁREAS DE TRABAJO ── */}
-            <div className="bg-white rounded-2xl border border-gray-200 p-6  ">
+            <div className="bg-white rounded-2xl border border-gray-200 p-6">
               <h2 className="flex items-center gap-2 text-base font-bold text-gray-900 mb-4">
                 <Brain className="h-5 w-5 text-purple-500" />
                 Áreas de Trabajo
@@ -365,14 +364,10 @@ const PatientDetail = () => {
                         {typeof prof === "object" ? prof.nombre : "Profesional"}
                       </span>
                     </div>
-
-                    {/* Botón remover — solo visible para tutores */}
                     {user?.role === "tutor" && (
                       <button
                         onClick={() =>
-                          removerProfesional(paciente._id, prof._id).then(
-                            cargarDatos,
-                          )
+                          removerProfesional(paciente._id, prof._id).then(cargarDatos)
                         }
                         className="text-xs text-red-400 hover:text-red-600 font-medium transition-colors"
                       >
@@ -395,13 +390,10 @@ const PatientDetail = () => {
                 {asignaciones.length === 1 ? "juego" : "juegos"}
               </span>
             </h2>
-
             {asignaciones.length === 0 ? (
               <div className="text-center py-8">
                 <Gamepad2 className="h-10 w-10 text-gray-300 mx-auto mb-3" />
-                <p className="text-sm text-gray-400">
-                  No hay juegos asignados aún
-                </p>
+                <p className="text-sm text-gray-400">No hay juegos asignados aún</p>
                 <p className="text-xs text-gray-400 mt-1">
                   Ve a la Biblioteca de Juegos para asignar uno
                 </p>
@@ -422,8 +414,7 @@ const PatientDetail = () => {
                           {asignacion.juego?.nombre || "Juego"}
                         </p>
                         <p className="text-xs text-gray-500">
-                          {asignacion.estadisticas?.vecesJugado || 0} veces
-                          jugado
+                          {asignacion.estadisticas?.vecesJugado || 0} veces jugado
                           {asignacion.estadisticas?.completado && (
                             <span className="ml-2 text-green-600 font-medium">
                               ✓ Completado
@@ -432,7 +423,6 @@ const PatientDetail = () => {
                         </p>
                       </div>
                     </div>
-
                     <div className="flex items-center gap-3">
                       <button
                         onClick={() =>
@@ -459,11 +449,13 @@ const PatientDetail = () => {
               </div>
             )}
           </div>
+
           {/* ── PROGRESO ── */}
           <div className="mt-6">
             <ProgresoPaciente pacienteId={id} />
           </div>
-          {/* Modal de confirmación */}
+
+          {/* Modal confirmar eliminar */}
           {confirmarEliminar && (
             <div
               className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -513,6 +505,15 @@ const PatientDetail = () => {
             setMostrarAsignarProf(false);
             cargarDatos();
           }}
+        />
+      )}
+
+      {/* Modal exportar PDF */}
+      {mostrarExportarPDF && paciente && (
+        <ModalExportarPDF
+          paciente={paciente}
+          asignaciones={asignaciones}
+          onClose={() => setMostrarExportarPDF(false)}
         />
       )}
 
