@@ -29,6 +29,7 @@ import AdminDashboard from "../pages/admin/AdminDashboard";
 import GestionJuegos from "../pages/admin/GestionJuegos";
 import GestionSugerencias from "../pages/admin/GestionSugerencias";
 import GestionUsuarios from "../pages/admin/GestionUsuarios";
+import GameBuilder from "../pages/admin/GameBuilder";
 
 // Componentes de protección
 import ProtectedRoute from "./ProtectedRoute";
@@ -38,194 +39,54 @@ const AppRoutes = () => {
 
   return (
     <Routes>
-      {/* Ruta raíz - redirige según autenticación */}
-      <Route
-        path="/"
+      {/* Ruta raíz */}
+      <Route path="/"
         element={
           isAuthenticated ? (
-            user?.role === "tutor" ? (
-              <Navigate to="/tutor/dashboard" replace />
-            ) : user?.role === "profesional" ? (
-              <Navigate to="/profesional/dashboard" replace />
-            ) : user?.role === "admin" ? (
-              <Navigate to="/admin/dashboard" replace />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          ) : (
-            <Navigate to="/login" replace />
-          )
+            user?.role === "tutor"        ? <Navigate to="/tutor/dashboard" replace /> :
+            user?.role === "profesional"  ? <Navigate to="/profesional/dashboard" replace /> :
+            user?.role === "admin"        ? <Navigate to="/admin/dashboard" replace /> :
+                                            <Navigate to="/login" replace />
+          ) : <Navigate to="/login" replace />
         }
       />
-      {/* Rutas públicas (auth) */}
-      <Route path="/login" element={<Login />} />
+
+      {/* Rutas públicas */}
+      <Route path="/login"    element={<Login />} />
       <Route path="/register" element={<Register />} />
-      {/* Rutas protegidas - Tutor */}
-      <Route
-        path="/tutor/dashboard"
-        element={
-          <ProtectedRoute allowedRoles={["tutor"]}>
-            <TutorDashboard />
-          </ProtectedRoute>
-        }
-      />
-      {/* Rutas TUTOR Pacientes */}
-      <Route
-        path="/tutor/pacientes"
-        element={
-          <ProtectedRoute allowedRoles={["tutor"]}>
-            <PatientsList />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/tutor/crear-paciente"
-        element={
-          <ProtectedRoute allowedRoles={["tutor"]}>
-            <CreatePatient />
-          </ProtectedRoute>
-        }
-      />
-      {/* Rutas protegidas - Profesional */}
-      <Route
-        path="/profesional/dashboard"
-        element={
-          <ProtectedRoute allowedRoles={["profesional"]}>
-            <ProfesionalDashboard />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/profesional/sugerir-juego"
-        element={
-          <ProtectedRoute allowedRoles={["profesional"]}>
-            <SuggestGame />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/profesional/sugerencias"
-        element={
-          <ProtectedRoute allowedRoles={["profesional"]}>
-            <SuggestionsList />
-          </ProtectedRoute>
-        }
-      />
-      {/* Rutas PROFESIONAL Pacientes */}
-      <Route
-        path="/profesional/pacientes"
-        element={
-          <ProtectedRoute allowedRoles={["profesional"]}>
-            <PatientsList />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/profesional/crear-paciente"
-        element={
-          <ProtectedRoute allowedRoles={["profesional"]}>
-            <CreatePatient />
-          </ProtectedRoute>
-        }
-      />
-      {/* Detalle de Paciente - accesible para ambos roles */}
-      <Route
-        path="/pacientes/:id"
-        element={
-          <ProtectedRoute allowedRoles={["tutor", "profesional"]}>
-            <PatientDetail />
-          </ProtectedRoute>
-        }
-      />
-      {/* Editar Paciente */}
-      <Route
-        path="/pacientes/:id/editar"
-        element={
-          <ProtectedRoute allowedRoles={["tutor", "profesional"]}>
-            <EditPatient />
-          </ProtectedRoute>
-        }
-      />
-      {/* Estadísticas / Log de seguimiento */}
-      <Route
-        path="/tutor/estadisticas"
-        element={
-          <ProtectedRoute allowedRoles={["tutor"]}>
-            <EstadisticasLog />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/profesional/estadisticas"
-        element={
-          <ProtectedRoute allowedRoles={["profesional"]}>
-            <EstadisticasLog />
-          </ProtectedRoute>
-        }
-      />
-      {/* Biblioteca de Juegos - accesible para ambos roles */}
-      <Route
-        path="/tutor/biblioteca"
-        element={
-          <ProtectedRoute allowedRoles={["tutor"]}>
-            <BibliotecaPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/profesional/biblioteca"
-        element={
-          <ProtectedRoute allowedRoles={["profesional"]}>
-            <BibliotecaPage />
-          </ProtectedRoute>
-        }
-      />
-      {/* Rutas Admin */}
-      <Route
-        path="/admin/dashboard"
-        element={
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <AdminDashboard />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/admin/juegos"
-        element={
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <GestionJuegos />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/admin/sugerencias"
-        element={
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <GestionSugerencias />
-          </ProtectedRoute>
-        }
-      />
-      {/* Perfil de usuario - todos los roles */}
-      <Route
-        path="/perfil"
-        element={
-          <ProtectedRoute allowedRoles={["tutor", "profesional", "admin"]}>
-            <PerfilUsuario />
-          </ProtectedRoute>
-        }
-      />
-      {/* Gestión de usuario */}
-      <Route
-        path="/admin/usuarios"
-        element={
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <GestionUsuarios />
-          </ProtectedRoute>
-        }
-      />
-      {/* Ruta pública para pacientes - acceso por token */}
+
+      {/* Tutor */}
+      <Route path="/tutor/dashboard"      element={<ProtectedRoute allowedRoles={["tutor"]}><TutorDashboard /></ProtectedRoute>} />
+      <Route path="/tutor/pacientes"      element={<ProtectedRoute allowedRoles={["tutor"]}><PatientsList /></ProtectedRoute>} />
+      <Route path="/tutor/crear-paciente" element={<ProtectedRoute allowedRoles={["tutor"]}><CreatePatient /></ProtectedRoute>} />
+      <Route path="/tutor/biblioteca"     element={<ProtectedRoute allowedRoles={["tutor"]}><BibliotecaPage /></ProtectedRoute>} />
+      <Route path="/tutor/estadisticas"   element={<ProtectedRoute allowedRoles={["tutor"]}><EstadisticasLog /></ProtectedRoute>} />
+
+      {/* Profesional */}
+      <Route path="/profesional/dashboard"      element={<ProtectedRoute allowedRoles={["profesional"]}><ProfesionalDashboard /></ProtectedRoute>} />
+      <Route path="/profesional/pacientes"      element={<ProtectedRoute allowedRoles={["profesional"]}><PatientsList /></ProtectedRoute>} />
+      <Route path="/profesional/crear-paciente" element={<ProtectedRoute allowedRoles={["profesional"]}><CreatePatient /></ProtectedRoute>} />
+      <Route path="/profesional/biblioteca"     element={<ProtectedRoute allowedRoles={["profesional"]}><BibliotecaPage /></ProtectedRoute>} />
+      <Route path="/profesional/estadisticas"   element={<ProtectedRoute allowedRoles={["profesional"]}><EstadisticasLog /></ProtectedRoute>} />
+      <Route path="/profesional/sugerir-juego"  element={<ProtectedRoute allowedRoles={["profesional"]}><SuggestGame /></ProtectedRoute>} />
+      <Route path="/profesional/sugerencias"    element={<ProtectedRoute allowedRoles={["profesional"]}><SuggestionsList /></ProtectedRoute>} />
+
+      {/* Shared */}
+      <Route path="/pacientes/:id"        element={<ProtectedRoute allowedRoles={["tutor","profesional"]}><PatientDetail /></ProtectedRoute>} />
+      <Route path="/pacientes/:id/editar" element={<ProtectedRoute allowedRoles={["tutor","profesional"]}><EditPatient /></ProtectedRoute>} />
+      <Route path="/perfil"               element={<ProtectedRoute allowedRoles={["tutor","profesional","admin"]}><PerfilUsuario /></ProtectedRoute>} />
+
+      {/* Admin */}
+      <Route path="/admin/dashboard"   element={<ProtectedRoute allowedRoles={["admin"]}><AdminDashboard /></ProtectedRoute>} />
+      <Route path="/admin/juegos"      element={<ProtectedRoute allowedRoles={["admin"]}><GestionJuegos /></ProtectedRoute>} />
+      <Route path="/admin/sugerencias" element={<ProtectedRoute allowedRoles={["admin"]}><GestionSugerencias /></ProtectedRoute>} />
+      <Route path="/admin/usuarios"    element={<ProtectedRoute allowedRoles={["admin"]}><GestionUsuarios /></ProtectedRoute>} />
+      <Route path="/admin/game-builder" element={<ProtectedRoute allowedRoles={["admin"]}><GameBuilder /></ProtectedRoute>} />
+
+      {/* Pública */}
       <Route path="/jugar" element={<JugarPage />} />
-      {/* Ruta 404 */}
+
+      {/* 404 */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

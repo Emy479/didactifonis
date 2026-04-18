@@ -1,0 +1,215 @@
+{
+  "titulo": "Busca al Intruso",
+  "mecanica": "seleccion_intruso",
+  "version": "1.0",
+  "edadMinima": 4,
+  "edadMaxima": 10,
+  "area": "semantica",
+  "dificultad": "basico",
+  "rondasTotal": 10,
+  "intentosPorRonda": 2,
+  "puntajePorAcierto": 10,
+  "puntajePorAciertoSegundoIntento": 5,
+  "puntajeMinimo": 60,
+  "modoRondas": "aleatorio",
+
+  "visual": {
+    "fondo": {
+      "tipo": "gradiente",
+      "desde": "#fef9c3",
+      "hasta": "#fde68a",
+      "direccion": "135deg"
+    },
+    "tema": "fiesta"
+  },
+
+  "accesibilidad": {
+    "audioAlMostrarItems": false,
+    "audioAlTocarItem": true,
+    "repetirInstruccion": true,
+    "textoVisible": true,
+    "tamanoTexto": "normal",
+    "fallbackAudio": "sintetizar",
+    "idiomaVoz": "es-CL"
+  },
+
+  "feedback": {
+    "correcto": [
+      { "texto": "¡Muy bien! Encontraste al intruso 🎉", "audio": null },
+      { "texto": "¡Excelente! Eso no pertenece al grupo 🌟", "audio": null },
+      { "texto": "¡Correcto! Eres un gran detective 🔍", "audio": null }
+    ],
+    "error": [
+      { "texto": "¡Casi! Ese sí pertenece al grupo 🤔", "audio": null },
+      { "texto": "¡Inténtalo de nuevo! Busca el que no encaja 👀", "audio": null }
+    ]
+  },
+
+  "rondas": [
+    {
+      "textoInstruccion": "¿Cuál no es un animal?",
+      "audioInstruccion": null,
+      "items": [
+        { "id": "perro",    "emoji": "🐶", "texto": "Perro",    "audioNombre": null, "esIntruso": false },
+        { "id": "gato",     "emoji": "🐱", "texto": "Gato",     "audioNombre": null, "esIntruso": false },
+        { "id": "rana",     "emoji": "🐸", "texto": "Rana",     "audioNombre": null, "esIntruso": false },
+        { "id": "leon",     "emoji": "🦁", "texto": "León",     "audioNombre": null, "esIntruso": false },
+        { "id": "auto",     "emoji": "🚗", "texto": "Auto",     "audioNombre": null, "esIntruso": true  }
+      ]
+    },
+    {
+      "textoInstruccion": "¿Cuál no es una fruta?",
+      "audioInstruccion": null,
+      "items": [
+        { "id": "manzana",  "emoji": "🍎", "texto": "Manzana", "audioNombre": null, "esIntruso": false },
+        { "id": "platano",  "emoji": "🍌", "texto": "Plátano", "audioNombre": null, "esIntruso": false },
+        { "id": "naranja",  "emoji": "🍊", "texto": "Naranja", "audioNombre": null, "esIntruso": false },
+        { "id": "uva",      "emoji": "🍇", "texto": "Uva",     "audioNombre": null, "esIntruso": false },
+        { "id": "zapato",   "emoji": "👟", "texto": "Zapato",  "audioNombre": null, "esIntruso": true  }
+      ]
+    },
+    {
+      "textoInstruccion": "¿Cuál no es un medio de transporte?",
+      "audioInstruccion": null,
+      "items": [
+        { "id": "avion",    "emoji": "✈️",  "texto": "Avión",   "audioNombre": null, "esIntruso": false },
+        { "id": "barco",    "emoji": "🚢", "texto": "Barco",   "audioNombre": null, "esIntruso": false },
+        { "id": "bici",     "emoji": "🚲", "texto": "Bicicleta","audioNombre": null, "esIntruso": false },
+        { "id": "tren",     "emoji": "🚂", "texto": "Tren",    "audioNombre": null, "esIntruso": false },
+        { "id": "silla",    "emoji": "🪑", "texto": "Silla",   "audioNombre": null, "esIntruso": true  }
+      ]
+    },
+    {
+      "textoInstruccion": "¿Cuál no es ropa?",
+      "audioInstruccion": null,
+      "items": [
+        { "id": "camisa",   "emoji": "👕", "texto": "Camisa",  "audioNombre": null, "esIntruso": false },
+        { "id": "pantalon", "emoji": "👖", "texto": "Pantalón","audioNombre": null, "esIntruso": false },
+        { "id": "vestido",  "emoji": "👗", "texto": "Vestido", "audioNombre": null, "esIntruso": false },
+        { "id": "sombrero", "emoji": "🎩", "texto": "Sombrero","audioNombre": null, "esIntruso": false },
+        { "id": "libro",    "emoji": "📚", "texto": "Libro",   "audioNombre": null, "esIntruso": true  }
+      ]
+    },
+    {
+      "textoInstruccion": "¿Cuál no es un objeto del hogar?",
+      "audioInstruccion": null,
+      "items": [
+        { "id": "sofa",     "emoji": "🛋️",  "texto": "Sofá",    "audioNombre": null, "esIntruso": false },
+        { "id": "lampara",  "emoji": "💡", "texto": "Lámpara", "audioNombre": null, "esIntruso": false },
+        { "id": "mesa",     "emoji": "🪑", "texto": "Mesa",    "audioNombre": null, "esIntruso": false },
+        { "id": "espejo",   "emoji": "🪞", "texto": "Espejo",  "audioNombre": null, "esIntruso": false },
+        { "id": "elefante", "emoji": "🐘", "texto": "Elefante","audioNombre": null, "esIntruso": true  }
+      ]
+    },
+    {
+      "textoInstruccion": "¿Cuál no es un vegetal?",
+      "audioInstruccion": null,
+      "items": [
+        { "id": "zanahoria","emoji": "🥕", "texto": "Zanahoria","audioNombre": null, "esIntruso": false },
+        { "id": "brocoli",  "emoji": "🥦", "texto": "Brócoli", "audioNombre": null, "esIntruso": false },
+        { "id": "maiz",     "emoji": "🌽", "texto": "Maíz",    "audioNombre": null, "esIntruso": false },
+        { "id": "tomate",   "emoji": "🍅", "texto": "Tomate",  "audioNombre": null, "esIntruso": false },
+        { "id": "pelota",   "emoji": "⚽", "texto": "Pelota",  "audioNombre": null, "esIntruso": true  }
+      ]
+    },
+    {
+      "textoInstruccion": "¿Cuál no es un instrumento musical?",
+      "audioInstruccion": null,
+      "items": [
+        { "id": "guitarra", "emoji": "🎸", "texto": "Guitarra","audioNombre": null, "esIntruso": false },
+        { "id": "piano",    "emoji": "🎹", "texto": "Piano",   "audioNombre": null, "esIntruso": false },
+        { "id": "tambor",   "emoji": "🥁", "texto": "Tambor",  "audioNombre": null, "esIntruso": false },
+        { "id": "violin",   "emoji": "🎻", "texto": "Violín",  "audioNombre": null, "esIntruso": false },
+        { "id": "lapiz",    "emoji": "✏️",  "texto": "Lápiz",   "audioNombre": null, "esIntruso": true  }
+      ]
+    },
+    {
+      "textoInstruccion": "¿Cuál no es un deporte?",
+      "audioInstruccion": null,
+      "items": [
+        { "id": "futbol",   "emoji": "⚽", "texto": "Fútbol",  "audioNombre": null, "esIntruso": false },
+        { "id": "natacion", "emoji": "🏊", "texto": "Natación","audioNombre": null, "esIntruso": false },
+        { "id": "tenis",    "emoji": "🎾", "texto": "Tenis",   "audioNombre": null, "esIntruso": false },
+        { "id": "ciclismo", "emoji": "🚴", "texto": "Ciclismo","audioNombre": null, "esIntruso": false },
+        { "id": "cama",     "emoji": "🛏️",  "texto": "Cama",    "audioNombre": null, "esIntruso": true  }
+      ]
+    },
+    {
+      "textoInstruccion": "¿Cuál no es un animal del mar?",
+      "audioInstruccion": null,
+      "items": [
+        { "id": "pez",      "emoji": "🐟", "texto": "Pez",     "audioNombre": null, "esIntruso": false },
+        { "id": "pulpo",    "emoji": "🐙", "texto": "Pulpo",   "audioNombre": null, "esIntruso": false },
+        { "id": "tiburon",  "emoji": "🦈", "texto": "Tiburón", "audioNombre": null, "esIntruso": false },
+        { "id": "ballena",  "emoji": "🐳", "texto": "Ballena", "audioNombre": null, "esIntruso": false },
+        { "id": "aguila",   "emoji": "🦅", "texto": "Águila",  "audioNombre": null, "esIntruso": true  }
+      ]
+    },
+    {
+      "textoInstruccion": "¿Cuál no es un color?",
+      "audioInstruccion": null,
+      "items": [
+        { "id": "rojo",     "emoji": "🔴", "texto": "Rojo",    "audioNombre": null, "esIntruso": false },
+        { "id": "azul",     "emoji": "🔵", "texto": "Azul",    "audioNombre": null, "esIntruso": false },
+        { "id": "verde",    "emoji": "🟢", "texto": "Verde",   "audioNombre": null, "esIntruso": false },
+        { "id": "amarillo", "emoji": "🟡", "texto": "Amarillo","audioNombre": null, "esIntruso": false },
+        { "id": "perro2",   "emoji": "🐶", "texto": "Perro",   "audioNombre": null, "esIntruso": true  }
+      ]
+    },
+    {
+      "textoInstruccion": "¿Cuál no es comida?",
+      "audioInstruccion": null,
+      "items": [
+        { "id": "pizza",    "emoji": "🍕", "texto": "Pizza",   "audioNombre": null, "esIntruso": false },
+        { "id": "hamburguesa","emoji":"🍔","texto": "Hamburguesa","audioNombre":null,"esIntruso": false },
+        { "id": "helado",   "emoji": "🍦", "texto": "Helado",  "audioNombre": null, "esIntruso": false },
+        { "id": "sopa",     "emoji": "🍜", "texto": "Sopa",    "audioNombre": null, "esIntruso": false },
+        { "id": "telefono", "emoji": "📱", "texto": "Teléfono","audioNombre": null, "esIntruso": true  }
+      ]
+    },
+    {
+      "textoInstruccion": "¿Cuál no es un animal de granja?",
+      "audioInstruccion": null,
+      "items": [
+        { "id": "vaca",     "emoji": "🐮", "texto": "Vaca",    "audioNombre": null, "esIntruso": false },
+        { "id": "cerdo",    "emoji": "🐷", "texto": "Cerdo",   "audioNombre": null, "esIntruso": false },
+        { "id": "gallina",  "emoji": "🐔", "texto": "Gallina", "audioNombre": null, "esIntruso": false },
+        { "id": "caballo",  "emoji": "🐴", "texto": "Caballo", "audioNombre": null, "esIntruso": false },
+        { "id": "delfin",   "emoji": "🐬", "texto": "Delfín",  "audioNombre": null, "esIntruso": true  }
+      ]
+    },
+    {
+      "textoInstruccion": "¿Cuál no es una herramienta?",
+      "audioInstruccion": null,
+      "items": [
+        { "id": "martillo2","emoji": "🔨", "texto": "Martillo","audioNombre": null, "esIntruso": false },
+        { "id": "llave",    "emoji": "🔧", "texto": "Llave",   "audioNombre": null, "esIntruso": false },
+        { "id": "tijeras",  "emoji": "✂️",  "texto": "Tijeras", "audioNombre": null, "esIntruso": false },
+        { "id": "serrucho", "emoji": "🪚", "texto": "Serrucho","audioNombre": null, "esIntruso": false },
+        { "id": "mariposa", "emoji": "🦋", "texto": "Mariposa","audioNombre": null, "esIntruso": true  }
+      ]
+    },
+    {
+      "textoInstruccion": "¿Cuál no es un número?",
+      "audioInstruccion": null,
+      "items": [
+        { "id": "uno",      "emoji": "1️⃣",  "texto": "Uno",     "audioNombre": null, "esIntruso": false },
+        { "id": "dos",      "emoji": "2️⃣",  "texto": "Dos",     "audioNombre": null, "esIntruso": false },
+        { "id": "tres",     "emoji": "3️⃣",  "texto": "Tres",    "audioNombre": null, "esIntruso": false },
+        { "id": "cuatro",   "emoji": "4️⃣",  "texto": "Cuatro",  "audioNombre": null, "esIntruso": false },
+        { "id": "luna",     "emoji": "🌙", "texto": "Luna",    "audioNombre": null, "esIntruso": true  }
+      ]
+    },
+    {
+      "textoInstruccion": "¿Cuál no es del espacio?",
+      "audioInstruccion": null,
+      "items": [
+        { "id": "sol",      "emoji": "☀️",  "texto": "Sol",     "audioNombre": null, "esIntruso": false },
+        { "id": "luna2",    "emoji": "🌙", "texto": "Luna",    "audioNombre": null, "esIntruso": false },
+        { "id": "estrella", "emoji": "⭐", "texto": "Estrella","audioNombre": null, "esIntruso": false },
+        { "id": "cohete",   "emoji": "🚀", "texto": "Cohete",  "audioNombre": null, "esIntruso": false },
+        { "id": "sandia",   "emoji": "🍉", "texto": "Sandía",  "audioNombre": null, "esIntruso": true  }
+      ]
+    }
+  ]
+}
