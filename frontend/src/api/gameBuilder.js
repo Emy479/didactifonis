@@ -30,6 +30,15 @@ export const previsualizarJuego = async (data) => {
 };
 
 /**
+ * Listar todos los assets subidos, agrupados por tipo y categoría
+ * @returns {{ imagenes: Record<string,{nombre,url}[]>, audios: Record<string,{nombre,url}[]> }}
+ */
+export const listarAssets = async () => {
+  const response = await api.get("/game-builder/assets");
+  return response.data;
+};
+
+/**
  * Subir un asset (imagen o audio) al servidor
  * @param {File} archivo - El archivo a subir
  * @param {"imagen"|"audio"} tipo

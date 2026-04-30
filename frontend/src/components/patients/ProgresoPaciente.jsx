@@ -85,8 +85,8 @@ const ProgresoPaciente = ({ pacienteId }) => {
   // ── Sin datos aún ─────────────────────────────────────────────────────────
   if (!cargando && historial.length === 0) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-200 p-4 md:p-6 overflow-x-hidden">
-        <h2 className="flex items-center gap-2 text-base font-bold text-gray-900 mb-5">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-4 md:p-6 overflow-x-hidden">
+        <h2 className="flex items-center gap-2 text-base font-bold text-gray-900 dark:text-white mb-5">
           <TrendingUp className="h-5 w-5 text-blue-500" />
           Progreso
         </h2>
@@ -104,14 +104,14 @@ const ProgresoPaciente = ({ pacienteId }) => {
   // ── Loading ───────────────────────────────────────────────────────────────
   if (cargando) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-200 p-4 md:p-6 overflow-x-hidden">
-        <h2 className="flex items-center gap-2 text-base font-bold text-gray-900 mb-5">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-4 md:p-6 overflow-x-hidden">
+        <h2 className="flex items-center gap-2 text-base font-bold text-gray-900 dark:text-white mb-5">
           <TrendingUp className="h-5 w-5 text-blue-500" />
           Progreso
         </h2>
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-8 bg-gray-100 rounded animate-pulse" />
+            <div key={i} className="h-8 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
           ))}
         </div>
       </div>
@@ -121,8 +121,8 @@ const ProgresoPaciente = ({ pacienteId }) => {
   // ── Error ─────────────────────────────────────────────────────────────────
   if (error) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-200 p-4 md:p-6 overflow-x-hidden">
-        <h2 className="flex items-center gap-2 text-base font-bold text-gray-900 mb-5">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-4 md:p-6 overflow-x-hidden">
+        <h2 className="flex items-center gap-2 text-base font-bold text-gray-900 dark:text-white mb-5">
           <TrendingUp className="h-5 w-5 text-blue-500" />
           Progreso
         </h2>
@@ -146,28 +146,28 @@ const ProgresoPaciente = ({ pacienteId }) => {
           {
             icon: Target,
             color: "text-blue-500",
-            bg: "bg-blue-50",
+            bg: "bg-blue-50 dark:bg-blue-900/20",
             label: "Total sesiones",
             valor: gen?.totalSesiones || 0,
           },
           {
             icon: Award,
             color: "text-green-500",
-            bg: "bg-green-50",
+            bg: "bg-green-50 dark:bg-green-900/20",
             label: "Mejor puntuación",
             valor: gen?.mejorPuntuacion || 0,
           },
           {
             icon: TrendingUp,
             color: "text-purple-500",
-            bg: "bg-purple-50",
+            bg: "bg-purple-50 dark:bg-purple-900/20",
             label: "Promedio",
             valor: Math.round(gen?.promedioPuntuacion || 0),
           },
           {
             icon: Clock,
             color: "text-orange-500",
-            bg: "bg-orange-50",
+            bg: "bg-orange-50 dark:bg-orange-900/20",
             label: "Tiempo total (min)",
             valor: Math.round((gen?.tiempoTotalJugado || 0) / 60),
           },
@@ -177,7 +177,7 @@ const ProgresoPaciente = ({ pacienteId }) => {
             className={`${bg} rounded-xl p-2 md:p-3 text-center`}
           >
             <Icono className={`h-4 w-4 md:h-5 md:w-5 ${color} mx-auto mb-1`} />
-            <p className="text-lg md:text-xl font-bold text-gray-900">
+            <p className="text-lg md:text-xl font-bold text-gray-900 dark:text-white">
               {valor}
             </p>
             <p className="text-[10px] md:text-xs text-gray-500 mt-0.5 leading-tight">
@@ -190,7 +190,7 @@ const ProgresoPaciente = ({ pacienteId }) => {
       {/* ── Gráfica de evolución de puntuaciones ── */}
       {datosGrafica.length > 1 && (
         <div className="mb-6">
-          <p className="text-sm font-semibold text-gray-700 mb-3">
+          <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
             Evolución de puntuaciones (últimas {datosGrafica.length} sesiones)
           </p>
           <div className="w-full overflow-hidden">
@@ -234,7 +234,7 @@ const ProgresoPaciente = ({ pacienteId }) => {
       {/* ── Gráfica de juegos más jugados ── */}
       {datosJuegos.length > 0 && (
         <div>
-          <p className="text-sm font-semibold text-gray-700 mb-3">
+          <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
             Juegos más jugados
           </p>
           <div className="w-full overflow-hidden">
@@ -276,21 +276,21 @@ const ProgresoPaciente = ({ pacienteId }) => {
       {/* ── Historial reciente ── */}
       {historial.length > 0 && (
         <div className="mt-5">
-          <p className="text-sm font-semibold text-gray-700 mb-3">
+          <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
             Últimas sesiones
           </p>
           <div className="space-y-2">
             {historial.slice(0, 5).map((sesion) => (
               <div
                 key={sesion._id}
-                className="flex items-center justify-between px-3 py-2 bg-gray-50 rounded-lg gap-2"
+                className="flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-gray-700 rounded-lg gap-2"
               >
                 <div className="flex items-center gap-2 min-w-0">
                   <div
                     className={`w-2 h-2 rounded-full flex-shrink-0 ${sesion.aprobado ? "bg-green-400" : "bg-gray-300"}`}
                   />
                   <div className="min-w-0">
-                    <p className="text-xs font-medium text-gray-800 truncate">
+                    <p className="text-xs font-medium text-gray-800 dark:text-gray-200 truncate">
                       {sesion.juego?.nombre || "Juego"}
                     </p>
                     <p className="text-xs text-gray-400">
@@ -303,7 +303,7 @@ const ProgresoPaciente = ({ pacienteId }) => {
                   </div>
                 </div>
                 <div className="text-right flex-shrink-0">
-                  <p className="text-xs font-bold text-gray-900">
+                  <p className="text-xs font-bold text-gray-900 dark:text-white">
                     {sesion.puntuacion} pts
                   </p>
                   <p className="text-xs text-gray-400">

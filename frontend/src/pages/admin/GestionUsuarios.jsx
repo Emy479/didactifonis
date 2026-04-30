@@ -35,9 +35,9 @@ import {
 const ROL_ETIQUETA = { tutor: "Tutor", profesional: "Profesional", admin: "Admin" };
 
 const ROL_COLOR = {
-  tutor: "bg-blue-100 text-blue-700",
-  profesional: "bg-purple-100 text-purple-700",
-  admin: "bg-red-100 text-red-700",
+  tutor: "bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400",
+  profesional: "bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400",
+  admin: "bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400",
 };
 
 const ESPECIALIDAD_ETIQUETA = {
@@ -56,18 +56,18 @@ const MOTIVO_ETIQUETA = {
 const RECOMIENDA_ETIQUETA = { si: "👍 Sí", tal_vez: "🤔 Tal vez", no: "👎 No" };
 
 const SkeletonFila = () => (
-  <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-200">
+  <div className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
     <div className="flex items-center gap-3">
-      <div className="w-9 h-9 rounded-full bg-gray-200 animate-pulse" />
+      <div className="w-9 h-9 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
       <div className="space-y-2">
-        <div className="h-4 w-36 bg-gray-200 rounded animate-pulse" />
-        <div className="h-3 w-48 bg-gray-200 rounded animate-pulse" />
+        <div className="h-4 w-36 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+        <div className="h-3 w-48 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
       </div>
     </div>
     <div className="flex items-center gap-2">
-      <div className="h-6 w-20 bg-gray-200 rounded-full animate-pulse" />
-      <div className="w-8 h-8 bg-gray-200 rounded-lg animate-pulse" />
-      <div className="w-8 h-8 bg-gray-200 rounded-lg animate-pulse" />
+      <div className="h-6 w-20 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse" />
+      <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
+      <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
     </div>
   </div>
 );
@@ -217,7 +217,7 @@ const GestionUsuarios = () => {
         {/* Cabecera */}
         <div className="mb-6">
           <button onClick={() => navigate("/admin/dashboard")}
-            className="flex items-center gap-2 text-gray-500 hover:text-gray-900 mb-4 text-sm transition-colors">
+            className="flex items-center gap-2 text-gray-500 hover:text-gray-900 dark:hover:text-gray-200 mb-4 text-sm transition-colors">
             <ArrowLeft className="h-4 w-4" />Volver al panel
           </button>
           <div className="flex items-center gap-3">
@@ -225,14 +225,14 @@ const GestionUsuarios = () => {
               <Users className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Gestión de Usuarios</h1>
-              <p className="text-gray-500 text-sm mt-0.5">Verifica profesionales y administra cuentas</p>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Gestión de Usuarios</h1>
+              <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">Verifica profesionales y administra cuentas</p>
             </div>
           </div>
         </div>
 
         {/* Pestañas */}
-        <div className="flex gap-1 p-1 bg-gray-100 rounded-xl mb-6 w-fit flex-wrap">
+        <div className="flex gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-xl mb-6 w-fit flex-wrap">
           {[
             { key: "usuarios",  label: "Usuarios" },
             { key: "inactivos", label: "Cuentas Inactivas" },
@@ -240,7 +240,7 @@ const GestionUsuarios = () => {
           ].map((p) => (
             <button key={p.key} onClick={() => setPestana(p.key)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                pestana === p.key ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
+                pestana === p.key ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
               }`}>
               {p.label}
             </button>
@@ -253,7 +253,7 @@ const GestionUsuarios = () => {
             <div className="flex items-center gap-3 mb-4">
               <div className="relative">
                 <select value={filtroRol} onChange={(e) => setFiltroRol(e.target.value)}
-                  className="appearance-none pl-3 pr-8 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                  className="appearance-none pl-3 pr-8 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 dark:text-gray-300">
                   <option value="">Todos los roles</option>
                   <option value="tutor">Tutores</option>
                   <option value="profesional">Profesionales</option>
@@ -269,13 +269,13 @@ const GestionUsuarios = () => {
             {cargandoUsuarios ? (
               <div className="space-y-3">{Array.from({ length: 5 }).map((_, i) => <SkeletonFila key={i} />)}</div>
             ) : usuarios.length === 0 ? (
-              <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-gray-300">
+              <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-300 dark:border-gray-600">
                 <p className="text-gray-400">No hay usuarios con ese filtro</p>
               </div>
             ) : (
               <div className="space-y-3">
                 {usuarios.map((u) => (
-                  <div key={u._id} className="p-4 bg-white rounded-xl border border-gray-200">
+                  <div key={u._id} className="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
                     <div className="flex items-center justify-between gap-3 flex-wrap">
                       <div className="flex items-center gap-3 min-w-0">
                         <div className="w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
@@ -283,13 +283,13 @@ const GestionUsuarios = () => {
                         </div>
                         <div className="min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <p className="text-sm font-semibold text-gray-900">{u.nombre}</p>
+                            <p className="text-sm font-semibold text-gray-900 dark:text-white">{u.nombre}</p>
                             <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${ROL_COLOR[u.role]}`}>
                               {ROL_ETIQUETA[u.role]}
                             </span>
                             {u.role === "profesional" && (
                               <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                                u.verificado ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"
+                                u.verificado ? "bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400" : "bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400"
                               }`}>
                                 {u.verificado ? "✓ Verificado" : "Pendiente"}
                               </span>
@@ -308,7 +308,7 @@ const GestionUsuarios = () => {
                             disabled={accionUsuario === u._id}
                             title={u.verificado ? "Quitar verificación" : "Verificar profesional"}
                             className={`p-2 rounded-lg transition-colors disabled:opacity-50 ${
-                              u.verificado ? "text-green-600 hover:bg-green-50" : "text-gray-400 hover:text-green-600 hover:bg-green-50"
+                              u.verificado ? "text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20" : "text-gray-400 hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
                             }`}>
                             <BadgeCheck className="h-4 w-4" />
                           </button>
@@ -317,7 +317,7 @@ const GestionUsuarios = () => {
                           <button onClick={() => setConfirmar({ tipo: "desactivar", item: u })}
                             disabled={accionUsuario === u._id}
                             title="Desactivar cuenta"
-                            className="p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50">
+                            className="p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50">
                             <UserX className="h-4 w-4" />
                           </button>
                         )}
@@ -338,7 +338,7 @@ const GestionUsuarios = () => {
                 {!cargandoInactivos && `${inactivos.length} cuentas inactivas`}
               </span>
               <button onClick={cargarInactivos} disabled={cargandoInactivos}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-gray-100 transition-colors disabled:opacity-50">
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-50">
                 <RefreshCw className={`h-4 w-4 ${cargandoInactivos ? "animate-spin" : ""}`} />
                 Actualizar
               </button>
@@ -347,7 +347,7 @@ const GestionUsuarios = () => {
             {cargandoInactivos ? (
               <div className="space-y-3">{Array.from({ length: 4 }).map((_, i) => <SkeletonFila key={i} />)}</div>
             ) : inactivos.length === 0 ? (
-              <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-gray-300">
+              <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-300 dark:border-gray-600">
                 <Users className="h-10 w-10 text-gray-300 mx-auto mb-3" />
                 <p className="text-gray-400">No hay cuentas inactivas</p>
               </div>
@@ -357,7 +357,7 @@ const GestionUsuarios = () => {
                   const fb = feedbacks[u._id];
                   const duracion = calcularDuracion(u.createdAt, u.fechaDesactivacion);
                   return (
-                    <div key={u._id} className="p-4 bg-white rounded-xl border border-gray-200">
+                    <div key={u._id} className="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
                       <div className="flex items-start justify-between gap-3 flex-wrap">
                         <div className="flex items-center gap-3 min-w-0">
                           <div className="w-9 h-9 rounded-full bg-gray-300 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
@@ -365,11 +365,11 @@ const GestionUsuarios = () => {
                           </div>
                           <div className="min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <p className="text-sm font-semibold text-gray-900">{u.nombre}</p>
+                              <p className="text-sm font-semibold text-gray-900 dark:text-white">{u.nombre}</p>
                               <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${ROL_COLOR[u.role]}`}>
                                 {ROL_ETIQUETA[u.role]}
                               </span>
-                              <span className="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-600 font-medium">
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-medium">
                                 Inactiva
                               </span>
                             </div>
@@ -411,14 +411,14 @@ const GestionUsuarios = () => {
                           {fb && (
                             <button onClick={() => setModalFeedback(fb)}
                               title="Ver feedback de offboarding"
-                              className="p-2 rounded-lg text-gray-400 hover:text-orange-600 hover:bg-orange-50 transition-colors">
+                              className="p-2 rounded-lg text-gray-400 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors">
                               <MessageSquare className="h-4 w-4" />
                             </button>
                           )}
                           <button onClick={() => setConfirmar({ tipo: "activar", item: u })}
                             disabled={accionUsuario === u._id}
                             title="Reactivar cuenta"
-                            className="p-2 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors disabled:opacity-50">
+                            className="p-2 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors disabled:opacity-50">
                             <UserCheck className="h-4 w-4" />
                           </button>
                         </div>
@@ -439,7 +439,7 @@ const GestionUsuarios = () => {
                 {!cargandoPacientes && `${pacientesInactivos.length} pacientes eliminados`}
               </span>
               <button onClick={cargarPacientesInactivos} disabled={cargandoPacientes}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-gray-100 transition-colors disabled:opacity-50">
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-50">
                 <RefreshCw className={`h-4 w-4 ${cargandoPacientes ? "animate-spin" : ""}`} />
                 Actualizar
               </button>
@@ -448,7 +448,7 @@ const GestionUsuarios = () => {
             {cargandoPacientes ? (
               <div className="space-y-3">{Array.from({ length: 4 }).map((_, i) => <SkeletonFila key={i} />)}</div>
             ) : pacientesInactivos.length === 0 ? (
-              <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-gray-300">
+              <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-300 dark:border-gray-600">
                 <Baby className="h-10 w-10 text-gray-300 mx-auto mb-3" />
                 <p className="text-gray-400">No hay pacientes eliminados</p>
               </div>
@@ -458,14 +458,14 @@ const GestionUsuarios = () => {
                   const creador = p.creadoPor;
                   const tutor = p.tutor || p.tutorInfo;
                   return (
-                    <div key={p._id} className="p-4 bg-white rounded-xl border border-gray-200">
+                    <div key={p._id} className="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
                       <div className="flex items-center justify-between gap-3 flex-wrap">
                         <div className="flex items-center gap-3 min-w-0">
                           <div className="w-9 h-9 rounded-full bg-gray-300 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                             {iniciales(`${p.nombre} ${p.apellido}`)}
                           </div>
                           <div className="min-w-0">
-                            <p className="text-sm font-semibold text-gray-900">
+                            <p className="text-sm font-semibold text-gray-900 dark:text-white">
                               {p.nombre} {p.apellido}
                               <span className="ml-2 text-xs font-normal text-gray-400">{p.edad} años</span>
                             </p>
@@ -478,7 +478,7 @@ const GestionUsuarios = () => {
                         </div>
                         <button onClick={() => setConfirmar({ tipo: "reactivar", item: p })}
                           disabled={reactivando === p._id}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 transition-colors disabled:opacity-50">
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors disabled:opacity-50">
                           <RefreshCw className="h-3.5 w-3.5" />
                           Reactivar
                         </button>
@@ -496,20 +496,20 @@ const GestionUsuarios = () => {
       {modalFeedback && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
           style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
-          <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-md shadow-2xl">
-            <div className="flex items-center justify-between p-5 border-b border-gray-100">
+          <div className="bg-white dark:bg-gray-800 rounded-t-2xl sm:rounded-2xl w-full max-w-md shadow-2xl">
+            <div className="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-700">
               <div className="flex items-center gap-2">
                 <MessageSquare className="h-5 w-5 text-orange-500" />
-                <h3 className="text-base font-bold text-gray-900">Feedback de salida</h3>
+                <h3 className="text-base font-bold text-gray-900 dark:text-white">Feedback de salida</h3>
               </div>
               <button onClick={() => setModalFeedback(null)}
-                className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 transition-colors">
+                className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                 <X className="h-4 w-4" />
               </button>
             </div>
             <div className="p-5 space-y-4">
-              <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500">
-                <span className="font-medium text-gray-900">
+              <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                <span className="font-medium text-gray-900 dark:text-white">
                   {modalFeedback.usuarioSnapshot?.nombre || modalFeedback.usuario?.nombre}
                 </span>
                 <span>·</span>
@@ -519,13 +519,13 @@ const GestionUsuarios = () => {
               </div>
               <div>
                 <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">Motivo de cese</p>
-                <p className="text-sm text-gray-800 font-medium">
+                <p className="text-sm text-gray-800 dark:text-gray-200 font-medium">
                   {MOTIVO_ETIQUETA[modalFeedback.motivoCese] || modalFeedback.motivoCese}
                 </p>
               </div>
               <div>
                 <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">¿Recomendaría la plataforma?</p>
-                <p className="text-sm text-gray-800 font-medium">
+                <p className="text-sm text-gray-800 dark:text-gray-200 font-medium">
                   {RECOMIENDA_ETIQUETA[modalFeedback.recomendaria] || modalFeedback.recomendaria}
                 </p>
               </div>
@@ -534,7 +534,7 @@ const GestionUsuarios = () => {
                   <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">
                     Sugerencias / qué le haría volver
                   </p>
-                  <p className="text-sm text-gray-700 bg-gray-50 rounded-lg p-3 leading-relaxed">
+                  <p className="text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 rounded-lg p-3 leading-relaxed">
                     {modalFeedback.sugerencias}
                   </p>
                 </div>
@@ -548,29 +548,29 @@ const GestionUsuarios = () => {
       {confirmar && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
           style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
-          <div className="bg-white rounded-t-2xl sm:rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+          <div className="bg-white dark:bg-gray-800 rounded-t-2xl sm:rounded-2xl p-6 max-w-sm w-full shadow-2xl">
             <div className="flex items-center gap-3 mb-3">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                confirmar.tipo === "desactivar" ? "bg-red-100" : "bg-blue-100"
+                confirmar.tipo === "desactivar" ? "bg-red-100 dark:bg-red-900/30" : "bg-blue-100 dark:bg-blue-900/30"
               }`}>
                 {confirmar.tipo === "desactivar" ? <UserX className="h-5 w-5 text-red-600" />
                   : confirmar.tipo === "reactivar" ? <RefreshCw className="h-5 w-5 text-blue-600" />
                   : <UserCheck className="h-5 w-5 text-blue-600" />}
               </div>
-              <h3 className="text-base font-bold text-gray-900">
+              <h3 className="text-base font-bold text-gray-900 dark:text-white">
                 {confirmar.tipo === "desactivar" && "¿Desactivar cuenta?"}
                 {confirmar.tipo === "activar"    && "¿Reactivar cuenta?"}
                 {confirmar.tipo === "reactivar"  && "¿Reactivar paciente?"}
               </h3>
             </div>
-            <p className="text-sm text-gray-600 mb-5">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-5">
               {confirmar.tipo === "desactivar" && <>La cuenta de <span className="font-semibold">{confirmar.item.nombre}</span> quedará bloqueada.</>}
               {confirmar.tipo === "activar"    && <>Se restaurará el acceso de <span className="font-semibold">{confirmar.item.nombre}</span>.</>}
               {confirmar.tipo === "reactivar"  && <>El paciente <span className="font-semibold">{confirmar.item.nombre} {confirmar.item.apellido}</span> volverá a estar visible.</>}
             </p>
             <div className="flex gap-3">
               <button onClick={() => setConfirmar(null)}
-                className="flex-1 py-2.5 rounded-xl text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors">
+                className="flex-1 py-2.5 rounded-xl text-sm font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
                 Cancelar
               </button>
               <button onClick={confirmar.tipo === "reactivar" ? handleReactivar : handleEstado}

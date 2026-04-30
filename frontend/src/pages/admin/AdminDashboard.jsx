@@ -116,10 +116,10 @@ const AdminDashboard = () => {
       <div className="max-w-4xl mx-auto">
         {/* Cabecera */}
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
             Panel de Administración
           </h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
             Gestiona los juegos oficiales, sugerencias y usuarios de la plataforma
           </p>
         </div>
@@ -132,7 +132,7 @@ const AdminDashboard = () => {
             return (
               <div
                 key={t.titulo}
-                className={`${c.bg} rounded-2xl p-6 border border-gray-100`}
+                className={`${c.bg} dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700`}
               >
                 <div className="flex items-start justify-between mb-4">
                   <div
@@ -143,13 +143,13 @@ const AdminDashboard = () => {
                   {cargando ? (
                     <div className="w-10 h-8 bg-gray-200 rounded animate-pulse" />
                   ) : (
-                    <span className="text-3xl font-bold text-gray-900">
+                    <span className="text-3xl font-bold text-gray-900 dark:text-gray-100">
                       {t.valor}
                     </span>
                   )}
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-1">{t.titulo}</h3>
-                <p className="text-sm text-gray-500 mb-4">{t.subtitulo}</p>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">{t.titulo}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{t.subtitulo}</p>
                 <button
                   onClick={() => navigate(t.ruta)}
                   className={`w-full py-2.5 rounded-xl text-sm font-medium text-white transition-colors ${c.btn}`}
@@ -164,34 +164,34 @@ const AdminDashboard = () => {
         {/* Accesos rápidos adicionales */}
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
           <div
-            className="flex items-center gap-4 p-4 bg-white rounded-xl border border-gray-200 cursor-pointer hover:border-blue-300 transition-colors"
+            className="flex items-center gap-4 p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 cursor-pointer hover:border-blue-300 dark:hover:border-blue-500 transition-colors"
             onClick={() => navigate("/admin/juegos")}
           >
             <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
               <Gamepad2 className="h-5 w-5 text-green-600" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-gray-900">
+              <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                 Crear Juego Oficial
               </p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-500 dark:text-gray-400">
                 Agrega un nuevo juego a la biblioteca
               </p>
             </div>
           </div>
 
           <div
-            className="flex items-center gap-4 p-4 bg-white rounded-xl border border-gray-200 cursor-pointer hover:border-yellow-300 transition-colors"
+            className="flex items-center gap-4 p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 cursor-pointer hover:border-yellow-300 dark:hover:border-yellow-500 transition-colors"
             onClick={() => navigate("/admin/sugerencias")}
           >
             <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
               <CheckCircle className="h-5 w-5 text-yellow-600" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-gray-900">
+              <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                 Revisar Sugerencias
               </p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-500 dark:text-gray-400">
                 Aprueba o rechaza propuestas de profesionales
               </p>
             </div>

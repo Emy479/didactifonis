@@ -66,10 +66,10 @@ const TutorDashboard = () => {
     <DashboardLayout>
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
           ¡Hola, {user?.nombre}! 👋
         </h1>
-        <p className="text-gray-600 mt-2">Bienvenido a tu dashboard familiar</p>
+        <p className="text-gray-600 dark:text-gray-400 mt-2">Bienvenido a tu dashboard familiar</p>
       </div>
 
       {/* Stats reales */}
@@ -154,7 +154,7 @@ const TutorDashboard = () => {
             {pacientes.slice(0, 3).map((p) => (
               <div
                 key={p._id}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors"
+                className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-xl cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
                 onClick={() => navigate(`/pacientes/${p._id}`)}
               >
                 <div className="flex items-center gap-3">
@@ -165,7 +165,7 @@ const TutorDashboard = () => {
                     </span>
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-gray-900">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                       {p.nombre} {p.apellido}
                     </p>
                     <p className="text-xs text-gray-500">
@@ -201,10 +201,10 @@ const TutorDashboard = () => {
             <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-3">
               <UserPlus className="h-5 w-5 text-white" />
             </div>
-            <h3 className="font-semibold text-gray-900 mb-1">
+            <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
               1. Crea un perfil
             </h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               Agrega información de tu hijo/a
             </p>
           </div>
@@ -216,10 +216,10 @@ const TutorDashboard = () => {
             <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-3">
               <BookOpen className="h-5 w-5 text-white" />
             </div>
-            <h3 className="font-semibold text-gray-900 mb-1">
+            <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
               2. Asigna juegos
             </h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               Elige juegos apropiados para su edad
             </p>
           </div>
@@ -231,10 +231,10 @@ const TutorDashboard = () => {
             <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-3">
               <TrendingUp className="h-5 w-5 text-white" />
             </div>
-            <h3 className="font-semibold text-gray-900 mb-1">
+            <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
               3. Monitorea progreso
             </h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               Revisa la evolución de tu hijo/a
             </p>
           </div>

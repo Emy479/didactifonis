@@ -85,19 +85,19 @@ const ModalExportarPDF = ({ paciente, asignaciones, onClose }) => {
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
       style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
     >
-      <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-lg shadow-2xl max-h-[90vh] flex flex-col">
+      <div className="bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-2xl w-full max-w-lg shadow-2xl max-h-[90vh] flex flex-col">
 
         {/* Header */}
-        <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-gray-100 flex-shrink-0">
+        <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-gray-100 dark:border-gray-700 flex-shrink-0">
           <div className="flex items-center gap-2">
             <FileText className="h-5 w-5 text-blue-600" />
-            <h3 className="text-base font-bold text-gray-900">
+            <h3 className="text-base font-bold text-gray-900 dark:text-white">
               Exportar Informe PDF
             </h3>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 transition-colors"
+            className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
             <X className="h-4 w-4" />
           </button>
@@ -107,25 +107,25 @@ const ModalExportarPDF = ({ paciente, asignaciones, onClose }) => {
         <div className="overflow-y-auto flex-1 px-5 py-4 space-y-4">
 
           {/* Info del paciente */}
-          <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-xl">
-            <div className="w-10 h-10 bg-blue-200 rounded-full flex items-center justify-center flex-shrink-0">
-              <span className="text-sm font-bold text-blue-700">
+          <div className="flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+            <div className="w-10 h-10 bg-blue-200 dark:bg-blue-800 rounded-full flex items-center justify-center flex-shrink-0">
+              <span className="text-sm font-bold text-blue-700 dark:text-blue-300">
                 {paciente.nombre?.[0]}{paciente.apellido?.[0]}
               </span>
             </div>
             <div>
-              <p className="text-sm font-semibold text-gray-900">
+              <p className="text-sm font-semibold text-gray-900 dark:text-white">
                 {paciente.nombre} {paciente.apellido}
               </p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-500 dark:text-gray-400">
                 {paciente.edad} años · {paciente.tipoCuenta === "familiar" ? "Plan Familiar" : "Plan Profesional"}
               </p>
             </div>
           </div>
 
           {/* Tipo de informe */}
-          <div className="p-3 rounded-xl border border-gray-200">
-            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+          <div className="p-3 rounded-xl border border-gray-200 dark:border-gray-700">
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
               Tipo de informe
             </p>
             <div className={`flex items-center gap-2 text-sm font-medium ${esTutor ? "text-blue-700" : "text-green-700"}`}>
@@ -138,10 +138,10 @@ const ModalExportarPDF = ({ paciente, asignaciones, onClose }) => {
 
           {/* Qué incluye */}
           <div>
-            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
               Incluye
             </p>
-            <ul className="text-xs text-gray-600 space-y-1">
+            <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
               <li className="flex items-center gap-1.5">
                 <span className="text-green-500">✓</span> Datos del paciente y áreas terapéuticas
               </li>
@@ -176,7 +176,7 @@ const ModalExportarPDF = ({ paciente, asignaciones, onClose }) => {
               </p>
 
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Diagnóstico actualizado
                 </label>
                 <textarea
@@ -185,12 +185,12 @@ const ModalExportarPDF = ({ paciente, asignaciones, onClose }) => {
                   onChange={handleNotaChange}
                   rows={2}
                   placeholder="Ej: Trastorno del lenguaje expresivo leve, en proceso de mejora..."
-                  className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Objetivo terapéutico actual
                 </label>
                 <textarea
@@ -199,12 +199,12 @@ const ModalExportarPDF = ({ paciente, asignaciones, onClose }) => {
                   onChange={handleNotaChange}
                   rows={2}
                   placeholder="Ej: Mejorar la articulación del fonema /r/ en posición inicial..."
-                  className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Observaciones clínicas
                 </label>
                 <textarea
@@ -213,12 +213,12 @@ const ModalExportarPDF = ({ paciente, asignaciones, onClose }) => {
                   onChange={handleNotaChange}
                   rows={3}
                   placeholder="Observaciones sobre el desempeño, conducta, motivación..."
-                  className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Recomendaciones
                 </label>
                 <textarea
@@ -227,7 +227,7 @@ const ModalExportarPDF = ({ paciente, asignaciones, onClose }) => {
                   onChange={handleNotaChange}
                   rows={2}
                   placeholder="Recomendaciones para el hogar, próximos pasos terapéuticos..."
-                  className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                 />
               </div>
             </div>
@@ -235,11 +235,11 @@ const ModalExportarPDF = ({ paciente, asignaciones, onClose }) => {
         </div>
 
         {/* Footer — botones */}
-        <div className="flex gap-3 px-5 py-4 border-t border-gray-100 flex-shrink-0">
+        <div className="flex gap-3 px-5 py-4 border-t border-gray-100 dark:border-gray-700 flex-shrink-0">
           <button
             onClick={onClose}
             disabled={generando}
-            className="flex-1 py-2.5 rounded-xl text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors disabled:opacity-50"
+            className="flex-1 py-2.5 rounded-xl text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
           >
             Cancelar
           </button>

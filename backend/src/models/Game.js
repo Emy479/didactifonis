@@ -21,7 +21,7 @@ const gameSchema = new mongoose.Schema(
 
     descripcion: {
       type: String,
-      required: [true, "La descripción es obligatoria"],
+      default: "",
       maxlength: [500, "La descripción no puede exceder 500 caracteres"],
     },
 
@@ -109,8 +109,8 @@ const gameSchema = new mongoose.Schema(
 
     numeroRondas: {
       type: Number,
-      default: 10,
-      min: [1, "Debe tener al menos 1 ronda"],
+      default: 0,
+      min: [0, "El número de rondas no puede ser negativo"],
     },
 
     puntuacionMaxima: {

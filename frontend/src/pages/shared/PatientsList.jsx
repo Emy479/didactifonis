@@ -48,20 +48,20 @@ const PatientsList = () => {
           {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
-              className="bg-white rounded-lg border border-gray-200 p-4"
+              className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4"
             >
               <div className="flex items-center justify-between gap-4">
                 {/* Avatar + info */}
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-gray-200 animate-pulse flex-shrink-0" />
+                  <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse flex-shrink-0" />
                   <div className="space-y-2">
-                    <div className="h-4 w-36 bg-gray-200 rounded animate-pulse" />
-                    <div className="h-3 w-24 bg-gray-200 rounded animate-pulse" />
-                    <div className="h-3 w-48 bg-gray-200 rounded animate-pulse" />
+                    <div className="h-4 w-36 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                    <div className="h-3 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                    <div className="h-3 w-48 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
                   </div>
                 </div>
                 {/* Botón */}
-                <div className="h-9 w-24 bg-gray-200 rounded-lg animate-pulse flex-shrink-0" />
+                <div className="h-9 w-24 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse flex-shrink-0" />
               </div>
             </div>
           ))}
@@ -75,10 +75,10 @@ const PatientsList = () => {
       <div className="mb-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
               {user.role === "tutor" ? "Mis Hijos" : "Mis Pacientes"}
             </h1>
-            <p className="text-gray-600 mt-1">
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
               {pacientes.length}{" "}
               {pacientes.length === 1 ? "paciente" : "pacientes"} registrados
             </p>
@@ -101,14 +101,14 @@ const PatientsList = () => {
 
       <div className="space-y-4">
         {pacientes.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-lg border-2 border-dashed border-gray-300">
-            <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600 mb-2">
+          <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-700">
+            <Users className="h-12 w-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+            <p className="text-gray-600 dark:text-gray-400 mb-2">
               {user.role === "tutor"
                 ? "Aún no has agregado ningún hijo/a"
                 : "Aún no tienes pacientes registrados"}
             </p>
-            <p className="text-sm text-gray-500 mb-4">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
               Comienza creando un perfil
             </p>
             <Button

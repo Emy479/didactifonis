@@ -12,6 +12,10 @@ const { verificarToken, verificarRole } = require("../middleware/auth");
 router.use(verificarToken);
 router.use(verificarRole(["admin"]));
 
+// Listar todos los assets subidos (imágenes y audios por categoría)
+// GET /api/game-builder/assets
+router.get("/assets", gameBuilderController.listarAssets);
+
 // Subir asset (imagen o audio) para usar en juegos
 // POST /api/game-builder/upload-asset?tipo=imagen&categoria=animales
 router.post("/upload-asset", gameBuilderController.subirAsset);

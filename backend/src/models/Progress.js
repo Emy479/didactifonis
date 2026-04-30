@@ -347,7 +347,7 @@ progressSchema.statics.obtenerEvolucion = function (
     createdAt: { $gte: fechaInicio },
   })
     .select(
-      "puntuacion porcentajeAcierto tiempoJugado completado fechaSesion createdAt",
+      "puntuacion porcentajeAcierto tiempoJugado aciertos errores completado aprobado fechaSesion createdAt",
     )
     .sort({ createdAt: 1 });
 };

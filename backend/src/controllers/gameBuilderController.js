@@ -104,6 +104,25 @@ const generarIndexHTML = (titulo) => `<!DOCTYPE html>
 </body>
 </html>`;
 
+const generarIndexHTMLArcade = (titulo) => `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>${titulo}</title>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+  <script src="/games/engine-arcade.js"></script>
+</head>
+<body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;height:100vh;">
+  <div id="dg-arcade"></div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      DidactiArcade.init('./data.json');
+    });
+  </script>
+</body>
+</html>`;
+
 // ═══════════════════════════════════════════════════════════════════════════
 // CREAR JUEGO COMPLETO
 // ═══════════════════════════════════════════════════════════════════════════
@@ -129,28 +148,44 @@ const generarIndexHTML = (titulo) => `<!DOCTYPE html>
 const crearJuego = async (req, res) => {
   try {
     const {
+      tipo = "html5",
       nombre, descripcion, instrucciones,
       areaTerapeutica, nivelDificultad,
       edadMinima, edadMaxima, publicado,
+      // HTML5
       mecanica, rondasTotal, intentosPorRonda,
       puntajePorAcierto, puntajePorAciertoSegundoIntento,
       puntajeMinimo, modoRondas,
       visual, accesibilidad, feedback, rondas,
+      // Arcade
+      submecanica, instruccion,
+      duracion, vidas, puntajePorError, powerUpInterval,
+      musica, personaje, palabras, plataformas, tema, objetos,
+      thumbnail,
     } = req.body;
 
-    // ── Validaciones básicas ─────────────────────────────────────────────────
+    // ── Validaciones ─────────────────────────────────────────────────────────
     if (!nombre?.trim()) {
       return res.status(400).json({ success: false, error: "El nombre es obligatorio" });
     }
-    if (!mecanica) {
-      return res.status(400).json({ success: false, error: "La mecánica es obligatoria" });
-    }
-    if (!rondas?.length) {
-      return res.status(400).json({ success: false, error: "Debes agregar al menos una ronda" });
+    if (tipo === "arcade") {
+      if (!submecanica) {
+        return res.status(400).json({ success: false, error: "La submecánica arcade es obligatoria" });
+      }
+      if (!palabras?.correctas?.length) {
+        return res.status(400).json({ success: false, error: "Agrega al menos una palabra correcta" });
+      }
+    } else {
+      if (!mecanica) {
+        return res.status(400).json({ success: false, error: "La mecánica es obligatoria" });
+      }
+      if (!rondas?.length) {
+        return res.status(400).json({ success: false, error: "Debes agregar al menos una ronda" });
+      }
     }
 
-    const slug   = generarSlug(nombre);
-    const codigo = generarCodigo(nombre);
+    const slug     = generarSlug(nombre);
+    const codigo   = generarCodigo(nombre);
     const urlJuego = `/games/html5/${slug}/index.html`;
 
     // ── Verificar que el código no exista en la BD ───────────────────────────
@@ -162,81 +197,110 @@ const crearJuego = async (req, res) => {
       });
     }
 
-    // ── Crear directorio del juego ───────────────────────────────────────────
+    // ── Verificar carpeta: si existe sin entrada en BD es un juego huérfano ──
+    // (puede ocurrir si un save() anterior falló tras crear los archivos)
+    // En ese caso se reutiliza la carpeta en lugar de rechazar la operación.
     const dirJuego = path.join(GAMES_DIR, slug);
-    if (!fs.existsSync(GAMES_DIR)) {
-      fs.mkdirSync(GAMES_DIR, { recursive: true });
+    if (!fs.existsSync(GAMES_DIR)) fs.mkdirSync(GAMES_DIR, { recursive: true });
+    const carpetaExiste = fs.existsSync(dirJuego);
+
+    // ── Construir data.json e index.html según tipo ──────────────────────────
+    let dataJson, indexHtml;
+
+    if (tipo === "arcade") {
+      dataJson = {
+        titulo:    nombre,
+        instruccion: instruccion || "",
+        area:      areaTerapeutica,
+        dificultad: nivelDificultad,
+        edadMinima: edadMinima  || 4,
+        edadMaxima: edadMaxima  || 10,
+        submecanica,
+        duracion:  duracion     || 60,
+        vidas:     vidas        || 3,
+        puntajePorAcierto: puntajePorAcierto || 10,
+        puntajePorError:   puntajePorError   || 5,
+        puntajeMinimo:     puntajeMinimo     || 60,
+        musica:    musica       || null,
+        powerUpInterval: powerUpInterval || 14,
+        personaje: personaje || {
+          velocidad: 290,
+          spritesheet: null,
+          frameWidth: 48,
+          frameHeight: 48,
+          animaciones: {
+            idle: { start: 0, end: 3, frameRate: 8 },
+            walk: { start: 4, end: 7, frameRate: 12 },
+            jump: { start: 8, end: 9, frameRate: 8 },
+          },
+        },
+        palabras: palabras || {
+          correctas: [],
+          incorrectas: [],
+          velocidadMin: 75,
+          velocidadMax: 145,
+          spawnRate: 1800,
+        },
+        plataformas: plataformas || null,
+        tema:        tema        || 'espacial',
+        objetos:     objetos     || [],
+      };
+      indexHtml = generarIndexHTMLArcade(nombre);
+    } else {
+      dataJson = {
+        titulo:    nombre,
+        mecanica,
+        version:   "1.0",
+        edadMinima: edadMinima  || 4,
+        edadMaxima: edadMaxima  || 12,
+        area:      areaTerapeutica,
+        dificultad: nivelDificultad,
+        rondasTotal: rondasTotal || 10,
+        intentosPorRonda: intentosPorRonda || 2,
+        puntajePorAcierto: puntajePorAcierto || 10,
+        puntajePorAciertoSegundoIntento: puntajePorAciertoSegundoIntento || 5,
+        puntajeMinimo: puntajeMinimo || 60,
+        modoRondas: modoRondas || "aleatorio",
+        visual: visual || { fondo: { tipo: "gradiente", desde: "#dbeafe", hasta: "#ede9fe" } },
+        accesibilidad: accesibilidad || {
+          audioAlMostrarItems: false,
+          audioAlTocarItem:    true,
+          repetirInstruccion:  true,
+          textoVisible:        true,
+          fallbackAudio:       "sintetizar",
+          idiomaVoz:           "es-CL",
+        },
+        feedback: feedback || {
+          correcto: [
+            { texto: "¡Muy bien! 🎉", audio: null },
+            { texto: "¡Excelente! ⭐", audio: null },
+          ],
+          error: [
+            { texto: "¡Inténtalo de nuevo! 🤔", audio: null },
+            { texto: "¡Casi! 👀", audio: null },
+          ],
+        },
+        rondas,
+      };
+      indexHtml = generarIndexHTML(nombre);
     }
-    if (fs.existsSync(dirJuego)) {
-      return res.status(400).json({
-        success: false,
-        error: `Ya existe una carpeta para "${slug}". Cambia el nombre del juego.`
-      });
-    }
-    fs.mkdirSync(dirJuego, { recursive: true });
 
-    // ── Construir data.json ──────────────────────────────────────────────────
-    const dataJson = {
-      titulo:    nombre,
-      mecanica,
-      version:   "1.0",
-      edadMinima:   edadMinima  || 4,
-      edadMaxima:   edadMaxima  || 12,
-      area:         areaTerapeutica,
-      dificultad:   nivelDificultad,
-      rondasTotal:  rondasTotal  || 10,
-      intentosPorRonda: intentosPorRonda || 2,
-      puntajePorAcierto: puntajePorAcierto || 10,
-      puntajePorAciertoSegundoIntento: puntajePorAciertoSegundoIntento || 5,
-      puntajeMinimo: puntajeMinimo || 60,
-      modoRondas:  modoRondas   || "aleatorio",
-      visual:      visual       || { fondo: { tipo: "gradiente", desde: "#dbeafe", hasta: "#ede9fe" } },
-      accesibilidad: accesibilidad || {
-        audioAlMostrarItems: false,
-        audioAlTocarItem:    true,
-        repetirInstruccion:  true,
-        textoVisible:        true,
-        fallbackAudio:       "sintetizar",
-        idiomaVoz:           "es-CL"
-      },
-      feedback: feedback || {
-        correcto: [
-          { texto: "¡Muy bien! 🎉", audio: null },
-          { texto: "¡Excelente! ⭐", audio: null }
-        ],
-        error: [
-          { texto: "¡Inténtalo de nuevo! 🤔", audio: null },
-          { texto: "¡Casi! 👀", audio: null }
-        ]
-      },
-      rondas,
-    };
-
-    // ── Escribir archivos ────────────────────────────────────────────────────
-    fs.writeFileSync(
-      path.join(dirJuego, "data.json"),
-      JSON.stringify(dataJson, null, 2),
-      "utf8"
-    );
-    fs.writeFileSync(
-      path.join(dirJuego, "index.html"),
-      generarIndexHTML(nombre),
-      "utf8"
-    );
-
-    // ── Registrar en BD ──────────────────────────────────────────────────────
+    // ── Registrar en BD PRIMERO (si falla la validación, no se crean archivos) ─
     const nuevoJuego = new Game({
       nombre,
       descripcion:   descripcion   || "",
-      instrucciones: instrucciones || "",
+      instrucciones: tipo === "arcade" ? (instruccion || "") : (instrucciones || ""),
       codigo,
       areaTerapeutica,
       nivelDificultad,
       rangoEdad: { min: edadMinima || 4, max: edadMaxima || 12 },
-      duracionEstimada: Math.ceil((rondasTotal || 10) * 1.5),
-      numeroRondas:  rondasTotal || 10,
-      puntuacionMaxima:   (rondasTotal || 10) * (puntajePorAcierto || 10),
+      duracionEstimada: tipo === "arcade"
+        ? Math.max(1, Math.ceil((duracion || 60) / 60))
+        : Math.ceil((rondasTotal || 10) * 1.5),
+      numeroRondas:  tipo === "arcade" ? 0 : (rondasTotal || 10),
+      puntuacionMaxima: tipo === "arcade" ? 999 : (rondasTotal || 10) * (puntajePorAcierto || 10),
       porcentajeAprobacion: puntajeMinimo || 60,
+      thumbnail:  thumbnail || "default-game.png",
       urlJuego,
       publicado:  publicado || false,
       creadoPor:  req.user.userId,
@@ -244,19 +308,24 @@ const crearJuego = async (req, res) => {
 
     await nuevoJuego.save();
 
+    // ── Escribir archivos (rollback BD si falla) ─────────────────────────────
+    try {
+      if (!carpetaExiste) fs.mkdirSync(dirJuego, { recursive: true });
+      fs.writeFileSync(path.join(dirJuego, "data.json"), JSON.stringify(dataJson, null, 2), "utf8");
+      fs.writeFileSync(path.join(dirJuego, "index.html"), indexHtml, "utf8");
+    } catch (fileError) {
+      await Game.deleteOne({ _id: nuevoJuego._id });
+      throw fileError;
+    }
+
     res.status(201).json({
       success: true,
       message: `Juego "${nombre}" creado correctamente`,
-      data: {
-        juego:   nuevoJuego.getDatosCompletos(),
-        urlJuego,
-        slug,
-      }
+      data: { juego: nuevoJuego.getDatosCompletos(), urlJuego, slug },
     });
 
   } catch (error) {
     console.error("Error en Game Builder:", error);
-
     if (error.name === "ValidationError") {
       const messages = Object.values(error.errors).map(e => e.message);
       return res.status(400).json({ success: false, error: messages.join(", ") });
@@ -264,7 +333,6 @@ const crearJuego = async (req, res) => {
     if (error.code === 11000) {
       return res.status(400).json({ success: false, error: "El código del juego ya existe" });
     }
-
     res.status(500).json({ success: false, error: "Error al crear el juego" });
   }
 };
@@ -368,4 +436,50 @@ const subirAsset = (req, res) => {
   });
 };
 
-module.exports = { crearJuego, actualizarJuego, previsualizar, subirAsset };
+// ═══════════════════════════════════════════════════════════════════════════
+// LISTAR ASSETS DEL FILESYSTEM
+// ═══════════════════════════════════════════════════════════════════════════
+/**
+ * GET /api/game-builder/assets
+ * Devuelve todas las imágenes y audios subidos, agrupados por categoría.
+ */
+exports.listarAssets = async (req, res) => {
+  try {
+    const resultado = { imagenes: {}, audios: {} };
+
+    for (const cat of CATEGORIAS_IMAGEN) {
+      const dir = path.join(ASSETS_DIR, "imagenes", cat);
+      if (fs.existsSync(dir)) {
+        resultado.imagenes[cat] = fs.readdirSync(dir)
+          .filter(f => /\.(png|jpe?g|gif|webp|svg)$/i.test(f))
+          .map(f => ({
+            nombre: f.replace(/-\d{13}(\.[^.]+)$/, "$1").replace(/\.[^.]+$/, ""),
+            url: `/games/assets/imagenes/${cat}/${f}`,
+          }));
+      } else {
+        resultado.imagenes[cat] = [];
+      }
+    }
+
+    for (const cat of CATEGORIAS_AUDIO) {
+      const dir = path.join(ASSETS_DIR, "audios", cat);
+      if (fs.existsSync(dir)) {
+        resultado.audios[cat] = fs.readdirSync(dir)
+          .filter(f => /\.(mp3|ogg|wav|webm)$/i.test(f))
+          .map(f => ({
+            nombre: f.replace(/-\d{13}(\.[^.]+)$/, "$1").replace(/\.[^.]+$/, ""),
+            url: `/games/assets/audios/${cat}/${f}`,
+          }));
+      } else {
+        resultado.audios[cat] = [];
+      }
+    }
+
+    res.json(resultado);
+  } catch (err) {
+    console.error("listarAssets:", err);
+    res.status(500).json({ error: "Error al listar assets" });
+  }
+};
+
+module.exports = { crearJuego, actualizarJuego, previsualizar, subirAsset, listarAssets: exports.listarAssets };

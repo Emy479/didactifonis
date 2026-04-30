@@ -1,0 +1,74 @@
+{
+  "titulo": "Titulo provisorio",
+  "instruccion": "",
+  "area": "fonologia",
+  "dificultad": "basico",
+  "edadMinima": 4,
+  "edadMaxima": 10,
+  "submecanica": "plataformero",
+  "duracion": 60,
+  "vidas": 3,
+  "puntajePorAcierto": 10,
+  "puntajePorError": 5,
+  "puntajeMinimo": 60,
+  "musica": null,
+  "powerUpInterval": 14,
+  "personaje": {
+    "velocidad": 290,
+    "spritesheet": "/games/assets/imagenes/otros/chatgpt-image-23-abr-2026-06-58-01-p-m--1777511043043.png",
+    "frameWidth": 48,
+    "frameHeight": 48,
+    "animaciones": {
+      "idle": {
+        "start": 0,
+        "end": 3,
+        "frameRate": 8
+      },
+      "walk": {
+        "start": 4,
+        "end": 7,
+        "frameRate": 12
+      },
+      "jump": {
+        "start": 8,
+        "end": 9,
+        "frameRate": 8
+      }
+    }
+  },
+  "palabras": {
+    "correctas": [
+      {
+        "texto": "gato"
+      }
+    ],
+    "incorrectas": [
+      {
+        "texto": "perro"
+      }
+    ],
+    "velocidadMin": 75,
+    "velocidadMax": 145,
+    "spawnRate": 1800
+  },
+  "plataformas": null,
+  "tema": "bosque",
+  "objetos": [
+    {
+      "emoji": "🍇",
+      "label": "uvas",
+      "tipo": "positivo",
+      "valor": 5,
+      "x": 0.5,
+      "y": 0.17
+    },
+    {
+      "emoji": "⚡",
+      "label": "rayo",
+      "tipo": "negativo",
+      "valor": 1,
+      "x": 0.51,
+      "y": 0.5
+    }
+  ]
+}

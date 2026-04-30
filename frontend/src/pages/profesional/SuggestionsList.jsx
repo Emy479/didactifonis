@@ -56,7 +56,7 @@ const SuggestionsList = () => {
       <div className="mb-6">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
+          className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 mb-4"
         >
           <ArrowLeft className="h-5 w-5" />
           Volver
@@ -64,10 +64,10 @@ const SuggestionsList = () => {
 
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
               Sugerencias de la Comunidad
             </h1>
-            <p className="text-gray-600 mt-1">
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
               {sugerencias.length} sugerencias activas
             </p>
           </div>
@@ -96,7 +96,7 @@ const SuggestionsList = () => {
           className={`px-4 py-2 rounded-lg ${
             filtro === "votos"
               ? "bg-blue-500 text-white"
-              : "bg-white text-gray-700 border"
+              : "bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border dark:border-gray-600"
           }`}
         >
           Más Votadas
@@ -106,7 +106,7 @@ const SuggestionsList = () => {
           className={`px-4 py-2 rounded-lg ${
             filtro === "recientes"
               ? "bg-blue-500 text-white"
-              : "bg-white text-gray-700 border"
+              : "bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border dark:border-gray-600"
           }`}
         >
           Recientes
@@ -132,24 +132,24 @@ const SuggestionsList = () => {
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                       {sugerencia.titulo}
                     </h3>
                     <span
                       className={`px-2 py-1 rounded text-xs font-medium ${
                         sugerencia.estado === "pendiente"
-                          ? "bg-yellow-100 text-yellow-800"
+                          ? "bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-400"
                           : sugerencia.estado === "aprobada"
-                            ? "bg-green-100 text-green-800"
+                            ? "bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400"
                             : sugerencia.estado === "implementada"
-                              ? "bg-blue-100 text-blue-800"
-                              : "bg-gray-100 text-gray-800"
+                              ? "bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-400"
+                              : "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300"
                       }`}
                     >
                       {sugerencia.estado}
                     </span>
                   </div>
-                  <p className="text-gray-600 text-sm mb-3">
+                  <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">
                     {sugerencia.descripcion.substring(0, 200)}
                     {sugerencia.descripcion.length > 200 && "..."}
                   </p>
@@ -168,11 +168,11 @@ const SuggestionsList = () => {
 
                   {/* Feedback del admin */}
                   {sugerencia.notasAdmin && (
-                    <div className="mt-3 px-3 py-2 bg-blue-50 border border-blue-100 rounded-lg">
-                      <p className="text-xs font-semibold text-blue-700 mb-0.5">
+                    <div className="mt-3 px-3 py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-lg">
+                      <p className="text-xs font-semibold text-blue-700 dark:text-blue-400 mb-0.5">
                         Feedback del administrador
                       </p>
-                      <p className="text-sm text-blue-800">
+                      <p className="text-sm text-blue-800 dark:text-blue-300">
                         {sugerencia.notasAdmin}
                       </p>
                     </div>
@@ -182,9 +182,9 @@ const SuggestionsList = () => {
                 <div className="flex flex-col items-center gap-2 ml-4">
                   <button
                     onClick={() => handleVotar(sugerencia._id)}
-                    className="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded-lg"
+                    className="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
                   >
-                    <ThumbsUp className="h-5 w-5 text-gray-600" />
+                    <ThumbsUp className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                     <span className="text-lg font-bold">
                       {sugerencia.votos}
                     </span>

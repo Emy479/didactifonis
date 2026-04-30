@@ -73,10 +73,10 @@ const EstadisticasLog = () => {
       <div className="max-w-4xl mx-auto">
         {/* Cabecera */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
             Seguimiento de Pacientes
           </h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
             Resumen de actividad —{" "}
             {user?.role === "tutor" ? "tus hijos" : "tus pacientes"}
           </p>
@@ -88,19 +88,19 @@ const EstadisticasLog = () => {
             {Array.from({ length: 3 }).map((_, i) => (
               <div
                 key={i}
-                className="bg-white rounded-2xl border border-gray-200 p-5"
+                className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-5"
               >
                 <div className="flex items-center gap-4 mb-3">
-                  <div className="w-12 h-12 rounded-full bg-gray-200 animate-pulse flex-shrink-0" />
+                  <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse flex-shrink-0" />
                   <div className="flex-1 space-y-2">
-                    <div className="h-4 w-36 bg-gray-200 rounded animate-pulse" />
-                    <div className="h-3 w-24 bg-gray-200 rounded animate-pulse" />
+                    <div className="h-4 w-36 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                    <div className="h-3 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <div className="h-8 flex-1 bg-gray-200 rounded-lg animate-pulse" />
-                  <div className="h-8 flex-1 bg-gray-200 rounded-lg animate-pulse" />
-                  <div className="h-8 flex-1 bg-gray-200 rounded-lg animate-pulse" />
+                  <div className="h-8 flex-1 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
+                  <div className="h-8 flex-1 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
+                  <div className="h-8 flex-1 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
                 </div>
               </div>
             ))}
@@ -109,9 +109,9 @@ const EstadisticasLog = () => {
 
         {/* Sin pacientes */}
         {!cargando && pacientes.length === 0 && (
-          <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-gray-300">
-            <User className="h-10 w-10 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-400 text-sm">
+          <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-300 dark:border-gray-700">
+            <User className="h-10 w-10 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+            <p className="text-gray-400 dark:text-gray-500 text-sm">
               No tienes pacientes registrados
             </p>
           </div>
@@ -130,10 +130,10 @@ const EstadisticasLog = () => {
               return (
                 <div
                   key={paciente._id}
-                  className={`bg-white rounded-2xl border p-4 md:p-5 transition-all ${
+                  className={`bg-white dark:bg-gray-800 rounded-2xl border p-4 md:p-5 transition-all ${
                     paciente.activo
-                      ? "border-gray-200 hover:border-blue-200 hover:shadow-sm"
-                      : "border-gray-100 opacity-60"
+                      ? "border-gray-200 dark:border-gray-700 hover:border-blue-200 hover:shadow-sm"
+                      : "border-gray-100 dark:border-gray-700 opacity-60"
                   }`}
                 >
                   {/* Fila superior — avatar + nombre + botón */}
@@ -142,19 +142,19 @@ const EstadisticasLog = () => {
                       <div
                         className={`w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-sm ${
                           paciente.activo
-                            ? "bg-blue-100 text-blue-600"
-                            : "bg-gray-100 text-gray-400"
+                            ? "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
+                            : "bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500"
                         }`}
                       >
                         {iniciales}
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="text-sm md:text-base font-semibold text-gray-900 truncate">
+                          <h3 className="text-sm md:text-base font-semibold text-gray-900 dark:text-white truncate">
                             {paciente.nombre} {paciente.apellido}
                           </h3>
                           {!paciente.activo && (
-                            <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full flex-shrink-0">
+                            <span className="text-xs px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-full flex-shrink-0">
                               Inactivo
                             </span>
                           )}
@@ -176,7 +176,7 @@ const EstadisticasLog = () => {
                     {/* Botón ver ficha */}
                     <button
                       onClick={() => navigate(`/pacientes/${paciente._id}`)}
-                      className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs md:text-sm font-medium bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors flex-shrink-0"
+                      className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs md:text-sm font-medium bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors flex-shrink-0"
                     >
                       Ver ficha
                       <ArrowRight className="h-3.5 w-3.5" />
@@ -187,21 +187,21 @@ const EstadisticasLog = () => {
                   <div className="flex items-center gap-3 md:gap-6">
                     <div className="flex items-center gap-1.5">
                       <Clock className="h-3.5 w-3.5 text-orange-400 flex-shrink-0" />
-                      <span className="text-sm font-bold text-gray-900">
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">
                         {tiempoMin}
                       </span>
                       <span className="text-xs text-gray-400">min</span>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <TrendingUp className="h-3.5 w-3.5 text-blue-400 flex-shrink-0" />
-                      <span className="text-sm font-bold text-gray-900">
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">
                         {gen?.totalSesiones || 0}
                       </span>
                       <span className="text-xs text-gray-400">sesiones</span>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <Award className="h-3.5 w-3.5 text-yellow-400 flex-shrink-0" />
-                      <span className="text-sm font-bold text-gray-900">
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">
                         {gen?.mejorPuntuacion || 0}
                       </span>
                       <span className="text-xs text-gray-400">mejor</span>
@@ -215,7 +215,7 @@ const EstadisticasLog = () => {
                       {paciente.areasTrabajar.map((area) => (
                         <span
                           key={area}
-                          className="text-xs px-2 py-0.5 bg-purple-50 text-purple-600 rounded-full"
+                          className="text-xs px-2 py-0.5 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-full"
                         >
                           {AREAS_LABEL[area] || area}
                         </span>

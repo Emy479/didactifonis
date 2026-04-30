@@ -82,7 +82,7 @@ const Login = () => {
 
         {/* Card de login */}
         <Card>
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">
             Iniciar Sesión
           </h2>
 
@@ -137,7 +137,7 @@ const Login = () => {
               <div className="w-full border-t border-gray-300" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">
+              <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">
                 ¿No tienes cuenta?
               </span>
             </div>

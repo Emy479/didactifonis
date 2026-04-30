@@ -1,0 +1,66 @@
+{
+  "titulo": "El Cohete Volador",
+  "tipo": "arcade",
+  "submecanica": "nave_cazadora",
+  "version": "1.0",
+
+  "area": "fonologia",
+  "dificultad": "basico",
+  "edadMinima": 5,
+  "edadMaxima": 12,
+
+  "instruccion": "¡Recoge las palabras que empiezan con /p/! Evitá las otras.",
+
+  "puntajePorAcierto": 10,
+  "puntajePorError": 5,
+  "puntajeMinimo": 60,
+  "duracion": 60,
+  "vidas": 3,
+
+  "personaje": {
+    "tipo": "generado",
+    "velocidad": 290
+  },
+
+  "accesibilidad": {
+    "idiomaVoz": "es-CL"
+  },
+
+  "palabras": {
+    "correctas": [
+      { "texto": "PATO" },
+      { "texto": "PELO" },
+      { "texto": "PICO" },
+      { "texto": "PESO" },
+      { "texto": "PUMA" },
+      { "texto": "PALA" },
+      { "texto": "PINO" },
+      { "texto": "PERA" },
+      { "texto": "PISO" },
+      { "texto": "PUMA" },
+      { "texto": "POZO" },
+      { "texto": "PUÑO" }
+    ],
+    "incorrectas": [
+      { "texto": "BATO" },
+      { "texto": "GATO" },
+      { "texto": "MELO" },
+      { "texto": "DATO" },
+      { "texto": "RATO" },
+      { "texto": "TICO" },
+      { "texto": "FESO" },
+      { "texto": "SALA" },
+      { "texto": "FINO" },
+      { "texto": "DERA" },
+      { "texto": "NISO" },
+      { "texto": "LUÑA" }
+    ],
+    "velocidadMin": 75,
+    "velocidadMax": 145,
+    "spawnRate": 1800
+  },
+
+  "visual": {
+    "tema": "espacial"
+  }
+}

@@ -138,7 +138,7 @@ export default function BibliotecaJuegos() {
   const PanelFiltros = (
     <div className="p-5">
       <div className="flex items-center justify-between mb-5">
-        <h3 className="font-bold text-gray-900">Filtros</h3>
+        <h3 className="font-bold text-gray-900 dark:text-white">Filtros</h3>
         <div className="flex items-center gap-2">
           {hayFiltros && (
             <button
@@ -192,9 +192,9 @@ export default function BibliotecaJuegos() {
   );
 
   return (
-    <div className="flex h-full min-h-screen bg-gray-50 overflow-x-hidden">
+    <div className="flex h-full min-h-screen bg-gray-50 dark:bg-gray-900 overflow-x-hidden">
       {/* ── SIDEBAR DESKTOP (≥ md) ── */}
-      <aside className="hidden md:block w-64 flex-shrink-0 overflow-y-auto bg-white border-r border-gray-200">
+      <aside className="hidden md:block w-64 flex-shrink-0 overflow-y-auto bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
         {PanelFiltros}
       </aside>
 
@@ -206,7 +206,7 @@ export default function BibliotecaJuegos() {
           onClick={() => setMostrarFiltros(false)}
         >
           <div
-            className="absolute top-0 left-0 h-full w-72 max-w-[85vw] bg-white overflow-y-auto shadow-xl"
+            className="absolute top-0 left-0 h-full w-72 max-w-[85vw] bg-white dark:bg-gray-800 overflow-y-auto shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             {PanelFiltros}
@@ -217,16 +217,16 @@ export default function BibliotecaJuegos() {
       {/* ── ÁREA PRINCIPAL ── */}
       <main className="flex-1 flex flex-col overflow-hidden min-w-0">
         {/* Barra superior */}
-        <div className="px-4 md:px-7 py-4 flex-shrink-0 bg-white border-b border-gray-200">
+        <div className="px-4 md:px-7 py-4 flex-shrink-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between gap-3 mb-3">
-            <h1 className="text-lg md:text-xl font-bold text-gray-900">
+            <h1 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white">
               Biblioteca de Juegos
             </h1>
             <div className="flex items-center gap-2">
               {/* Botón filtros mobile */}
               <button
                 onClick={() => setMostrarFiltros(true)}
-                className="md:hidden flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-gray-100 text-gray-700"
+                className="md:hidden flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -274,10 +274,10 @@ export default function BibliotecaJuegos() {
               placeholder="Buscar juegos…"
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 rounded-xl text-sm outline-none border border-gray-200 bg-gray-50 text-gray-900 focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-9 pr-4 py-2 rounded-xl text-sm outline-none border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <p className="text-xs text-gray-500 mt-1.5">
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5">
             {cargando
               ? "Cargando…"
               : `${juegosFiltrados.length} juego${juegosFiltrados.length !== 1 ? "s" : ""} disponible${juegosFiltrados.length !== 1 ? "s" : ""}`}
@@ -285,18 +285,17 @@ export default function BibliotecaJuegos() {
         </div>
 
         {/* Ordenar */}
-        <div className="px-4 md:px-7 py-3 flex items-center gap-2 flex-shrink-0 bg-white border-b border-gray-100 overflow-x-auto">
-          <span className="text-xs text-gray-500 flex-shrink-0">Ordenar:</span>
+        <div className="px-4 md:px-7 py-3 flex items-center gap-2 flex-shrink-0 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 overflow-x-auto">
+          <span className="text-xs text-gray-500 dark:text-gray-400 flex-shrink-0">Ordenar:</span>
           {["relevancia", "dificultad", "edad", "recientes"].map((o) => (
             <button
               key={o}
               onClick={() => setOrden(o)}
-              className="px-3 py-1 rounded-full text-xs font-medium capitalize transition-all flex-shrink-0"
-              style={
+              className={`px-3 py-1 rounded-full text-xs font-medium capitalize transition-all flex-shrink-0 ${
                 orden === o
-                  ? { backgroundColor: "#3b82f6", color: "white" }
-                  : { backgroundColor: "#f1f5f9", color: "#64748b" }
-              }
+                  ? "bg-blue-500 text-white"
+                  : "bg-slate-100 dark:bg-gray-700 text-slate-500 dark:text-gray-400"
+              }`}
             >
               {o.charAt(0).toUpperCase() + o.slice(1)}
             </button>
@@ -322,7 +321,7 @@ export default function BibliotecaJuegos() {
               {Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
-                  className="rounded-2xl animate-pulse bg-gray-200"
+                  className="rounded-2xl animate-pulse bg-gray-200 dark:bg-gray-700"
                   style={{ height: "200px" }}
                 />
               ))}
@@ -331,7 +330,7 @@ export default function BibliotecaJuegos() {
           {!cargando && !error && juegosFiltrados.length === 0 && (
             <div className="flex flex-col items-center justify-center py-20 gap-3 text-center">
               <span className="text-4xl">🎮</span>
-              <p className="text-sm font-medium text-gray-700">
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 No se encontraron juegos
               </p>
               <p className="text-xs text-gray-400">
@@ -401,7 +400,9 @@ function FilterChip({
   return (
     <button
       onClick={onClick}
-      className="px-2.5 py-1 rounded-lg text-xs font-medium transition-all"
+      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
+        active ? "" : "bg-slate-100 dark:bg-gray-700 text-slate-500 dark:text-gray-400 border border-slate-200 dark:border-gray-600"
+      }`}
       style={
         active
           ? {
@@ -409,11 +410,7 @@ function FilterChip({
               color: activeColor,
               border: `1px solid ${activeColor}40`,
             }
-          : {
-              backgroundColor: "#f1f5f9",
-              color: "#64748b",
-              border: "1px solid #e2e8f0",
-            }
+          : undefined
       }
     >
       {label}
@@ -421,27 +418,58 @@ function FilterChip({
   );
 }
 
+const AREA_COLOR = {
+  fonologia:     { bg: "#eff6ff", accent: "#3b82f6" },
+  semantica:     { bg: "#f5f3ff", accent: "#8b5cf6" },
+  morfosintaxis: { bg: "#f0fdf4", accent: "#22c55e" },
+  pragmatica:    { bg: "#fff7ed", accent: "#f97316" },
+  habla:         { bg: "#fef2f2", accent: "#ef4444" },
+  lenguaje:      { bg: "#f0f9ff", accent: "#0ea5e9" },
+};
+
+function ThumbnailJuego({ src, nombre, area }) {
+  const col = AREA_COLOR[area] || { bg: "#f3f4f6", accent: "#6b7280" };
+  const isReal = src && src !== "default-game.png" && src.startsWith("/");
+  if (isReal) {
+    return (
+      <img src={src} alt={nombre}
+        className="w-full h-36 object-cover rounded-xl"
+        onError={e => { e.target.style.display = "none"; e.target.nextSibling.style.display = "flex"; }} />
+    );
+  }
+  return (
+    <div className="w-full h-36 rounded-xl flex items-center justify-center text-4xl"
+      style={{ background: `linear-gradient(135deg, ${col.bg}, ${col.accent}22)`, border: `1px solid ${col.accent}33` }}>
+      🎮
+    </div>
+  );
+}
+
 function JuegoCard({ juego, onDetalles, onAsignar }) {
   const dif =
     DIFICULTAD[juego.nivelDificultad?.toLowerCase()] || DIFICULTAD.intermedio;
   return (
-    <div className="rounded-2xl p-4 flex flex-col gap-3 bg-white border border-gray-200 hover:shadow-md transition-shadow">
-      <div>
-        <h3 className="font-bold text-gray-900 text-base leading-tight mb-1">
+    <div className="rounded-2xl flex flex-col gap-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow overflow-hidden">
+      {/* Thumbnail */}
+      <div className="px-3 pt-3">
+        <ThumbnailJuego src={juego.thumbnail} nombre={juego.nombre} area={juego.areaTerapeutica} />
+      </div>
+      <div className="px-4 pb-0">
+        <h3 className="font-bold text-gray-900 dark:text-white text-base leading-tight mb-1">
           {juego.nombre}
         </h3>
-        <p className="text-xs leading-relaxed line-clamp-2 text-gray-500">
+        <p className="text-xs leading-relaxed line-clamp-2 text-gray-500 dark:text-gray-400">
           {juego.descripcion}
         </p>
       </div>
       {juego.areaTerapeutica && (
-        <div className="flex flex-wrap gap-1.5">
-          <span className="text-xs px-2 py-0.5 rounded-full capitalize bg-indigo-50 text-indigo-600">
+        <div className="flex flex-wrap gap-1.5 px-4">
+          <span className="text-xs px-2 py-0.5 rounded-full capitalize bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400">
             {juego.areaTerapeutica}
           </span>
         </div>
       )}
-      <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
+      <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400 px-4">
         <span
           className="font-semibold px-2 py-0.5 rounded-full"
           style={{ backgroundColor: dif.bg, color: dif.color }}
@@ -456,10 +484,10 @@ function JuegoCard({ juego, onDetalles, onAsignar }) {
         {juego.duracionEstimada && <span>🕐 {juego.duracionEstimada} min</span>}
       </div>
       {/* Botones — apilados en mobile, lado a lado en desktop */}
-      <div className="flex flex-col sm:flex-row gap-2 mt-auto pt-1">
+      <div className="flex flex-col sm:flex-row gap-2 mt-auto pt-1 px-4 pb-4">
         <button
           onClick={onDetalles}
-          className="w-full py-2 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 bg-gray-50 text-gray-600 border border-gray-200 hover:bg-gray-100 transition-colors"
+          className="w-full py-2 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
         >
           ⓘ Detalles
         </button>

@@ -103,29 +103,29 @@ export default function ModalAsignarPaciente({
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
-        className="relative w-full sm:max-w-md bg-white sm:rounded-2xl rounded-t-2xl overflow-hidden shadow-2xl border border-gray-200 flex flex-col"
+        className="relative w-full sm:max-w-md bg-white dark:bg-gray-900 sm:rounded-2xl rounded-t-2xl overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col"
         style={{ maxHeight: "92vh" }}
       >
         {/* Handle mobile */}
-        <div className="sm:hidden w-10 h-1 bg-gray-300 rounded-full mx-auto mt-3 mb-1 flex-shrink-0" />
+        <div className="sm:hidden w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto mt-3 mb-1 flex-shrink-0" />
 
         {/* Header */}
-        <div className="px-5 pt-4 pb-4 border-b border-gray-200 flex-shrink-0">
+        <div className="px-5 pt-4 pb-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-xs font-semibold uppercase tracking-widest mb-1 text-blue-600">
                 Asignar juego
               </p>
-              <h2 className="text-lg font-bold text-gray-900 leading-tight">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white leading-tight">
                 {juego.nombre}
               </h2>
-              <p className="text-sm mt-1 text-gray-500">
+              <p className="text-sm mt-1 text-gray-500 dark:text-gray-400">
                 Selecciona a quién le asignas este juego
               </p>
             </div>
             <button
               onClick={onClose}
-              className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 transition-colors"
+              className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             >
               ✕
             </button>
@@ -135,7 +135,7 @@ export default function ModalAsignarPaciente({
         {/* Cuerpo */}
         <div className="p-4 overflow-y-auto flex-1">
           {error && (
-            <div className="mb-3 px-3 py-2 rounded-lg text-sm bg-red-50 text-red-600 border border-red-200">
+            <div className="mb-3 px-3 py-2 rounded-lg text-sm bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800">
               {error}
             </div>
           )}
@@ -150,7 +150,7 @@ export default function ModalAsignarPaciente({
           {!cargando && pacientes.length === 0 && (
             <div className="flex flex-col items-center justify-center py-10 gap-2 text-center">
               <span className="text-3xl">👦</span>
-              <p className="text-sm font-medium text-gray-700">
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 No tienes pacientes aún
               </p>
               <p className="text-xs text-gray-400">
@@ -168,11 +168,11 @@ export default function ModalAsignarPaciente({
                 return (
                   <li
                     key={p._id}
-                    className="flex items-center gap-3 px-3 py-3 rounded-xl border transition-all"
-                    style={{
-                      backgroundColor: asignado ? "#f0fdf4" : "#f8fafc",
-                      borderColor: asignado ? "#bbf7d0" : "#e2e8f0",
-                    }}
+                    className={`flex items-center gap-3 px-3 py-3 rounded-xl border transition-all ${
+                      asignado
+                        ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
+                        : "bg-slate-50 dark:bg-gray-800 border-slate-200 dark:border-gray-700"
+                    }`}
                   >
                     {/* Avatar */}
                     <div
@@ -188,7 +188,7 @@ export default function ModalAsignarPaciente({
 
                     {/* Info */}
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-gray-900 truncate">
+                      <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
                         {p.nombre} {p.apellido}
                       </p>
                       <p className="text-xs text-gray-400">
@@ -238,10 +238,10 @@ export default function ModalAsignarPaciente({
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-4 border-t border-gray-200 bg-gray-50 flex-shrink-0">
+        <div className="px-5 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 flex-shrink-0">
           <button
             onClick={onClose}
-            className="w-full py-2.5 rounded-xl text-sm font-medium bg-white border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors"
+            className="w-full py-2.5 rounded-xl text-sm font-medium bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
             Cerrar
           </button>

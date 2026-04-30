@@ -142,59 +142,59 @@ const EditPatient = () => {
           </div>
 
           {/* Card skeleton */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 space-y-6">
             {/* Sección datos básicos */}
             <div>
-              <div className="h-4 w-28 bg-gray-200 rounded animate-pulse mb-4" />
+              <div className="h-4 w-28 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-4" />
               <div className="space-y-4">
                 {/* Nombre / Apellido */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <div className="h-3.5 w-16 bg-gray-200 rounded animate-pulse" />
-                    <div className="h-10 bg-gray-200 rounded-lg animate-pulse" />
+                    <div className="h-3.5 w-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                    <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
                   </div>
                   <div className="space-y-1.5">
-                    <div className="h-3.5 w-16 bg-gray-200 rounded animate-pulse" />
-                    <div className="h-10 bg-gray-200 rounded-lg animate-pulse" />
+                    <div className="h-3.5 w-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                    <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
                   </div>
                 </div>
                 {/* Fecha */}
                 <div className="space-y-1.5">
-                  <div className="h-3.5 w-32 bg-gray-200 rounded animate-pulse" />
-                  <div className="h-10 bg-gray-200 rounded-lg animate-pulse" />
+                  <div className="h-3.5 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                  <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
                 </div>
                 {/* Género */}
                 <div className="space-y-1.5">
-                  <div className="h-3.5 w-16 bg-gray-200 rounded animate-pulse" />
-                  <div className="h-10 bg-gray-200 rounded-lg animate-pulse" />
+                  <div className="h-3.5 w-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                  <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
                 </div>
               </div>
             </div>
 
-            <div className="h-px bg-gray-200" />
+            <div className="h-px bg-gray-200 dark:bg-gray-700" />
 
             {/* Sección clínica */}
             <div>
-              <div className="h-4 w-36 bg-gray-200 rounded animate-pulse mb-4" />
+              <div className="h-4 w-36 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-4" />
               <div className="space-y-4">
                 {/* Diagnóstico */}
                 <div className="space-y-1.5">
-                  <div className="h-3.5 w-24 bg-gray-200 rounded animate-pulse" />
-                  <div className="h-24 bg-gray-200 rounded-lg animate-pulse" />
+                  <div className="h-3.5 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                  <div className="h-24 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
                 </div>
                 {/* Observaciones */}
                 <div className="space-y-1.5">
-                  <div className="h-3.5 w-28 bg-gray-200 rounded animate-pulse" />
-                  <div className="h-24 bg-gray-200 rounded-lg animate-pulse" />
+                  <div className="h-3.5 w-28 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                  <div className="h-24 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
                 </div>
                 {/* Áreas */}
                 <div className="space-y-2">
-                  <div className="h-3.5 w-28 bg-gray-200 rounded animate-pulse" />
+                  <div className="h-3.5 w-28 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
                   <div className="flex gap-2">
                     {Array.from({ length: 6 }).map((_, i) => (
                       <div
                         key={i}
-                        className="h-7 w-20 bg-gray-200 rounded-full animate-pulse"
+                        className="h-7 w-20 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"
                       />
                     ))}
                   </div>
@@ -204,8 +204,8 @@ const EditPatient = () => {
 
             {/* Botones */}
             <div className="flex gap-4 pt-2">
-              <div className="h-10 flex-1 bg-gray-200 rounded-xl animate-pulse" />
-              <div className="h-10 flex-1 bg-gray-200 rounded-xl animate-pulse" />
+              <div className="h-10 flex-1 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse" />
+              <div className="h-10 flex-1 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse" />
             </div>
           </div>
         </div>
@@ -222,7 +222,7 @@ const EditPatient = () => {
         <div className="mb-6">
           <button
             onClick={() => navigate(`/pacientes/${id}`)}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition-colors"
+            className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 mb-4 transition-colors"
           >
             <ArrowLeft className="h-5 w-5" />
             Volver al detalle
@@ -233,10 +233,10 @@ const EditPatient = () => {
               <UserCog className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                 Editar Paciente
               </h1>
-              <p className="text-gray-500 text-sm mt-0.5">
+              <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">
                 Actualiza la información clínica
               </p>
             </div>
@@ -247,7 +247,7 @@ const EditPatient = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Datos básicos */}
             <div>
-              <h3 className="text-base font-semibold text-gray-900 mb-4">
+              <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-4">
                 Datos Básicos
               </h3>
               <div className="space-y-4">
@@ -277,21 +277,21 @@ const EditPatient = () => {
                     required
                   />
                   {edad && (
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                       Edad actual: {edad} años
                     </p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Género
                   </label>
                   <select
                     name="genero"
                     value={formData.genero}
                     onChange={handleChange}
-                    className="block w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                   >
                     <option value="masculino">Masculino</option>
                     <option value="femenino">Femenino</option>
@@ -302,16 +302,16 @@ const EditPatient = () => {
               </div>
             </div>
 
-            <hr />
+            <hr className="dark:border-gray-700" />
 
             {/* Información clínica */}
             <div>
-              <h3 className="text-base font-semibold text-gray-900 mb-4">
+              <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-4">
                 Información Clínica
               </h3>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Diagnóstico
                   </label>
                   <textarea
@@ -319,13 +319,13 @@ const EditPatient = () => {
                     value={formData.diagnostico}
                     onChange={handleChange}
                     rows="3"
-                    className="block w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                     placeholder="Ej: Trastorno del lenguaje expresivo..."
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Observaciones
                   </label>
                   <textarea
@@ -333,14 +333,14 @@ const EditPatient = () => {
                     value={formData.observaciones}
                     onChange={handleChange}
                     rows="3"
-                    className="block w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                     placeholder="Notas adicionales, preferencias, alergias..."
                   />
                 </div>
 
                 {/* Áreas de trabajo */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Áreas de Trabajo
                   </label>
                   <div className="flex flex-wrap gap-2">
@@ -356,7 +356,7 @@ const EditPatient = () => {
                           className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                             activa
                               ? "bg-purple-600 text-white"
-                              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                              : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                           }`}
                         >
                           {area.label}

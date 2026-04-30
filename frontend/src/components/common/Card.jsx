@@ -15,7 +15,7 @@ const Card = ({
   return (
     <div
       className={`
-        bg-white rounded-lg shadow-md
+        bg-white dark:bg-gray-800 rounded-lg shadow-md
         ${padding ? 'p-6' : ''}
         ${className}
       `}
@@ -24,12 +24,12 @@ const Card = ({
       {(title || subtitle) && (
         <div className="mb-4">
           {title && (
-            <h3 className="text-lg font-semibold text-gray-900">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
               {title}
             </h3>
           )}
           {subtitle && (
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
               {subtitle}
             </p>
           )}

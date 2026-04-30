@@ -49,18 +49,18 @@ const ProfesionalDashboard = () => {
       <DashboardLayout>
         {/* Cabecera skeleton */}
         <div className="mb-8 space-y-2">
-          <div className="h-8 w-64 bg-gray-200 rounded animate-pulse" />
-          <div className="h-4 w-48 bg-gray-200 rounded animate-pulse" />
+          <div className="h-8 w-64 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+          <div className="h-4 w-48 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
         </div>
         {/* Stats skeleton */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="h-28 bg-gray-200 rounded-xl animate-pulse" />
-          <div className="h-28 bg-gray-200 rounded-xl animate-pulse" />
+          <div className="h-28 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse" />
+          <div className="h-28 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse" />
         </div>
         {/* Cards skeleton */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="h-44 bg-gray-200 rounded-xl animate-pulse" />
-          <div className="h-44 bg-gray-200 rounded-xl animate-pulse" />
+          <div className="h-44 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse" />
+          <div className="h-44 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse" />
         </div>
       </DashboardLayout>
     );
@@ -70,10 +70,10 @@ const ProfesionalDashboard = () => {
     <DashboardLayout>
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
           ¡Hola, {user?.nombre}! 👨‍⚕️
         </h1>
-        <p className="text-gray-600 mt-2">
+        <p className="text-gray-600 dark:text-gray-400 mt-2">
           Bienvenido a tu dashboard profesional
         </p>
       </div>
@@ -145,16 +145,16 @@ const ProfesionalDashboard = () => {
       </div>
 
       {/* Sugerencias */}
-      <Card className="mb-6 bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
+      <Card className="mb-6 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-purple-200 dark:border-purple-800">
         <div className="flex flex-col sm:flex-row items-start gap-4">
           <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
             <Lightbulb className="h-6 w-6 text-white" />
           </div>
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
               ¿Necesitas un juego que no existe?
             </h3>
-            <p className="text-gray-700 mb-4 text-sm">
+            <p className="text-gray-700 dark:text-gray-300 mb-4 text-sm">
               Sugiere juegos educativos para tus pacientes. El equipo de
               Didactifonis revisará tu propuesta y te dará feedback.
             </p>
@@ -180,46 +180,46 @@ const ProfesionalDashboard = () => {
       <Card title="Comienza Aquí">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div
-            className="text-center p-4 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors"
+            className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
             onClick={() => navigate("/profesional/crear-paciente")}
           >
             <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-3">
               <UserPlus className="h-6 w-6 text-white" />
             </div>
-            <h3 className="font-semibold text-gray-900 mb-1">
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
               1. Agrega Pacientes
             </h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               Crea perfiles para tus pacientes
             </p>
           </div>
 
           <div
-            className="text-center p-4 bg-green-50 rounded-lg cursor-pointer hover:bg-green-100 transition-colors"
+            className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg cursor-pointer hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"
             onClick={() => navigate("/profesional/biblioteca")}
           >
             <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-3">
               <BookOpen className="h-6 w-6 text-white" />
             </div>
-            <h3 className="font-semibold text-gray-900 mb-1">
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
               2. Asigna Juegos
             </h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               Elige juegos apropiados para cada paciente
             </p>
           </div>
 
           <div
-            className="text-center p-4 bg-purple-50 rounded-lg cursor-pointer hover:bg-purple-100 transition-colors"
+            className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg cursor-pointer hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors"
             onClick={() => navigate("/profesional/sugerir-juego")}
           >
             <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-3">
               <Lightbulb className="h-6 w-6 text-white" />
             </div>
-            <h3 className="font-semibold text-gray-900 mb-1">
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
               3. Sugiere Juegos
             </h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               Propón nuevos juegos a la comunidad
             </p>
           </div>

@@ -56,18 +56,18 @@ const Sidebar = ({ isOpen, onClose }) => {
 
       <aside className={`
         fixed lg:static inset-y-0 left-0 z-30
-        w-64 bg-white border-r border-gray-200
+        w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700
         transform transition-transform duration-300 ease-in-out
         ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
       `}>
         <div className="h-full flex flex-col">
           {/* Header mobile */}
-          <div className="lg:hidden flex items-center justify-between p-4 border-b">
+          <div className="lg:hidden flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center gap-2">
               <span className="text-2xl">🎓</span>
-              <span className="text-lg font-bold text-gray-800">Didactifonis</span>
+              <span className="text-lg font-bold text-gray-800 dark:text-gray-100">Didactifonis</span>
             </div>
-            <button onClick={onClose} className="p-2 rounded-md text-gray-600 hover:bg-gray-100">
+            <button onClick={onClose} className="p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
               <X className="h-6 w-6" />
             </button>
           </div>
@@ -78,7 +78,9 @@ const Sidebar = ({ isOpen, onClose }) => {
               <NavLink key={item.path} to={item.path} onClick={() => onClose()}
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                    isActive ? "bg-blue-50 text-blue-600" : "text-gray-700 hover:bg-gray-100"
+                    isActive
+                      ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
+                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                   }`
                 }>
                 <item.icon className="h-5 w-5" />
@@ -88,8 +90,8 @@ const Sidebar = ({ isOpen, onClose }) => {
           </nav>
 
           {/* Footer */}
-          <div className="p-4 border-t border-gray-200">
-            <div className="text-xs text-gray-500 text-center">© 2026 Didactifonis</div>
+          <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="text-xs text-gray-500 dark:text-gray-400 text-center">© 2026 Didactifonis</div>
           </div>
         </div>
       </aside>

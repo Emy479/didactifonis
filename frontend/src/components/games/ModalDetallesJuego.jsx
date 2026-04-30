@@ -34,13 +34,13 @@ export default function ModalDetallesJuego({ juego, onClose }) {
         onClick={(e) => e.target === e.currentTarget && onClose()}
       >
         <div
-          className="relative w-full sm:max-w-lg bg-white sm:rounded-2xl rounded-t-2xl overflow-hidden shadow-2xl border border-gray-200 flex flex-col"
+          className="relative w-full sm:max-w-lg bg-white dark:bg-gray-900 sm:rounded-2xl rounded-t-2xl overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col"
           style={{ maxHeight: "92vh" }}
         >
           {/* Cabecera */}
-          <div className="relative px-5 pt-5 pb-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200 flex-shrink-0">
+          <div className="relative px-5 pt-5 pb-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-800 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
             {/* Handle mobile */}
-            <div className="sm:hidden w-10 h-1 bg-gray-300 rounded-full mx-auto mb-3" />
+            <div className="sm:hidden w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto mb-3" />
 
             <span
               className="inline-block text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full mb-2"
@@ -51,12 +51,12 @@ export default function ModalDetallesJuego({ juego, onClose }) {
 
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-200 transition-colors"
+              className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
             >
               ✕
             </button>
 
-            <h2 className="text-lg font-bold text-gray-900 pr-8">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white pr-8">
               {juego.nombre}
             </h2>
           </div>
@@ -64,7 +64,7 @@ export default function ModalDetallesJuego({ juego, onClose }) {
           {/* Cuerpo scrolleable */}
           <div className="px-5 py-4 space-y-4 overflow-y-auto flex-1">
             {/* Descripción */}
-            <p className="text-sm leading-relaxed text-gray-600">
+            <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
               {juego.descripcion}
             </p>
 
@@ -96,11 +96,11 @@ export default function ModalDetallesJuego({ juego, onClose }) {
               ].map(({ icon, label, value }) => (
                 <div
                   key={label}
-                  className="flex flex-col items-center gap-1 py-3 rounded-xl text-center bg-gray-50 border border-gray-200"
+                  className="flex flex-col items-center gap-1 py-3 rounded-xl text-center bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
                 >
                   <span className="text-base">{icon}</span>
                   <span className="text-xs text-gray-400">{label}</span>
-                  <span className="text-xs font-semibold text-gray-900 leading-tight">
+                  <span className="text-xs font-semibold text-gray-900 dark:text-white leading-tight">
                     {value}
                   </span>
                 </div>
@@ -129,7 +129,7 @@ export default function ModalDetallesJuego({ juego, onClose }) {
                   {juego.objetivos.map((obj, i) => (
                     <li
                       key={i}
-                      className="flex items-start gap-2 text-sm text-gray-600"
+                      className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400"
                     >
                       <span className="mt-0.5 flex-shrink-0 text-green-500">
                         ✓
@@ -147,16 +147,16 @@ export default function ModalDetallesJuego({ juego, onClose }) {
                 <p className="text-xs font-semibold uppercase tracking-widest mb-2 text-gray-400">
                   Instrucciones
                 </p>
-                <p className="text-sm text-gray-600">{juego.instrucciones}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{juego.instrucciones}</p>
               </div>
             )}
           </div>
 
           {/* Footer */}
-          <div className="px-5 py-4 flex gap-3 border-t border-gray-200 bg-gray-50 flex-shrink-0">
+          <div className="px-5 py-4 flex gap-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 flex-shrink-0">
             <button
               onClick={onClose}
-              className="flex-1 py-2.5 rounded-xl text-sm font-medium bg-white border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors"
+              className="flex-1 py-2.5 rounded-xl text-sm font-medium bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             >
               Cerrar
             </button>

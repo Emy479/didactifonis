@@ -120,7 +120,7 @@ const CreatePatient = () => {
       <div className="mb-6">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
+          className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 mb-4"
         >
           <ArrowLeft className="h-5 w-5" />
           Volver
@@ -131,10 +131,10 @@ const CreatePatient = () => {
             <UserPlus className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
               {user.role === "tutor" ? "Agregar Hijo/a" : "Nuevo Paciente"}
             </h1>
-            <p className="text-gray-600 mt-1">
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
               {user.role === "tutor"
                 ? "Crea un perfil para tu hijo/a"
                 : "Registra un nuevo paciente en tu consulta"}
@@ -146,7 +146,7 @@ const CreatePatient = () => {
       <Card>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               Información del {user.role === "tutor" ? "Niño/a" : "Paciente"}
             </h3>
 
@@ -181,14 +181,14 @@ const CreatePatient = () => {
                   required
                 />
                 {edad && (
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                     Edad actual: {edad} años
                   </p>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Diagnóstico {user.role === "tutor" && "(opcional)"}
                 </label>
                 <textarea
@@ -196,13 +196,13 @@ const CreatePatient = () => {
                   value={formData.diagnostico}
                   onChange={handleChange}
                   rows="3"
-                  className="block w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Ej: Trastorno del lenguaje expresivo, dislalia..."
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Notas adicionales (opcional)
                 </label>
                 <textarea
@@ -210,7 +210,7 @@ const CreatePatient = () => {
                   value={formData.notas}
                   onChange={handleChange}
                   rows="3"
-                  className="block w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Información relevante, alergias, preferencias..."
                 />
               </div>
@@ -221,7 +221,7 @@ const CreatePatient = () => {
             <>
               <hr className="my-6" />
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                   Información del Tutor/Padre
                 </h3>
                 <div className="space-y-4">
@@ -250,10 +250,10 @@ const CreatePatient = () => {
                     onChange={handleTutorInfoChange}
                     placeholder="912345678"
                   />
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
                     <div className="flex items-start gap-2">
                       <FileText className="h-5 w-5 text-blue-600 mt-0.5" />
-                      <div className="text-sm text-blue-900">
+                      <div className="text-sm text-blue-900 dark:text-blue-300">
                         <p className="font-medium mb-1">Nota importante:</p>
                         <p>
                           Si el tutor no tiene cuenta, se creará

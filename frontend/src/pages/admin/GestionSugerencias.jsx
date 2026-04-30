@@ -16,13 +16,13 @@ import { obtenerSugerencias, cambiarEstadoSugerencia } from "../../api/games";
 import { ArrowLeft, CheckCircle, XCircle, Clock, Eye } from "lucide-react";
 
 const ESTADO_CONFIG = {
-  pendiente: { label: "Pendiente", color: "bg-yellow-100 text-yellow-700" },
-  en_revision: { label: "En Revisión", color: "bg-blue-100 text-blue-700" },
-  aprobada: { label: "Aprobada", color: "bg-green-100 text-green-700" },
-  rechazada: { label: "Rechazada", color: "bg-red-100 text-red-700" },
+  pendiente: { label: "Pendiente", color: "bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400" },
+  en_revision: { label: "En Revisión", color: "bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400" },
+  aprobada: { label: "Aprobada", color: "bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400" },
+  rechazada: { label: "Rechazada", color: "bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400" },
   implementada: {
     label: "Implementada",
-    color: "bg-purple-100 text-purple-700",
+    color: "bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400",
   },
 };
 
@@ -99,15 +99,15 @@ const GestionSugerencias = () => {
         <div className="mb-6">
           <button
             onClick={() => navigate("/admin/dashboard")}
-            className="flex items-center gap-2 text-gray-500 hover:text-gray-900 mb-4 text-sm transition-colors"
+            className="flex items-center gap-2 text-gray-500 hover:text-gray-900 dark:hover:text-gray-200 mb-4 text-sm transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
             Volver al panel
           </button>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
             Gestión de Sugerencias
           </h1>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
             Revisa y responde las propuestas de los profesionales
           </p>
         </div>
@@ -128,7 +128,7 @@ const GestionSugerencias = () => {
               className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all capitalize ${
                 filtroEstado === estado
                   ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
               }`}
             >
               {estado === "todas" ? "Todas" : ESTADO_CONFIG[estado]?.label}
@@ -147,34 +147,34 @@ const GestionSugerencias = () => {
             {Array.from({ length: 5 }).map((_, i) => (
               <div
                 key={i}
-                className="bg-white rounded-xl border border-gray-200 p-4"
+                className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4"
               >
                 <div className="flex items-start justify-between gap-4">
                   {/* Izquierda */}
                   <div className="flex-1 space-y-2">
                     {/* Título + badge */}
                     <div className="flex items-center gap-2">
-                      <div className="h-4 w-48 bg-gray-200 rounded animate-pulse" />
-                      <div className="h-5 w-20 bg-gray-200 rounded-full animate-pulse" />
+                      <div className="h-4 w-48 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                      <div className="h-5 w-20 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse" />
                     </div>
                     {/* Descripción */}
-                    <div className="h-3 w-full bg-gray-200 rounded animate-pulse" />
-                    <div className="h-3 w-3/4 bg-gray-200 rounded animate-pulse" />
+                    <div className="h-3 w-full bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                    <div className="h-3 w-3/4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
                     {/* Meta */}
                     <div className="flex items-center gap-3">
-                      <div className="h-3 w-24 bg-gray-200 rounded animate-pulse" />
-                      <div className="h-3 w-20 bg-gray-200 rounded animate-pulse" />
-                      <div className="h-3 w-16 bg-gray-200 rounded animate-pulse" />
+                      <div className="h-3 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                      <div className="h-3 w-20 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                      <div className="h-3 w-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
                     </div>
                   </div>
                   {/* Botón revisar */}
-                  <div className="h-8 w-20 bg-gray-200 rounded-lg animate-pulse flex-shrink-0" />
+                  <div className="h-8 w-20 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse flex-shrink-0" />
                 </div>
               </div>
             ))}
           </div>
         ) : sugerenciasFiltradas.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-gray-300">
+          <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-300 dark:border-gray-600">
             <Clock className="h-10 w-10 text-gray-300 mx-auto mb-3" />
             <p className="text-gray-400">No hay sugerencias en este estado</p>
           </div>
@@ -185,13 +185,13 @@ const GestionSugerencias = () => {
               return (
                 <div
                   key={s._id}
-                  className="bg-white rounded-xl border border-gray-200 p-4"
+                  className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       {/* Título y badge */}
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <h3 className="text-sm font-semibold text-gray-900">
+                        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
                           {s.titulo}
                         </h3>
                         <span
@@ -219,7 +219,7 @@ const GestionSugerencias = () => {
 
                       {/* Feedback previo */}
                       {s.notasAdmin && (
-                        <div className="mt-2 px-3 py-2 bg-gray-50 rounded-lg text-xs text-gray-600">
+                        <div className="mt-2 px-3 py-2 bg-gray-50 dark:bg-gray-700 rounded-lg text-xs text-gray-600 dark:text-gray-300">
                           <span className="font-medium">Feedback: </span>
                           {s.notasAdmin}
                         </div>
@@ -229,7 +229,7 @@ const GestionSugerencias = () => {
                     {/* Botón revisar */}
                     <button
                       onClick={() => handleRevisar(s)}
-                      className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+                      className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                     >
                       <Eye className="h-3.5 w-3.5" />
                       Revisar
@@ -248,13 +248,13 @@ const GestionSugerencias = () => {
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
           style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
         >
-          <div className="bg-white rounded-2xl p-6 max-w-lg w-full shadow-2xl">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-lg w-full shadow-2xl">
             {/* Cabecera modal */}
             <div className="mb-4">
-              <h3 className="text-lg font-bold text-gray-900">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">
                 {modalRevision.titulo}
               </h3>
-              <p className="text-sm text-gray-500 mt-0.5">
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
                 Por {modalRevision.profesional?.nombre || "Profesional"}
               </p>
             </div>
@@ -265,7 +265,7 @@ const GestionSugerencias = () => {
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
                   Descripción
                 </p>
-                <p className="text-sm text-gray-700">
+                <p className="text-sm text-gray-700 dark:text-gray-300">
                   {modalRevision.descripcion}
                 </p>
               </div>
@@ -285,7 +285,7 @@ const GestionSugerencias = () => {
                 </div>
               )}
 
-              <div className="flex gap-4 text-sm text-gray-600">
+              <div className="flex gap-4 text-sm text-gray-600 dark:text-gray-400">
                 <span>🧠 {modalRevision.areaTerapeutica}</span>
                 {modalRevision.rangoEdadSugerido && (
                   <span>
@@ -299,14 +299,14 @@ const GestionSugerencias = () => {
 
             {/* Feedback */}
             <div className="mb-5">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Feedback para el profesional
               </label>
               <textarea
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}
                 rows={3}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Explica tu decisión al profesional..."
               />
             </div>
@@ -362,7 +362,7 @@ const GestionSugerencias = () => {
                   setFeedback("");
                 }}
                 disabled={procesando}
-                className="w-full py-2.5 rounded-xl text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+                className="w-full py-2.5 rounded-xl text-sm font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
               >
                 Cancelar
               </button>

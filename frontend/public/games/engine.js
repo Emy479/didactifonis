@@ -23,6 +23,121 @@ const DidactiEngine = (() => {
   let tiempoRondaInicio = null;
   let detalleRondas = [];
   let audioActual  = null;
+  let _musicaFondo = null;   // audio en loop de fondo
+  let _lsKey       = '';     // clave de localStorage para guardar progreso
+
+  // ── Progreso persistente (localStorage) ─────────────────────────────────────
+  const guardarProgreso = () => {
+    if (!_lsKey || rondaActual <= 0) return;
+    try {
+      localStorage.setItem(_lsKey, JSON.stringify({
+        rondaActual, puntaje, detalleRondas, timestamp: Date.now(),
+      }));
+    } catch {}
+  };
+
+  const cargarProgreso = () => {
+    try {
+      if (!_lsKey) return null;
+      const raw = localStorage.getItem(_lsKey);
+      if (!raw) return null;
+      const data = JSON.parse(raw);
+      if (Date.now() - data.timestamp > 86400000) { localStorage.removeItem(_lsKey); return null; }
+      return data;
+    } catch { return null; }
+  };
+
+  const limpiarProgreso = () => {
+    try { if (_lsKey) localStorage.removeItem(_lsKey); } catch {}
+  };
+
+  // ── Música de fondo ──────────────────────────────────────────────────────────
+  const _iniciarMusica = () => {
+    const url = config?.accesibilidad?.musicaFondo || config?.visual?.musicaFondo;
+    if (!url || _musicaFondo) return;
+    try {
+      _musicaFondo = new Audio(url);
+      _musicaFondo.loop   = true;
+      _musicaFondo.volume = 0.25;
+      _musicaFondo.play().catch(() => {});
+    } catch {}
+  };
+
+  const _detenerMusica = () => {
+    if (_musicaFondo) { _musicaFondo.pause(); _musicaFondo.currentTime = 0; _musicaFondo = null; }
+  };
+
+  const _toggleMusica = () => {
+    if (!_musicaFondo) return;
+    const btn = document.getElementById('dg-btn-musica');
+    if (_musicaFondo.paused) {
+      _musicaFondo.play().catch(() => {});
+      if (btn) btn.textContent = '🔊';
+    } else {
+      _musicaFondo.pause();
+      if (btn) btn.textContent = '🔇';
+    }
+  };
+
+  // ── Timer por ronda ──────────────────────────────────────────────────────────
+  let _timerRondaId    = null;
+  let _timerRondaSeg   = 0;
+  let _timerRondaTotal = 0;
+
+  const _timerRonda = {
+    iniciar(segundos, onTimeout) {
+      this.detener();
+      if (!segundos) return;
+      _timerRondaTotal = segundos;
+      _timerRondaSeg   = segundos;
+      this._actualizar();
+      _timerRondaId = setInterval(() => {
+        _timerRondaSeg--;
+        this._actualizar();
+        if (_timerRondaSeg <= 0) { this.detener(); onTimeout(); }
+      }, 1000);
+    },
+    detener() {
+      if (_timerRondaId) { clearInterval(_timerRondaId); _timerRondaId = null; }
+      const el = document.getElementById('dg-timer-ronda');
+      if (el) el.style.display = 'none';
+    },
+    _actualizar() {
+      const el = document.getElementById('dg-timer-ronda');
+      if (!el) return;
+      el.style.display = 'flex';
+      const pct   = Math.max(0, (_timerRondaSeg / _timerRondaTotal) * 100);
+      const color = _timerRondaSeg <= 5 ? '#ef4444' : _timerRondaSeg <= 10 ? '#f59e0b' : 'var(--acento)';
+      el.innerHTML = `
+        <span style="font-size:13px;font-weight:700;color:${color};min-width:36px;">⏱ ${_timerRondaSeg}s</span>
+        <div style="flex:1;height:5px;background:#e5e7eb;border-radius:99px;overflow:hidden;">
+          <div style="height:100%;width:${pct}%;background:${color};border-radius:99px;transition:width 0.9s linear;"></div>
+        </div>`;
+    },
+  };
+
+  // ── Confetti de celebración ──────────────────────────────────────────────────
+  const _lanzarConfetti = () => {
+    const COLORES = ['#f59e0b','#10b981','#3b82f6','#ec4899','#8b5cf6','#ef4444','#14b8a6'];
+    for (let i = 0; i < 80; i++) {
+      const p    = document.createElement('div');
+      p.className = 'dg-confetti-piece';
+      const size = 4 + Math.random() * 8;
+      p.style.cssText = `
+        left: ${Math.random() * 100}vw;
+        top: -24px;
+        width: ${size}px;
+        height: ${size * (Math.random() < 0.5 ? 1 : 2.5)}px;
+        background: ${COLORES[Math.floor(Math.random() * COLORES.length)]};
+        animation-duration: ${1.8 + Math.random() * 2}s;
+        animation-delay: ${Math.random() * 0.8}s;
+      `;
+      document.body.appendChild(p);
+      const dur = parseFloat(p.style.animationDuration) * 1000
+                + parseFloat(p.style.animationDelay) * 1000 + 400;
+      setTimeout(() => p.remove(), dur);
+    }
+  };
 
   // ── Síntesis de voz ─────────────────────────────────────────────────────────
   const voz = {
@@ -367,6 +482,40 @@ const DidactiEngine = (() => {
       }
       .dg-btn-secundario:hover { background: #e5e7eb; }
 
+      /* ── Confetti ── */
+      @keyframes dg-confetti-fall {
+        0%   { transform: translateY(-24px) rotate(0deg);   opacity: 1; }
+        100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
+      }
+      .dg-confetti-piece {
+        position: fixed;
+        border-radius: 2px;
+        pointer-events: none;
+        z-index: 9999;
+        animation: dg-confetti-fall linear forwards;
+      }
+
+      /* ── Timer por ronda ── */
+      #dg-timer-ronda {
+        display: none;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        max-width: 640px;
+        padding: 0 4px;
+      }
+
+      /* ── Botón mute música ── */
+      #dg-btn-musica {
+        background: none; border: none;
+        font-size: 18px; cursor: pointer;
+        color: var(--texto); opacity: 0.55;
+        padding: 4px 6px; border-radius: 8px;
+        transition: opacity 0.2s, transform 0.15s;
+        flex-shrink: 0;
+      }
+      #dg-btn-musica:hover { opacity: 1; transform: scale(1.15); }
+
       /* ── Animaciones ── */
       @keyframes dg-pulso-verde {
         0%   { transform: scale(1); }
@@ -445,6 +594,55 @@ const DidactiEngine = (() => {
         border-radius: var(--radius);
         box-shadow: var(--sombra);
       }
+
+      /* ── Mecánica: constructor_historias ── */
+      #dg-historia-wrap {
+        width: 100%; max-width: 680px;
+        display: flex; flex-direction: column; gap: 16px;
+      }
+      .dg-historia-fase-label {
+        text-align: center; font-size: 12px; font-weight: 700;
+        letter-spacing: 0.07em; text-transform: uppercase;
+        color: var(--acento);
+      }
+      #dg-historia-disponibles {
+        display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+      }
+      .dg-historia-img {
+        width: clamp(85px, 18vw, 130px); height: clamp(85px, 18vw, 130px);
+        object-fit: cover; border-radius: var(--radius);
+        border: 3px solid var(--acento); cursor: grab;
+        box-shadow: var(--sombra); user-select: none;
+        transition: transform 0.15s, box-shadow 0.15s;
+        background: #e5e7eb;
+      }
+      .dg-historia-img:active { transform: scale(1.06); cursor: grabbing; }
+      .dg-historia-img.en-riel { cursor: pointer; }
+      #dg-historia-riel {
+        min-height: 110px; border: 3px dashed var(--acento);
+        border-radius: var(--radius); display: flex; align-items: center;
+        gap: 10px; padding: 10px; background: rgba(255,255,255,0.7);
+        flex-wrap: wrap; transition: background 0.2s;
+      }
+      #dg-historia-riel.drag-over { background: rgba(59,130,246,0.1); }
+      #dg-historia-imagen-actual {
+        max-height: 190px; border-radius: var(--radius);
+        object-fit: contain; box-shadow: var(--sombra);
+        display: block; margin: 0 auto;
+      }
+      .dg-historia-oraciones { display: flex; flex-direction: column; gap: 10px; }
+      .dg-historia-oracion {
+        background: var(--tarjeta); border: 2px solid #e5e7eb;
+        border-radius: var(--radius); padding: 14px 18px;
+        font-size: clamp(14px, 3vw, 17px); font-weight: 500;
+        color: var(--texto); cursor: pointer; text-align: left;
+        transition: border-color 0.2s, background 0.2s, transform 0.15s;
+        box-shadow: var(--sombra);
+      }
+      .dg-historia-oracion:hover:not(:disabled) { border-color: var(--acento); transform: translateX(4px); }
+      .dg-historia-oracion.correcta  { background: #f0fdf4; border-color: #22c55e; color: #15803d; pointer-events: none; }
+      .dg-historia-oracion.incorrecta { background: #fef2f2; border-color: #ef4444; animation: dg-sacudir 0.4s ease; }
+      .dg-historia-oracion:disabled { opacity: 0.65; cursor: default; }
 
       /* ── Mecánica: tipeo ── */
       #dg-tipeo-wrap {
@@ -568,7 +766,10 @@ const DidactiEngine = (() => {
             <div id="dg-titulo">${config.titulo}</div>
             <div id="dg-progreso">Ronda <span id="dg-ronda-actual">1</span> de ${config.rondasTotal}</div>
           </div>
-          <div id="dg-puntaje">⭐ <span id="dg-pts">0</span> pts</div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div id="dg-puntaje">⭐ <span id="dg-pts">0</span> pts</div>
+            <button id="dg-btn-musica" title="Música" style="display:none;">🔊</button>
+          </div>
         </div>
 
         <!-- Barra de progreso -->
@@ -583,6 +784,8 @@ const DidactiEngine = (() => {
             <div id="dg-instruccion-texto"></div>
             <button class="dg-btn-audio" id="dg-btn-repetir" title="Repetir instrucción">🔊</button>
           </div>
+          <!-- Timer por ronda (oculto si no está configurado) -->
+          <div id="dg-timer-ronda"></div>
           <!-- Contenido dinámico por mecánica -->
           <div id="dg-contenido"></div>
         </main>
@@ -773,6 +976,15 @@ const DidactiEngine = (() => {
         const tarjeta = crearTarjeta(item, (it, el) => this.evaluar(it, el, items));
         grid.appendChild(tarjeta);
       });
+
+      guardarProgreso();
+      if (config.temporizadorRonda) {
+        _timerRonda.iniciar(config.temporizadorRonda, () => {
+          detalleRondas.push({ ronda: rondaActual + 1, correcta: false, intentos, tiempoRonda: config.temporizadorRonda });
+          rondaActual++; actualizarUI();
+          rondaActual >= config.rondasTotal ? mostrarResultados() : this.renderizar(rondas[rondaActual]);
+        });
+      }
     },
 
     evaluar(item, el, todosItems) {
@@ -884,7 +1096,7 @@ const DidactiEngine = (() => {
       // Riel destino
       const riel = document.createElement('div');
       riel.id = 'dg-riel';
-      riel.innerHTML = '<span style="color:#9ca3af;font-size:13px;">Arrastrá las fichas aquí en orden</span>';
+      riel.innerHTML = '<span style="color:#9ca3af;font-size:13px;">Arrastra las fichas aquí en orden</span>';
 
       // Drag & Drop en desktop
       riel.addEventListener('dragover', e => { e.preventDefault(); riel.classList.add('drag-over'); });
@@ -905,6 +1117,15 @@ const DidactiEngine = (() => {
 
       contenido.appendChild(zona);
       this.renderizarFichas();
+
+      guardarProgreso();
+      if (config.temporizadorRonda) {
+        _timerRonda.iniciar(config.temporizadorRonda, () => {
+          detalleRondas.push({ ronda: rondaActual + 1, correcta: false, intentos, tiempoRonda: config.temporizadorRonda });
+          rondaActual++; actualizarUI();
+          rondaActual >= config.rondasTotal ? mostrarResultados() : mecOrdenar.renderizar(rondas[rondaActual]);
+        });
+      }
     },
 
     renderizarFichas() {
@@ -915,7 +1136,7 @@ const DidactiEngine = (() => {
       // Limpiar riel
       riel.innerHTML = '';
       if (this.enRiel.length === 0) {
-        riel.innerHTML = '<span style="color:#9ca3af;font-size:13px;">Arrastrá las fichas aquí en orden</span>';
+        riel.innerHTML = '<span style="color:#9ca3af;font-size:13px;">Arrastra las fichas aquí en orden</span>';
       }
 
       // Renderizar fichas en riel
@@ -1027,6 +1248,239 @@ const DidactiEngine = (() => {
     }
   };
 
+  // ── Mecánica: constructor_historias ─────────────────────────────────────────
+  const mecHistorias = {
+    enRiel: [], disponibles: [],
+    intentosFase1: 0,
+    imagenActualIdx: 0,
+    imagenesOrdenadas: [],
+    intentosFase2: 0,
+    puntajeRonda: 0,
+
+    renderizar(ronda) {
+      this.enRiel = [];
+      this.disponibles = mezclar([...ronda.imagenes]);
+      this.intentosFase1 = 0; this.imagenActualIdx = 0;
+      this.imagenesOrdenadas = []; this.intentosFase2 = 0;
+      this.puntajeRonda = 0;
+      intentos = 0;
+      tiempoRondaInicio = Date.now();
+      renderizarInstruccion(ronda);
+      this.renderizarFase1(ronda);
+      guardarProgreso();
+      if (config.temporizadorRonda) {
+        _timerRonda.iniciar(config.temporizadorRonda, () => {
+          detalleRondas.push({ ronda: rondaActual + 1, correcta: false, intentos, tiempoRonda: config.temporizadorRonda });
+          rondaActual++; actualizarUI();
+          rondaActual >= config.rondasTotal ? mostrarResultados() : mecHistorias.renderizar(rondas[rondaActual]);
+        });
+      }
+    },
+
+    renderizarFase1(ronda) {
+      const contenido = document.getElementById('dg-contenido');
+      contenido.innerHTML = '';
+      const wrap = document.createElement('div');
+      wrap.id = 'dg-historia-wrap';
+
+      const label = document.createElement('p');
+      label.className = 'dg-historia-fase-label';
+      label.textContent = '① Arrastra las imágenes en el orden correcto de la historia';
+      wrap.appendChild(label);
+
+      const riel = document.createElement('div');
+      riel.id = 'dg-historia-riel';
+      riel.innerHTML = '<span style="color:#9ca3af;font-size:13px;">Arrastra las imágenes aquí en orden →</span>';
+      riel.addEventListener('dragover', e => { e.preventDefault(); riel.classList.add('drag-over'); });
+      riel.addEventListener('dragleave', () => riel.classList.remove('drag-over'));
+      riel.addEventListener('drop', e => {
+        e.preventDefault(); riel.classList.remove('drag-over');
+        this.moverARiel(e.dataTransfer.getData('text/plain'), ronda);
+      });
+      wrap.appendChild(riel);
+
+      const dispWrap = document.createElement('div');
+      dispWrap.id = 'dg-historia-disponibles';
+      wrap.appendChild(dispWrap);
+      contenido.appendChild(wrap);
+      this.renderizarImagenes(ronda);
+    },
+
+    renderizarImagenes(ronda) {
+      const riel = document.getElementById('dg-historia-riel');
+      const dispWrap = document.getElementById('dg-historia-disponibles');
+      if (!riel || !dispWrap) return;
+
+      riel.innerHTML = '';
+      if (this.enRiel.length === 0) {
+        riel.innerHTML = '<span style="color:#9ca3af;font-size:13px;">Arrastra las imágenes aquí en orden →</span>';
+      }
+      this.enRiel.forEach((img, i) => {
+        const el = this.crearImgEl(img, true);
+        el.onclick = () => this.quitarDelRiel(i, ronda);
+        el.title = 'Toca para quitar';
+        riel.appendChild(el);
+      });
+
+      dispWrap.innerHTML = '';
+      this.disponibles.forEach(img => {
+        const el = this.crearImgEl(img, false);
+        el.onclick = () => this.moverARiel(img.id, ronda);
+        dispWrap.appendChild(el);
+      });
+
+      if (this.enRiel.length === ronda.imagenes.length) {
+        const btn = document.createElement('button');
+        btn.className = 'dg-btn-primario';
+        btn.textContent = '✓ Verificar orden';
+        btn.style.marginTop = '8px';
+        btn.onclick = () => this.validarOrden(ronda);
+        dispWrap.appendChild(btn);
+      }
+    },
+
+    crearImgEl(img, enRiel) {
+      const el = document.createElement('img');
+      el.className = 'dg-historia-img' + (enRiel ? ' en-riel' : '');
+      el.dataset.id = img.id;
+      el.src = img.imagen || '';
+      el.alt = '';
+      el.draggable = true;
+      el.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', img.id));
+      return el;
+    },
+
+    moverARiel(id, ronda) {
+      const idx = this.disponibles.findIndex(i => i.id === id);
+      if (idx === -1) return;
+      this.enRiel.push(this.disponibles.splice(idx, 1)[0]);
+      this.renderizarImagenes(ronda);
+    },
+
+    quitarDelRiel(idx, ronda) {
+      this.disponibles.push(this.enRiel.splice(idx, 1)[0]);
+      this.renderizarImagenes(ronda);
+    },
+
+    validarOrden(ronda) {
+      const correcto = this.enRiel.every((img, i) => img.posicionCorrecta === i + 1);
+
+      if (correcto) {
+        document.querySelectorAll('#dg-historia-riel .dg-historia-img').forEach(el => {
+          el.style.borderColor = '#22c55e'; el.style.boxShadow = '0 0 0 3px #22c55e';
+        });
+        mostrarFeedback('¡Orden correcto! Ahora construí las oraciones 📝');
+        this.imagenesOrdenadas = [...this.enRiel].sort((a, b) => a.posicionCorrecta - b.posicionCorrecta);
+        setTimeout(() => { this.imagenActualIdx = 0; this.intentosFase2 = 0; this.renderizarFase2(ronda); }, 1400);
+      } else {
+        this.intentosFase1++; intentos++;
+        document.querySelectorAll('#dg-historia-riel .dg-historia-img').forEach(el => {
+          el.style.animation = 'dg-sacudir 0.4s ease';
+        });
+        if (this.intentosFase1 >= (config.intentosPorRonda || 2)) {
+          mostrarFeedback('Te muestro el orden correcto. ¡Prestá atención!');
+          this.imagenesOrdenadas = [...ronda.imagenes].sort((a, b) => a.posicionCorrecta - b.posicionCorrecta);
+          this.enRiel = this.imagenesOrdenadas;
+          this.disponibles = [];
+          this.renderizarImagenes(ronda);
+          setTimeout(() => { this.imagenActualIdx = 0; this.intentosFase2 = 0; this.renderizarFase2(ronda); }, 2200);
+        } else {
+          mostrarFeedback('¡El orden no es correcto! Revisá e intentá de nuevo');
+        }
+      }
+    },
+
+    renderizarFase2(ronda) {
+      const img = this.imagenesOrdenadas[this.imagenActualIdx];
+      if (!img) { this.finalizarRonda(ronda); return; }
+
+      const contenido = document.getElementById('dg-contenido');
+      contenido.innerHTML = '';
+      const wrap = document.createElement('div');
+      wrap.id = 'dg-historia-wrap';
+
+      const label = document.createElement('p');
+      label.className = 'dg-historia-fase-label';
+      label.textContent = `② Elegí la oración — imagen ${this.imagenActualIdx + 1} de ${this.imagenesOrdenadas.length}`;
+      wrap.appendChild(label);
+
+      const imgEl = document.createElement('img');
+      imgEl.id = 'dg-historia-imagen-actual';
+      imgEl.src = img.imagen || '';
+      imgEl.alt = '';
+      wrap.appendChild(imgEl);
+
+      const oracionesDiv = document.createElement('div');
+      oracionesDiv.className = 'dg-historia-oraciones';
+      mezclar([...img.oraciones]).forEach(op => {
+        const btn = document.createElement('button');
+        btn.className = 'dg-historia-oracion';
+        btn.textContent = op.texto;
+        btn.onclick = () => this.elegirOracion(btn, op, img, ronda);
+        oracionesDiv.appendChild(btn);
+      });
+      wrap.appendChild(oracionesDiv);
+      contenido.appendChild(wrap);
+    },
+
+    elegirOracion(btn, opcion, img, ronda) {
+      const todos = [...document.querySelectorAll('.dg-historia-oracion')];
+      todos.forEach(b => { b.disabled = true; });
+      const textoCorrecta = img.oraciones.find(o => o.correcta)?.texto;
+
+      if (opcion.correcta) {
+        btn.classList.add('correcta');
+        this.puntajeRonda++;
+        setTimeout(() => {
+          this.imagenActualIdx++;
+          this.intentosFase2 = 0;
+          this.renderizarFase2(ronda);
+        }, 900);
+      } else {
+        btn.classList.add('incorrecta');
+        this.intentosFase2++;
+        setTimeout(() => {
+          btn.classList.remove('incorrecta');
+          if (this.intentosFase2 >= (config.intentosPorRonda || 2)) {
+            todos.forEach(b => {
+              b.disabled = true;
+              if (b.textContent === textoCorrecta) b.classList.add('correcta');
+            });
+            setTimeout(() => { this.imagenActualIdx++; this.intentosFase2 = 0; this.renderizarFase2(ronda); }, 1400);
+          } else {
+            todos.forEach(b => { b.disabled = false; });
+          }
+        }, 800);
+      }
+    },
+
+    finalizarRonda(ronda) {
+      const total = this.imagenesOrdenadas.length;
+      const pts = total > 0
+        ? Math.round((config.puntajePorAcierto || 10) * this.puntajeRonda / total)
+        : 0;
+      puntaje += pts;
+      const esCorrecta = total > 0 && this.puntajeRonda / total >= 0.5;
+      detalleRondas.push({
+        ronda: rondaActual + 1, correcta: esCorrecta,
+        intentos: this.intentosFase1 + this.intentosFase2,
+        tiempoRonda: Math.round((Date.now() - tiempoRondaInicio) / 1000),
+      });
+      actualizarUI();
+
+      const delay = ronda.audioHistoria ? 3500 : 1600;
+      if (ronda.audioHistoria) {
+        audio.reproducir(ronda.audioHistoria, null);
+      } else {
+        mostrarFeedback(esCorrecta ? '¡Construiste una historia increíble! 📖' : '¡Buen intento! Seguí practicando 💪');
+      }
+      setTimeout(() => {
+        rondaActual++;
+        rondaActual >= config.rondasTotal ? mostrarResultados() : mecHistorias.renderizar(rondas[rondaActual]);
+      }, delay);
+    },
+  };
+
   // ── Mecánica: seleccion_secuencial ──────────────────────────────────────────
   const mecSecuencial = {
     pasoActual: 0,
@@ -1036,6 +1490,15 @@ const DidactiEngine = (() => {
       intentos = 0;
       tiempoRondaInicio = Date.now();
       this.renderizarPaso(ronda, 0);
+
+      guardarProgreso();
+      if (config.temporizadorRonda) {
+        _timerRonda.iniciar(config.temporizadorRonda, () => {
+          detalleRondas.push({ ronda: rondaActual + 1, correcta: false, intentos, tiempoRonda: config.temporizadorRonda });
+          rondaActual++; actualizarUI();
+          rondaActual >= config.rondasTotal ? mostrarResultados() : this.renderizar(rondas[rondaActual]);
+        });
+      }
     },
 
     renderizarPaso(ronda, paso) {
@@ -1215,13 +1678,22 @@ const DidactiEngine = (() => {
       if (this.pistas.length > 0) {
         const pistaEl = document.createElement('div');
         pistaEl.id = 'dg-tipeo-pista';
-        pistaEl.textContent = '¿Necesitás una pista?';
+        pistaEl.textContent = '¿Necesitas una pista?';
         pistaEl.onclick = () => this.mostrarPista(input);
         wrap.appendChild(pistaEl);
       }
 
       contenido.appendChild(wrap);
       setTimeout(() => input.focus(), 400);
+
+      guardarProgreso();
+      if (config.temporizadorRonda) {
+        _timerRonda.iniciar(config.temporizadorRonda, () => {
+          detalleRondas.push({ ronda: rondaActual + 1, correcta: false, intentos, tiempoRonda: config.temporizadorRonda });
+          rondaActual++; actualizarUI();
+          rondaActual >= config.rondasTotal ? mostrarResultados() : this.renderizar(rondas[rondaActual]);
+        });
+      }
     },
 
     normalizar(str) {
@@ -1345,6 +1817,15 @@ const DidactiEngine = (() => {
       setTimeout(() => {
         grid.querySelectorAll('.dg-carta:not(.emparejada)').forEach(c => c.classList.remove('volteada'));
       }, durPreview);
+
+      guardarProgreso();
+      if (config.temporizadorRonda) {
+        _timerRonda.iniciar(config.temporizadorRonda, () => {
+          detalleRondas.push({ ronda: rondaActual + 1, correcta: false, intentos, tiempoRonda: config.temporizadorRonda });
+          rondaActual++; actualizarUI();
+          rondaActual >= config.rondasTotal ? mostrarResultados() : this.renderizar(rondas[rondaActual]);
+        });
+      }
     },
 
     crearCarta(carta, idx) {
@@ -1486,6 +1967,15 @@ const DidactiEngine = (() => {
       wrap.appendChild(colIzq);
       wrap.appendChild(colDer);
       contenido.appendChild(wrap);
+
+      guardarProgreso();
+      if (config.temporizadorRonda) {
+        _timerRonda.iniciar(config.temporizadorRonda, () => {
+          detalleRondas.push({ ronda: rondaActual + 1, correcta: false, intentos, tiempoRonda: config.temporizadorRonda });
+          rondaActual++; actualizarUI();
+          rondaActual >= config.rondasTotal ? mostrarResultados() : this.renderizar(rondas[rondaActual]);
+        });
+      }
     },
 
     crearItem(item, lado) {
@@ -1531,7 +2021,7 @@ const DidactiEngine = (() => {
 
     intentarPar(itemDer, elDer, ronda) {
       if (!this.seleccionadoIzq) {
-        mostrarFeedback('Primero elegí un elemento de la izquierda');
+        mostrarFeedback('Primero elige un elemento de la izquierda');
         return;
       }
       if (elDer.classList.contains('correcto')) return;
@@ -1586,6 +2076,8 @@ const DidactiEngine = (() => {
   // ═══════════════════════════════════════════════════════════════════════════
 
   const mostrarResultados = () => {
+    _timerRonda.detener();
+    limpiarProgreso();
     const tiempoTotal = Math.round((Date.now() - tiempoInicio) / 1000);
     const puntajeMax  = config.rondasTotal * (config.puntajePorAcierto || 10);
     const pct         = Math.round((puntaje / puntajeMax) * 100);
@@ -1602,6 +2094,10 @@ const DidactiEngine = (() => {
     document.getElementById('dg-stat-tiempo').textContent      = Math.round(tiempoTotal / 60) + ' min';
 
     document.getElementById('dg-pantalla-resultados').classList.add('visible');
+
+    // Detener música y lanzar confetti si aprobado
+    _detenerMusica();
+    if (aprobado) setTimeout(_lanzarConfetti, 300);
 
     // Leer resultado en voz alta
     setTimeout(() => {
@@ -1633,6 +2129,7 @@ const DidactiEngine = (() => {
 
   // ── Reiniciar juego ─────────────────────────────────────────────────────────
   const reiniciar = () => {
+    limpiarProgreso();
     rondaActual   = 0;
     puntaje       = 0;
     intentos      = 0;
@@ -1644,6 +2141,7 @@ const DidactiEngine = (() => {
     document.getElementById('dg-pantalla-resultados').classList.remove('visible');
     actualizarUI();
     renderizarRonda(rondas[0]);
+    _iniciarMusica();
   };
 
   // ── Preparar rondas ─────────────────────────────────────────────────────────
@@ -1668,6 +2166,8 @@ const DidactiEngine = (() => {
       mecMemoria.renderizar(ronda);
     } else if (mec === 'emparejar') {
       mecEmparejar.renderizar(ronda);
+    } else if (mec === 'constructor_historias') {
+      mecHistorias.renderizar(ronda);
     } else {
       const contenido = document.getElementById('dg-contenido');
       contenido.innerHTML = `<p style="color:#6b7280;text-align:center;">Mecánica "${mec}" no reconocida</p>`;
@@ -1700,10 +2200,38 @@ const DidactiEngine = (() => {
     inyectarEstilos();
     construirDOM();
 
+    // Clave de localStorage para este juego
+    _lsKey = `didacti_${(config.id || config.titulo || 'juego').replace(/\s+/g, '_')}`;
+
     // Pantalla de inicio
     const descripcion = document.getElementById('dg-inicio-descripcion');
     if (descripcion) {
       descripcion.textContent = `${config.rondasTotal} rondas · Edad recomendada: ${config.edadMinima || 3}+ años`;
+    }
+
+    // Botón "Continuar" si hay progreso guardado
+    const progGuardado = cargarProgreso();
+    if (progGuardado && progGuardado.rondaActual > 0 && progGuardado.rondaActual < config.rondasTotal) {
+      const btnComenzar = document.getElementById('dg-btn-comenzar');
+      const btnCont = document.createElement('button');
+      btnCont.className   = 'dg-btn-secundario';
+      btnCont.style.cssText = 'margin-top:6px;';
+      btnCont.textContent = `▶ Continuar (ronda ${progGuardado.rondaActual + 1} / ${config.rondasTotal})`;
+      btnCont.onclick = () => {
+        document.getElementById('dg-pantalla-inicio').style.display = 'none';
+        rondaActual   = progGuardado.rondaActual;
+        puntaje       = progGuardado.puntaje       || 0;
+        detalleRondas = progGuardado.detalleRondas || [];
+        tiempoInicio  = Date.now();
+        rondas        = prepararRondas();
+        actualizarUI();
+        renderizarRonda(rondas[rondaActual]);
+        _iniciarMusica();
+        const btnM = document.getElementById('dg-btn-musica');
+        const urlM = config?.accesibilidad?.musicaFondo || config?.visual?.musicaFondo;
+        if (urlM && btnM) { btnM.style.display = 'block'; btnM.onclick = _toggleMusica; }
+      };
+      btnComenzar.insertAdjacentElement('afterend', btnCont);
     }
 
     document.getElementById('dg-btn-comenzar').onclick = () => {
@@ -1712,6 +2240,15 @@ const DidactiEngine = (() => {
       tiempoInicio = Date.now();
       actualizarUI();
       renderizarRonda(rondas[0]);
+
+      // Música de fondo (requiere gesto del usuario — se inicia aquí)
+      _iniciarMusica();
+      const btnMusica = document.getElementById('dg-btn-musica');
+      const urlMusica = config?.accesibilidad?.musicaFondo || config?.visual?.musicaFondo;
+      if (urlMusica && btnMusica) {
+        btnMusica.style.display = 'block';
+        btnMusica.onclick = _toggleMusica;
+      }
     };
   };
 

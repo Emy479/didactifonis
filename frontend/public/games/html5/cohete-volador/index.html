@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <title>El Cohete Volador — Didactifonis</title>
+  <style>
+    *, *::before, *::after {
+      margin: 0; padding: 0; box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: #030712;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    /*
+      position: fixed + inset: 0 garantiza que Phaser tenga referencia
+      al 100% de la ventana para su cálculo de FIT + CENTER_BOTH.
+      Con display:flex o position:static el canvas puede quedar descentrado.
+    */
+    #dg-arcade {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background: #030712;
+    }
+
+    /* El canvas que genera Phaser hereda el centrado automático */
+    #dg-arcade canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div id="dg-arcade"></div>
+
+  <!-- Phaser 3 (MIT License) — librería de juegos HTML5 -->
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.87.0/dist/phaser.min.js"></script>
+
+  <!-- Motor Arcade de Didactifonis -->
+  <script src="/games/engine-arcade.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      DidactiArcade.init('./data.json');
+    });
+  </script>
+</body>
+</html>
