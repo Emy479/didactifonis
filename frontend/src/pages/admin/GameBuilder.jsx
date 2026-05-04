@@ -9,12 +9,12 @@
  *   Paso 4 → Revisar y publicar
  */
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../../context/ToastContext";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import SceneEditor from "../../components/games/SceneEditor";
-import { crearJuegoBuilder, subirAsset } from "../../api/gameBuilder";
+import { crearJuegoBuilder, subirAsset, listarAssets } from "../../api/gameBuilder";
 import {
   ArrowLeft, ArrowRight, Gamepad2, Check,
   Plus, Trash2, ChevronDown, ChevronUp, Upload, Volume2,
@@ -116,6 +116,12 @@ const SUBMECANICAS_ARCADE = [
     nombre: "Plataformero",
     descripcion: "El personaje salta entre plataformas para tocar palabras correctas.",
     emoji: "🏃",
+  },
+  {
+    id: "side_scroller",
+    nombre: "Corredor",
+    descripcion: "El mundo scrollea de derecha a izquierda. El personaje corre, salta y esquiva. Recoge los elementos correctos.",
+    emoji: "🌄",
   },
 ];
 
@@ -883,6 +889,16 @@ const GameBuilder = () => {
     puntajePorAcierto: 10, puntajeMinimo: 60,
     modoRondas: "aleatorio", publicado: false,
     thumbnail: null,
+    feedback: {
+      correcto: [
+        { texto: "¡Muy bien! 🎉", audio: null },
+        { texto: "¡Excelente! ⭐", audio: null },
+      ],
+      error: [
+        { texto: "¡Inténtalo de nuevo! 🤔", audio: null },
+        { texto: "¡Casi! 👀", audio: null },
+      ],
+    },
   });
   const [visual,        setVisual]        = useState({ tema: "default", fondo: { tipo: "gradiente", desde: "#dbeafe", hasta: "#ede9fe" } });
   const [accesibilidad, setAccesibilidad] = useState({ audioInstruccion: null, musicaFondo: null });
@@ -908,8 +924,9 @@ const GameBuilder = () => {
       },
     },
     palabras: {
-      correctas: [{ texto: "" }],
-      incorrectas: [{ texto: "" }],
+      modo: "texto",
+      correctas: [{ texto: "", imagen: "" }],
+      incorrectas: [{ texto: "", imagen: "" }],
       velocidadMin: 75, velocidadMax: 145, spawnRate: 1800,
     },
     personaje: {
@@ -922,6 +939,25 @@ const GameBuilder = () => {
       },
     },
   });
+
+  // ── Assets para modo imagen (arcade) ───────────────────────────────────────
+  const BACKEND_URL = (import.meta.env.VITE_API_URL || "http://localhost:3001/api").replace("/api", "");
+  const [assetsImg,  setAssetsImg]  = useState({});
+  const [pickerOpen, setPickerOpen] = useState(null); // { tipo, idx } | null
+  const [pickerCat,  setPickerCat]  = useState(CATS_IMAGEN[0]);
+
+  useEffect(() => {
+    if (arcadeConfig.palabras.modo !== "imagenes") return;
+    if (Object.keys(assetsImg).length > 0) return;
+    listarAssets().then(data => {
+      const porCat = {};
+      (data || []).forEach(a => {
+        if (!porCat[a.categoria]) porCat[a.categoria] = [];
+        porCat[a.categoria].push(a);
+      });
+      setAssetsImg(porCat);
+    }).catch(() => {});
+  }, [arcadeConfig.palabras.modo]);
 
   // ── Handlers meta ───────────────────────────────────────────────────────────
   const handleMeta = (e) => {
@@ -1052,8 +1088,13 @@ const GameBuilder = () => {
       }
     }
     if (paso === 3 && tipoJuego === "arcade") {
-      const correctas = arcadeConfig.palabras.correctas.filter(p => p.texto.trim());
-      if (!correctas.length) { toast.advertencia("Agrega al menos una palabra correcta"); return false; }
+      if (arcadeConfig.palabras.modo === "imagenes") {
+        const correctas = arcadeConfig.palabras.correctas.filter(p => p.imagen);
+        if (!correctas.length) { toast.advertencia("Agrega al menos una imagen correcta"); return false; }
+      } else {
+        const correctas = arcadeConfig.palabras.correctas.filter(p => p.texto.trim());
+        if (!correctas.length) { toast.advertencia("Agrega al menos una palabra correcta"); return false; }
+      }
     }
     return true;
   };
@@ -1064,8 +1105,13 @@ const GameBuilder = () => {
     try {
       let payload;
       if (tipoJuego === "arcade") {
-        const correctas   = arcadeConfig.palabras.correctas.filter(p => p.texto.trim());
-        const incorrectas = arcadeConfig.palabras.incorrectas.filter(p => p.texto.trim());
+        const modoImg = arcadeConfig.palabras.modo === "imagenes";
+        const correctas = modoImg
+          ? arcadeConfig.palabras.correctas.filter(p => p.imagen)
+          : arcadeConfig.palabras.correctas.filter(p => p.texto.trim());
+        const incorrectas = modoImg
+          ? arcadeConfig.palabras.incorrectas.filter(p => p.imagen)
+          : arcadeConfig.palabras.incorrectas.filter(p => p.texto.trim());
         payload = {
           tipo: "arcade",
           nombre:          arcadeConfig.nombre,
@@ -1090,6 +1136,7 @@ const GameBuilder = () => {
           plataformas:       submecanica === "plataformero" ? arcadeConfig.plataformas : undefined,
           objetos:           submecanica === "plataformero" ? (arcadeConfig.objetos ?? []) : undefined,
           palabras: {
+            modo: arcadeConfig.palabras.modo,
             correctas,
             incorrectas,
             velocidadMin: Number(arcadeConfig.palabras.velocidadMin),
@@ -1677,6 +1724,141 @@ const GameBuilder = () => {
               </div>
             </div>
 
+            {/* Feedback */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 space-y-5">
+              <h3 className="font-semibold text-gray-900 dark:text-white">🔔 Sonidos de feedback</h3>
+
+              {/* Correcto */}
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-green-700 dark:text-green-400">✓ Al acertar</p>
+                {(meta.feedback?.correcto || []).map((item, i) => (
+                  <div key={i} className="flex gap-2 items-start">
+                    <input
+                      type="text"
+                      value={item.texto}
+                      onChange={e => setMeta(prev => {
+                        const lista = [...(prev.feedback?.correcto || [])];
+                        lista[i] = { ...lista[i], texto: e.target.value };
+                        return { ...prev, feedback: { ...prev.feedback, correcto: lista } };
+                      })}
+                      placeholder="Texto de felicitación"
+                      className="flex-1 text-sm border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    />
+                    <div className="shrink-0 w-44">
+                      <UploadAsset
+                        tipo="audio"
+                        categoriaDefault="otros"
+                        urlActual={item.audio || ""}
+                        onUrl={url => setMeta(prev => {
+                          const lista = [...(prev.feedback?.correcto || [])];
+                          lista[i] = { ...lista[i], audio: url };
+                          return { ...prev, feedback: { ...prev.feedback, correcto: lista } };
+                        })}
+                      />
+                    </div>
+                    {item.audio && (
+                      <button
+                        type="button"
+                        title="Quitar audio"
+                        onClick={() => setMeta(prev => {
+                          const lista = [...(prev.feedback?.correcto || [])];
+                          lista[i] = { ...lista[i], audio: null };
+                          return { ...prev, feedback: { ...prev.feedback, correcto: lista } };
+                        })}
+                        className="text-xs text-red-400 hover:text-red-600 mt-2"
+                      >✕</button>
+                    )}
+                    <button
+                      type="button"
+                      title="Eliminar entrada"
+                      onClick={() => setMeta(prev => {
+                        const lista = (prev.feedback?.correcto || []).filter((_, j) => j !== i);
+                        return { ...prev, feedback: { ...prev.feedback, correcto: lista } };
+                      })}
+                      className="text-xs text-gray-400 hover:text-red-500 mt-2"
+                    >🗑</button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setMeta(prev => ({
+                    ...prev,
+                    feedback: {
+                      ...prev.feedback,
+                      correcto: [...(prev.feedback?.correcto || []), { texto: "", audio: null }],
+                    },
+                  }))}
+                  className="text-xs text-green-600 hover:text-green-800 dark:text-green-400"
+                >+ Agregar mensaje de acierto</button>
+              </div>
+
+              <hr className="border-gray-100 dark:border-gray-700" />
+
+              {/* Error */}
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-red-700 dark:text-red-400">✗ Al fallar</p>
+                {(meta.feedback?.error || []).map((item, i) => (
+                  <div key={i} className="flex gap-2 items-start">
+                    <input
+                      type="text"
+                      value={item.texto}
+                      onChange={e => setMeta(prev => {
+                        const lista = [...(prev.feedback?.error || [])];
+                        lista[i] = { ...lista[i], texto: e.target.value };
+                        return { ...prev, feedback: { ...prev.feedback, error: lista } };
+                      })}
+                      placeholder="Texto de error"
+                      className="flex-1 text-sm border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    />
+                    <div className="shrink-0 w-44">
+                      <UploadAsset
+                        tipo="audio"
+                        categoriaDefault="otros"
+                        urlActual={item.audio || ""}
+                        onUrl={url => setMeta(prev => {
+                          const lista = [...(prev.feedback?.error || [])];
+                          lista[i] = { ...lista[i], audio: url };
+                          return { ...prev, feedback: { ...prev.feedback, error: lista } };
+                        })}
+                      />
+                    </div>
+                    {item.audio && (
+                      <button
+                        type="button"
+                        title="Quitar audio"
+                        onClick={() => setMeta(prev => {
+                          const lista = [...(prev.feedback?.error || [])];
+                          lista[i] = { ...lista[i], audio: null };
+                          return { ...prev, feedback: { ...prev.feedback, error: lista } };
+                        })}
+                        className="text-xs text-red-400 hover:text-red-600 mt-2"
+                      >✕</button>
+                    )}
+                    <button
+                      type="button"
+                      title="Eliminar entrada"
+                      onClick={() => setMeta(prev => {
+                        const lista = (prev.feedback?.error || []).filter((_, j) => j !== i);
+                        return { ...prev, feedback: { ...prev.feedback, error: lista } };
+                      })}
+                      className="text-xs text-gray-400 hover:text-red-500 mt-2"
+                    >🗑</button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setMeta(prev => ({
+                    ...prev,
+                    feedback: {
+                      ...prev.feedback,
+                      error: [...(prev.feedback?.error || []), { texto: "", audio: null }],
+                    },
+                  }))}
+                  className="text-xs text-red-600 hover:text-red-800 dark:text-red-400"
+                >+ Agregar mensaje de error</button>
+              </div>
+            </div>
+
             {/* Visual */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 space-y-4">
               <h3 className="font-semibold text-gray-900 dark:text-white">Tema visual</h3>
@@ -1887,57 +2069,190 @@ const GameBuilder = () => {
           <div className="space-y-6">
             {/* Palabras */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 space-y-5">
-              <h3 className="font-semibold text-gray-900 dark:text-white">Palabras del juego</h3>
-
-              {/* Correctas */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm font-medium text-green-700">✓ Palabras correctas (el jugador debe capturarlas)</p>
-                  <button onClick={() => handleArcadePalabras("correctas", [...arcadeConfig.palabras.correctas, { texto: "" }])}
-                    className="text-xs text-purple-600 hover:underline">+ Agregar</button>
-                </div>
-                <div className="space-y-2">
-                  {arcadeConfig.palabras.correctas.map((p, i) => (
-                    <div key={i} className="flex items-center gap-2">
-                      <input value={p.texto}
-                        onChange={e => {
-                          const arr = [...arcadeConfig.palabras.correctas];
-                          arr[i] = { texto: e.target.value };
-                          handleArcadePalabras("correctas", arr);
-                        }}
-                        placeholder="Ej: pato"
-                        className="flex-1 rounded-lg border border-green-200 bg-green-50 px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-green-400" />
-                      <button onClick={() => handleArcadePalabras("correctas", arcadeConfig.palabras.correctas.filter((_, j) => j !== i))}
-                        className="text-gray-400 hover:text-red-500 text-xs px-1 flex-shrink-0">✕</button>
-                    </div>
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-gray-900 dark:text-white">Elementos del juego</h3>
+                {/* Mode toggle */}
+                <div className="flex rounded-xl border border-gray-200 dark:border-gray-600 overflow-hidden">
+                  {[{ v: "texto", label: "📝 Texto" }, { v: "imagenes", label: "🖼️ Imágenes" }].map(opt => (
+                    <button key={opt.v}
+                      onClick={() => {
+                        handleArcadePalabras("modo", opt.v);
+                        setPickerOpen(null);
+                      }}
+                      className={`px-3 py-1.5 text-xs font-medium transition-colors ${
+                        arcadeConfig.palabras.modo === opt.v
+                          ? "bg-purple-600 text-white"
+                          : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                      }`}>{opt.label}</button>
                   ))}
                 </div>
               </div>
 
-              {/* Incorrectas */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm font-medium text-red-700">✗ Palabras incorrectas (el jugador debe evitarlas)</p>
-                  <button onClick={() => handleArcadePalabras("incorrectas", [...arcadeConfig.palabras.incorrectas, { texto: "" }])}
-                    className="text-xs text-purple-600 hover:underline">+ Agregar</button>
+              {/* ── Modo Texto ── */}
+              {arcadeConfig.palabras.modo === "texto" && (<>
+                {/* Correctas texto */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm font-medium text-green-700 dark:text-green-400">✓ Palabras correctas (el jugador debe capturarlas)</p>
+                    <button onClick={() => handleArcadePalabras("correctas", [...arcadeConfig.palabras.correctas, { texto: "", imagen: "" }])}
+                      className="text-xs text-purple-600 hover:underline">+ Agregar</button>
+                  </div>
+                  <div className="space-y-2">
+                    {arcadeConfig.palabras.correctas.map((p, i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <input value={p.texto}
+                          onChange={e => {
+                            const arr = [...arcadeConfig.palabras.correctas];
+                            arr[i] = { ...arr[i], texto: e.target.value };
+                            handleArcadePalabras("correctas", arr);
+                          }}
+                          placeholder="Ej: pato"
+                          className="flex-1 rounded-lg border border-green-200 bg-green-50 dark:bg-green-900/20 dark:border-green-700 dark:text-gray-200 px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-green-400" />
+                        <button onClick={() => handleArcadePalabras("correctas", arcadeConfig.palabras.correctas.filter((_, j) => j !== i))}
+                          className="text-gray-400 hover:text-red-500 text-xs px-1 flex-shrink-0">✕</button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  {arcadeConfig.palabras.incorrectas.map((p, i) => (
-                    <div key={i} className="flex items-center gap-2">
-                      <input value={p.texto}
-                        onChange={e => {
-                          const arr = [...arcadeConfig.palabras.incorrectas];
-                          arr[i] = { texto: e.target.value };
-                          handleArcadePalabras("incorrectas", arr);
-                        }}
-                        placeholder="Ej: gato"
-                        className="flex-1 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-red-300" />
-                      <button onClick={() => handleArcadePalabras("incorrectas", arcadeConfig.palabras.incorrectas.filter((_, j) => j !== i))}
-                        className="text-gray-400 hover:text-red-500 text-xs px-1 flex-shrink-0">✕</button>
+
+                {/* Incorrectas texto */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm font-medium text-red-700 dark:text-red-400">✗ Palabras incorrectas (el jugador debe evitarlas)</p>
+                    <button onClick={() => handleArcadePalabras("incorrectas", [...arcadeConfig.palabras.incorrectas, { texto: "", imagen: "" }])}
+                      className="text-xs text-purple-600 hover:underline">+ Agregar</button>
+                  </div>
+                  <div className="space-y-2">
+                    {arcadeConfig.palabras.incorrectas.map((p, i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <input value={p.texto}
+                          onChange={e => {
+                            const arr = [...arcadeConfig.palabras.incorrectas];
+                            arr[i] = { ...arr[i], texto: e.target.value };
+                            handleArcadePalabras("incorrectas", arr);
+                          }}
+                          placeholder="Ej: gato"
+                          className="flex-1 rounded-lg border border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-700 dark:text-gray-200 px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-red-300" />
+                        <button onClick={() => handleArcadePalabras("incorrectas", arcadeConfig.palabras.incorrectas.filter((_, j) => j !== i))}
+                          className="text-gray-400 hover:text-red-500 text-xs px-1 flex-shrink-0">✕</button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>)}
+
+              {/* ── Modo Imágenes ── */}
+              {arcadeConfig.palabras.modo === "imagenes" && (<>
+                {[
+                  { tipo: "correctas", label: "✓ Imágenes correctas", color: "green" },
+                  { tipo: "incorrectas", label: "✗ Imágenes incorrectas", color: "red" },
+                ].map(({ tipo, label, color }) => (
+                  <div key={tipo}>
+                    <div className="flex items-center justify-between mb-2">
+                      <p className={`text-sm font-medium text-${color}-700 dark:text-${color}-400`}>{label}</p>
+                      <button onClick={() => handleArcadePalabras(tipo, [...arcadeConfig.palabras[tipo], { texto: "", imagen: "" }])}
+                        className="text-xs text-purple-600 hover:underline">+ Agregar</button>
                     </div>
-                  ))}
-                </div>
-              </div>
+                    <div className="space-y-3">
+                      {arcadeConfig.palabras[tipo].map((p, i) => {
+                        const isOpen = pickerOpen?.tipo === tipo && pickerOpen?.idx === i;
+                        const catAssets = assetsImg[pickerCat] || [];
+                        return (
+                          <div key={i} className={`rounded-xl border p-3 space-y-2 ${
+                            color === "green"
+                              ? "border-green-200 bg-green-50 dark:bg-green-900/10 dark:border-green-700"
+                              : "border-red-200 bg-red-50 dark:bg-red-900/10 dark:border-red-700"
+                          }`}>
+                            <div className="flex items-center gap-3">
+                              {/* Thumbnail o placeholder */}
+                              <button
+                                onClick={() => {
+                                  if (Object.keys(assetsImg).length === 0) {
+                                    listarAssets().then(data => {
+                                      const porCat = {};
+                                      (data || []).forEach(a => {
+                                        if (!porCat[a.categoria]) porCat[a.categoria] = [];
+                                        porCat[a.categoria].push(a);
+                                      });
+                                      setAssetsImg(porCat);
+                                    }).catch(() => {});
+                                  }
+                                  setPickerOpen(isOpen ? null : { tipo, idx: i });
+                                }}
+                                className={`w-14 h-14 rounded-xl border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
+                                  p.imagen
+                                    ? "border-transparent p-0 overflow-hidden"
+                                    : `border-dashed ${color === "green" ? "border-green-400 hover:border-green-500" : "border-red-400 hover:border-red-500"} text-gray-400 hover:text-gray-600`
+                                }`}
+                              >
+                                {p.imagen
+                                  ? <img src={BACKEND_URL + p.imagen} alt="" className="w-full h-full object-cover" />
+                                  : <Plus className="h-5 w-5" />
+                                }
+                              </button>
+                              {/* Etiqueta de texto opcional */}
+                              <input value={p.texto}
+                                onChange={e => {
+                                  const arr = [...arcadeConfig.palabras[tipo]];
+                                  arr[i] = { ...arr[i], texto: e.target.value };
+                                  handleArcadePalabras(tipo, arr);
+                                }}
+                                placeholder="Etiqueta (opcional)"
+                                className="flex-1 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 dark:text-gray-200 px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-purple-400" />
+                              <button onClick={() => {
+                                handleArcadePalabras(tipo, arcadeConfig.palabras[tipo].filter((_, j) => j !== i));
+                                if (isOpen) setPickerOpen(null);
+                              }} className="text-gray-400 hover:text-red-500 text-xs px-1 flex-shrink-0">✕</button>
+                            </div>
+
+                            {/* Image picker panel */}
+                            {isOpen && (
+                              <div className="border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 p-3 space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <select value={pickerCat} onChange={e => setPickerCat(e.target.value)}
+                                    className="text-xs rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 px-2 py-1 focus:outline-none focus:ring-1 focus:ring-purple-400">
+                                    {CATS_IMAGEN.map(c => <option key={c} value={c}>{c}</option>)}
+                                  </select>
+                                  <span className="text-xs text-gray-400">{catAssets.length} imágenes</span>
+                                </div>
+                                {catAssets.length === 0
+                                  ? <p className="text-xs text-gray-400 py-4 text-center">Sin imágenes en esta categoría</p>
+                                  : (
+                                    <div className="grid grid-cols-6 gap-1.5 max-h-36 overflow-y-auto pr-1">
+                                      {catAssets.map(asset => (
+                                        <button key={asset._id}
+                                          onClick={() => {
+                                            const arr = [...arcadeConfig.palabras[tipo]];
+                                            arr[i] = { ...arr[i], imagen: asset.url };
+                                            handleArcadePalabras(tipo, arr);
+                                            setPickerOpen(null);
+                                          }}
+                                          title={asset.nombre}
+                                          className={`relative w-full aspect-square rounded-lg overflow-hidden border-2 transition-colors ${
+                                            p.imagen === asset.url ? "border-purple-500" : "border-transparent hover:border-gray-300"
+                                          }`}>
+                                          <img src={BACKEND_URL + asset.url} alt={asset.nombre} className="w-full h-full object-cover" />
+                                        </button>
+                                      ))}
+                                    </div>
+                                  )
+                                }
+                                {p.imagen && (
+                                  <button onClick={() => {
+                                    const arr = [...arcadeConfig.palabras[tipo]];
+                                    arr[i] = { ...arr[i], imagen: "" };
+                                    handleArcadePalabras(tipo, arr);
+                                  }} className="text-xs text-red-400 hover:text-red-600">✕ Quitar imagen</button>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </>)}
 
               {/* Velocidad y spawn */}
               <div className="grid grid-cols-3 gap-4 pt-2 border-t border-gray-100">
@@ -2070,7 +2385,16 @@ const GameBuilder = () => {
                   ["Dificultad",  NIVELES.find(n => n.value === arcadeConfig.nivelDificultad)?.label],
                   ["Edad",        `${arcadeConfig.edadMinima} - ${arcadeConfig.edadMaxima} años`],
                   ["Duración",    `${arcadeConfig.duracion}s · ${arcadeConfig.vidas} vidas`],
-                  ["Palabras",    `${arcadeConfig.palabras.correctas.filter(p=>p.texto).length} correctas · ${arcadeConfig.palabras.incorrectas.filter(p=>p.texto).length} incorrectas`],
+                  ["Elementos",   (() => {
+                    const modoImg = arcadeConfig.palabras.modo === "imagenes";
+                    const c = modoImg
+                      ? arcadeConfig.palabras.correctas.filter(p => p.imagen).length
+                      : arcadeConfig.palabras.correctas.filter(p => p.texto).length;
+                    const ic = modoImg
+                      ? arcadeConfig.palabras.incorrectas.filter(p => p.imagen).length
+                      : arcadeConfig.palabras.incorrectas.filter(p => p.texto).length;
+                    return `${c} correctos · ${ic} incorrectos · modo ${modoImg ? "imágenes" : "texto"}`;
+                  })()],
                   ["Puntaje",     `${arcadeConfig.puntajePorAcierto} pts/acierto · mín. ${arcadeConfig.puntajeMinimo}%`],
                   ["Tema",        TEMAS_ARCADE_UI.find(t => t.value === arcadeConfig.tema)?.label ?? "Espacial"],
                   ["Spritesheet", arcadeConfig.personaje.spritesheet ? "Sí" : "Procedural (generado)"],

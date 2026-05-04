@@ -30,6 +30,7 @@ import GestionJuegos from "../pages/admin/GestionJuegos";
 import GestionSugerencias from "../pages/admin/GestionSugerencias";
 import GestionUsuarios from "../pages/admin/GestionUsuarios";
 import GameBuilder from "../pages/admin/GameBuilder";
+import GestionAssets from "../pages/admin/GestionAssets";
 
 // Componentes de protección
 import ProtectedRoute from "./ProtectedRoute";
@@ -82,6 +83,7 @@ const AppRoutes = () => {
       <Route path="/admin/sugerencias" element={<ProtectedRoute allowedRoles={["admin"]}><GestionSugerencias /></ProtectedRoute>} />
       <Route path="/admin/usuarios"    element={<ProtectedRoute allowedRoles={["admin"]}><GestionUsuarios /></ProtectedRoute>} />
       <Route path="/admin/game-builder" element={<ProtectedRoute allowedRoles={["admin"]}><GameBuilder /></ProtectedRoute>} />
+      <Route path="/admin/assets"       element={<ProtectedRoute allowedRoles={["admin"]}><GestionAssets /></ProtectedRoute>} />
 
       {/* Pública */}
       <Route path="/jugar" element={<JugarPage />} />

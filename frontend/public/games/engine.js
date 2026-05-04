@@ -833,6 +833,25 @@ const DidactiEngine = (() => {
     feedbackTimer = setTimeout(() => el.classList.remove('visible'), duracion);
   };
 
+  // ── Feedback configurado: texto + audio desde config.feedback ───────────────
+  // Cada método elige un ítem aleatorio de la lista configurada (o usa el
+  // fallback si la lista está vacía) y reproduce el audio si está definido.
+  const fb = {
+    _reproducir(lista, textoFallback) {
+      const item = lista?.length
+        ? lista[Math.floor(Math.random() * lista.length)]
+        : { texto: textoFallback, audio: null };
+      mostrarFeedback(item.texto || textoFallback);
+      if (item.audio) audio.reproducir(item.audio, null);
+    },
+    correcto(textoFallback = '¡Muy bien!') {
+      this._reproducir(config?.feedback?.correcto, textoFallback);
+    },
+    error(textoFallback = '¡Inténtalo de nuevo!') {
+      this._reproducir(config?.feedback?.error, textoFallback);
+    },
+  };
+
   // ── Actualizar UI de puntaje/progreso ────────────────────────────────────────
   const actualizarUI = () => {
     const elPts      = document.getElementById('dg-pts');
@@ -1002,10 +1021,7 @@ const DidactiEngine = (() => {
           : (config.puntajePorAciertoSegundoIntento || 5);
         puntaje += pts;
 
-        const fb = config.feedback?.correcto;
-        const msg = fb ? fb[Math.floor(Math.random() * fb.length)] : { texto: '¡Muy bien!', audio: null };
-        mostrarFeedback(msg.texto);
-        audio.reproducirAleatorio(config.feedback?.correcto || [{ texto: '¡Muy bien!', audio: null }]);
+        fb.correcto('¡Muy bien!');
 
         const tiempoRonda = Math.round((Date.now() - tiempoRondaInicio) / 1000);
         detalleRondas.push({ ronda: rondaActual + 1, correcta: true, intentos: intentos + 1, tiempoRonda });
@@ -1018,10 +1034,7 @@ const DidactiEngine = (() => {
         el.classList.add('incorrecta');
         setTimeout(() => el.classList.remove('incorrecta'), 500);
 
-        const fb = config.feedback?.error;
-        const msg = fb ? fb[Math.floor(Math.random() * fb.length)] : { texto: '¡Inténtalo de nuevo!', audio: null };
-        mostrarFeedback(msg.texto);
-        audio.reproducirAleatorio(config.feedback?.error || [{ texto: '¡Inténtalo!', audio: null }]);
+        fb.error('¡Inténtalo de nuevo!');
 
         if (intentos >= (config.intentosPorRonda || 2)) {
           // Revelar respuesta correcta
@@ -1218,7 +1231,7 @@ const DidactiEngine = (() => {
         });
         const pts = intentos === 0 ? (config.puntajePorAcierto || 10) : (config.puntajePorAciertoSegundoIntento || 5);
         puntaje += pts;
-        mostrarFeedback('¡Orden correcto!');
+        fb.correcto('¡Orden correcto!');
         audio.reproducir(ronda.audioObjetivo, ronda.textoObjetivo);
         detalleRondas.push({ ronda: rondaActual + 1, correcta: true, intentos: intentos + 1, tiempoRonda: Math.round((Date.now() - tiempoRondaInicio) / 1000) });
         actualizarUI();
@@ -1231,7 +1244,7 @@ const DidactiEngine = (() => {
         document.querySelectorAll('#dg-riel .dg-ficha').forEach(f => {
           f.style.animation = 'dg-sacudir 0.4s ease';
         });
-        mostrarFeedback('¡El orden no es correcto! Intentalo de nuevo');
+        fb.error('¡El orden no es correcto!');
         if (intentos >= (config.intentosPorRonda || 2)) {
           // Mostrar orden correcto
           const ordenCorrecto = [...ronda.elementos].sort((a, b) => a.posicionCorrecta - b.posicionCorrecta);
@@ -1369,7 +1382,7 @@ const DidactiEngine = (() => {
         document.querySelectorAll('#dg-historia-riel .dg-historia-img').forEach(el => {
           el.style.borderColor = '#22c55e'; el.style.boxShadow = '0 0 0 3px #22c55e';
         });
-        mostrarFeedback('¡Orden correcto! Ahora construí las oraciones 📝');
+        fb.correcto('¡Orden correcto! Ahora construí las oraciones 📝');
         this.imagenesOrdenadas = [...this.enRiel].sort((a, b) => a.posicionCorrecta - b.posicionCorrecta);
         setTimeout(() => { this.imagenActualIdx = 0; this.intentosFase2 = 0; this.renderizarFase2(ronda); }, 1400);
       } else {
@@ -1385,7 +1398,7 @@ const DidactiEngine = (() => {
           this.renderizarImagenes(ronda);
           setTimeout(() => { this.imagenActualIdx = 0; this.intentosFase2 = 0; this.renderizarFase2(ronda); }, 2200);
         } else {
-          mostrarFeedback('¡El orden no es correcto! Revisá e intentá de nuevo');
+          fb.error('¡El orden no es correcto!');
         }
       }
     },
@@ -1471,8 +1484,11 @@ const DidactiEngine = (() => {
       const delay = ronda.audioHistoria ? 3500 : 1600;
       if (ronda.audioHistoria) {
         audio.reproducir(ronda.audioHistoria, null);
-      } else {
         mostrarFeedback(esCorrecta ? '¡Construiste una historia increíble! 📖' : '¡Buen intento! Seguí practicando 💪');
+      } else if (esCorrecta) {
+        fb.correcto('¡Construiste una historia increíble! 📖');
+      } else {
+        fb.error('¡Buen intento! Seguí practicando 💪');
       }
       setTimeout(() => {
         rondaActual++;
@@ -1544,7 +1560,7 @@ const DidactiEngine = (() => {
         el.classList.add('correcta');
         document.querySelectorAll('.dg-tarjeta').forEach(t => t.classList.add('deshabilitada'));
         puntaje += Math.floor((config.puntajePorAcierto || 10) / ronda.pasos.length);
-        mostrarFeedback(paso < ronda.pasos.length - 1 ? '¡Correcto! Siguiente paso...' : '¡Muy bien!');
+        fb.correcto(paso < ronda.pasos.length - 1 ? '¡Correcto! Siguiente paso...' : '¡Muy bien!');
         actualizarUI();
 
         if (paso < ronda.pasos.length - 1) {
@@ -1560,7 +1576,7 @@ const DidactiEngine = (() => {
         intentos++;
         el.classList.add('incorrecta');
         setTimeout(() => el.classList.remove('incorrecta'), 500);
-        mostrarFeedback('¡Inténtalo de nuevo!');
+        fb.error('¡Inténtalo de nuevo!');
         if (intentos >= (config.intentosPorRonda || 2)) {
           opciones.forEach(op => {
             if (op.correcta) {
@@ -1711,8 +1727,7 @@ const DidactiEngine = (() => {
           ? (config.puntajePorAcierto || 10)
           : (config.puntajePorAciertoSegundoIntento || 5);
         puntaje += pts;
-        mostrarFeedback('¡Muy bien! ✅');
-        audio.reproducirAleatorio(config.feedback?.correcto || [{ texto: '¡Muy bien!', audio: null }]);
+        fb.correcto('¡Muy bien!');
         detalleRondas.push({ ronda: rondaActual + 1, correcta: true, intentos: intentos + 1, tiempoRonda: Math.round((Date.now() - tiempoRondaInicio) / 1000) });
         actualizarUI();
         setTimeout(() => {
@@ -1723,8 +1738,7 @@ const DidactiEngine = (() => {
         intentos++;
         input.classList.add('incorrecto');
         setTimeout(() => input.classList.remove('incorrecto'), 500);
-        mostrarFeedback('¡Inténtalo de nuevo! 🤔');
-        audio.reproducirAleatorio(config.feedback?.error || [{ texto: '¡Inténtalo!', audio: null }]);
+        fb.error('¡Inténtalo de nuevo!');
 
         if (intentos >= (config.intentosPorRonda || 3)) {
           input.value = ronda.textoRespuesta;
@@ -1891,13 +1905,13 @@ const DidactiEngine = (() => {
         b.el.classList.replace('volteada', 'emparejada');
         this.paresEncontrados++;
         puntaje += Math.floor((config.puntajePorAcierto || 10) / this.totalPares) || 1;
-        mostrarFeedback('¡Par encontrado! 🎉');
+        fb.correcto('¡Par encontrado!');
         actualizarUI();
         this.actualizarInfo();
 
         if (this.paresEncontrados === this.totalPares) {
           detalleRondas.push({ ronda: rondaActual + 1, correcta: true, intentos: this.movimientos, tiempoRonda: Math.round((Date.now() - tiempoRondaInicio) / 1000) });
-          mostrarFeedback('¡Ronda completa! 🏆', 2000);
+          fb.correcto('¡Ronda completa! 🏆');
           setTimeout(() => {
             rondaActual++;
             rondaActual >= config.rondasTotal ? mostrarResultados() : this.renderizar(rondas[rondaActual]);
@@ -2035,7 +2049,7 @@ const DidactiEngine = (() => {
         elDer.classList.add('correcto');
         this.paresCompletados++;
         puntaje += Math.floor((config.puntajePorAcierto || 10) / this.totalPares) || 1;
-        mostrarFeedback('¡Par correcto! ✅');
+        fb.correcto('¡Par correcto!');
         audio.reproducir(itemDer.audio, itemDer.texto);
         actualizarUI();
 
@@ -2050,7 +2064,7 @@ const DidactiEngine = (() => {
         intentos++;
         elDer.classList.add('incorrecto');
         setTimeout(() => elDer.classList.remove('incorrecto'), 500);
-        mostrarFeedback('¡Inténtalo de nuevo! 🤔');
+        fb.error('¡Inténtalo de nuevo!');
 
         const maxIntentos = (config.intentosPorRonda || 3) * this.totalPares;
         if (intentos >= maxIntentos) {

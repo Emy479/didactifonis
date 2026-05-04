@@ -5,6 +5,7 @@
 
 const express = require("express");
 const mongoose = require("mongoose");
+const path = require("path");
 const morgan = require("morgan");
 const config = require("./src/config/config");
 
@@ -84,6 +85,20 @@ app.get("/health", (req, res) => {
     environment: config.env,
   });
 });
+
+// Servir assets estáticos de juegos (imágenes y audios subidos por el admin)
+// Cross-Origin-Resource-Policy: cross-origin es necesario porque el frontend
+// (localhost:5173) carga imágenes desde el backend (localhost:3001).
+app.use(
+  "/games/assets",
+  (_req, res, next) => {
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    next();
+  },
+  express.static(path.join(__dirname, "..", "frontend", "public", "games", "assets"), {
+    maxAge: "1d",
+  })
+);
 
 // Montar rutas de la API
 app.use("/api/admin", adminRoutes);

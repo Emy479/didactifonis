@@ -55,3 +55,14 @@ export const subirAsset = async (archivo, tipo, categoria) => {
   );
   return response.data;
 };
+
+/**
+ * Subir una grilla de imágenes y dividirla en assets individuales
+ * @param {FormData} formData - archivo, filas, columnas, bordeExterior, separacion, categoria, nombres (JSON)
+ * @returns {{ ok: boolean, categoria: string, total: number, assets: Array }}
+ */
+export const subirGrilla = (formData) =>
+  api.post("/game-builder/upload-grilla", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+    timeout: 60000,
+  });

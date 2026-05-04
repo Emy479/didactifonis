@@ -113,8 +113,8 @@ const generarIndexHTMLArcade = (titulo) => `<!DOCTYPE html>
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
   <script src="/games/engine-arcade.js"></script>
 </head>
-<body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;height:100vh;">
-  <div id="dg-arcade"></div>
+<body style="margin:0;padding:0;overflow:hidden;background:#000;">
+  <div id="dg-arcade" style="width:100%;height:100vh;"></div>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       DidactiArcade.init('./data.json');
@@ -482,4 +482,92 @@ exports.listarAssets = async (req, res) => {
   }
 };
 
-module.exports = { crearJuego, actualizarJuego, previsualizar, subirAsset, listarAssets: exports.listarAssets };
+// ── Subir grilla y cortar en celdas individuales ─────────────────────────────
+const uploadGrilla = multer({
+  storage: multer.memoryStorage(),
+  fileFilter: (_req, file, cb) => {
+    if (MIME_IMAGEN.includes(file.mimetype)) cb(null, true);
+    else cb(new Error(`Tipo no permitido: ${file.mimetype}`));
+  },
+  limits: { fileSize: 20 * 1024 * 1024 }, // 20 MB para grillas
+});
+
+exports.subirGrilla = (req, res) => {
+  uploadGrilla.single("archivo")(req, res, async (err) => {
+    if (err) return res.status(400).json({ error: err.message });
+    if (!req.file) return res.status(400).json({ error: "Se requiere una imagen de grilla" });
+
+    try {
+      const sharp = require("sharp");
+
+      const filas      = Math.max(1, parseInt(req.body.filas)      || 1);
+      const columnas   = Math.max(1, parseInt(req.body.columnas)   || 1);
+      const bordeExt   = Math.max(0, parseInt(req.body.bordeExterior) || 0);
+      const separacion = Math.max(0, parseInt(req.body.separacion) || 0);
+      const categoria  = CATEGORIAS_IMAGEN.includes(req.body.categoria) ? req.body.categoria : "otros";
+
+      let nombres = [];
+      try { nombres = JSON.parse(req.body.nombres || "[]"); } catch {}
+
+      // Leer metadata de la imagen original
+      const meta = await sharp(req.file.buffer).metadata();
+      const { width: W, height: H } = meta;
+
+      // Dimensiones de cada celda descontando bordes y separaciones
+      const cellW = Math.floor((W - 2 * bordeExt - (columnas - 1) * separacion) / columnas);
+      const cellH = Math.floor((H - 2 * bordeExt - (filas    - 1) * separacion) / filas);
+
+      if (cellW <= 0 || cellH <= 0) {
+        return res.status(400).json({ error: "Los parámetros de corte producen celdas de tamaño inválido" });
+      }
+
+      const destDir = path.join(ASSETS_DIR, "imagenes", categoria);
+      fs.mkdirSync(destDir, { recursive: true });
+
+      const guardados = [];
+
+      for (let r = 0; r < filas; r++) {
+        for (let c = 0; c < columnas; c++) {
+          const idx = r * columnas + c;
+
+          // Nombre limpio para el archivo
+          const nombreRaw = (nombres[idx] || `item_${idx + 1}`).toString().trim() || `item_${idx + 1}`;
+          const nombreSlug = nombreRaw
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[̀-ͯ]/g, "")
+            .replace(/[^a-z0-9]/g, "-")
+            .replace(/-+/g, "-")
+            .slice(0, 60);
+
+          const fileName = `${nombreSlug}.png`;
+          const filePath = path.join(destDir, fileName);
+
+          const left = bordeExt + c * (cellW + separacion);
+          const top  = bordeExt + r * (cellH + separacion);
+
+          await sharp(req.file.buffer)
+            .extract({ left, top, width: cellW, height: cellH })
+            .png()
+            .toFile(filePath);
+
+          guardados.push({
+            idx,
+            fila: r,
+            columna: c,
+            nombre: nombreRaw,
+            archivo: fileName,
+            url: `/games/assets/imagenes/${categoria}/${fileName}`,
+          });
+        }
+      }
+
+      res.json({ ok: true, categoria, total: guardados.length, assets: guardados });
+    } catch (e) {
+      console.error("subirGrilla:", e);
+      res.status(500).json({ error: "Error al procesar la grilla: " + e.message });
+    }
+  });
+};
+
+module.exports = { crearJuego, actualizarJuego, previsualizar, subirAsset, listarAssets: exports.listarAssets, subirGrilla: exports.subirGrilla };

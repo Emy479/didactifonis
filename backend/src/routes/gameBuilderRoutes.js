@@ -26,6 +26,10 @@ router.post("/preview",    gameBuilderController.previsualizar);
 // Crear juego completo (archivos + BD)
 router.post("/crear",      gameBuilderController.crearJuego);
 
+// Subir grilla de imágenes y dividirla en assets individuales
+// POST /api/game-builder/upload-grilla
+router.post("/upload-grilla", gameBuilderController.subirGrilla);
+
 // Actualizar data.json de juego existente
 router.put("/:id",         gameBuilderController.actualizarJuego);
 

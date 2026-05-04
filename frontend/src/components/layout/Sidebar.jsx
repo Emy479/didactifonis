@@ -14,6 +14,7 @@ import {
   Lightbulb,
   ShieldCheck,
   Wand2,
+  Images,
   X,
 } from "lucide-react";
 
@@ -39,6 +40,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     { name: "Panel Admin",        icon: ShieldCheck,     path: "/admin/dashboard" },
     { name: "Gestión de Juegos",  icon: Gamepad2,        path: "/admin/juegos" },
     { name: "Game Builder",       icon: Wand2,           path: "/admin/game-builder" },
+    { name: "Assets",             icon: Images,          path: "/admin/assets" },
     { name: "Sugerencias",        icon: Lightbulb,       path: "/admin/sugerencias" },
     { name: "Usuarios",           icon: Users,           path: "/admin/usuarios" },
   ];

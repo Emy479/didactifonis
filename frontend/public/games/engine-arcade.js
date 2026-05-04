@@ -175,7 +175,8 @@ const DidactiArcade = (() => {
       this._estrellasFijas(70);
 
       const esPlat  = cfg.submecanica === 'plataformero';
-      const iconoEm = esPlat ? '🏃' : '🚀';
+      const esSide  = cfg.submecanica === 'side_scroller';
+      const iconoEm = (esPlat || esSide) ? '🏃' : '🚀';
 
       this.add.text(W / 2, H * 0.14, cfg.titulo || 'Juego Arcade', {
         fontSize: '26px',
@@ -200,9 +201,9 @@ const DidactiArcade = (() => {
         color: '#e2e8f0', align: 'center', wordWrap: { width: W - 56 },
       }).setOrigin(0.5);
 
-      const hintTxt = esPlat
-        ? '← → correr  ·  ↑ saltar  ·  P pausar  ·  botones en móvil'
-        : '← → ↑ ↓ mover  ·  toca la pantalla en móvil  ·  P pausar';
+      const hintTxt = esPlat  ? '← → correr  ·  ↑ saltar  ·  P pausar  ·  botones en móvil'
+                    : esSide ? '← → moverse  ·  ↑ saltar  ·  P pausar  ·  botones en móvil'
+                    :          '← → ↑ ↓ mover  ·  toca la pantalla en móvil  ·  P pausar';
       this.add.text(W / 2, H * 0.64, hintTxt, {
         fontSize: '10px', fontFamily: 'Arial', color: '#64748b',
         align: 'center', wordWrap: { width: W - 40 },
@@ -214,7 +215,7 @@ const DidactiArcade = (() => {
       }).setOrigin(0.5);
 
       const _irAJuego = () => {
-        const destino = esPlat ? 'Plataformero' : 'Juego';
+        const destino = esPlat ? 'Plataformero' : esSide ? 'SideScroller' : 'Juego';
         this.scene.start(destino);
       };
 
@@ -441,7 +442,7 @@ const DidactiArcade = (() => {
       sprite?.setVelocity(0, 0);
       _detenerMusica();
 
-      this.palabras.forEach(p => { try { p.bg.destroy(); p.txt.destroy(); } catch {} });
+      this.palabras.forEach(p => { try { p.bg.destroy(); p.txt?.destroy(); p.img?.destroy(); } catch {} });
       this.palabras = [];
       this._powerUps.forEach(pu => { try { pu.bg?.destroy(); pu.icono?.destroy(); } catch {} });
       this._powerUps = [];
@@ -650,6 +651,21 @@ const DidactiArcade = (() => {
         sprite.play('personaje_idle', true);
       }
     },
+
+    // ── Precargar imágenes de palabras (modo imagen) ──────────────────────────
+    _precargarImgs() {
+      const pal = cfg?.palabras;
+      if (pal?.modo !== 'imagenes') { this._palImgKeys = {}; return; }
+      const todos = [...(pal.correctas || []), ...(pal.incorrectas || [])];
+      const visto = {};
+      todos.forEach((w, i) => {
+        if (!w.imagen || visto[w.imagen]) return;
+        const k = `pal_img_${i}`;
+        visto[w.imagen] = k;
+        if (!this.textures.exists(k)) this.load.image(k, w.imagen);
+      });
+      this._palImgKeys = visto;
+    },
   };
 
   // ════════════════════════════════════════════════════════════════════════════
@@ -666,6 +682,7 @@ const DidactiArcade = (() => {
           frameHeight: p.frameHeight || 48,
         });
       }
+      this._precargarImgs();
     }
 
     init() { this._initEstado(); }
@@ -756,8 +773,8 @@ const DidactiArcade = (() => {
 
         p.bg.x  += p.vx * dt;
         p.bg.y  += p.vy * dt;
-        p.txt.x  = p.bg.x;
-        p.txt.y  = p.bg.y;
+        if (p.img) { p.img.x = p.bg.x; p.img.y = p.bg.y; }
+        if (p.txt) { p.txt.x = p.bg.x; p.txt.y = p.bg.y + (p.img ? 42 : 0); }
 
         const pHW = p.bg.displayWidth  / 2 + 4;
         const pHH = p.bg.displayHeight / 2 + 4;
@@ -767,13 +784,13 @@ const DidactiArcade = (() => {
         if (dx < nHW + pHW && dy < nHH + pHH) {
           p.recolectada = true;
           this._procesarColision(p);
-          p.bg.destroy(); p.txt.destroy();
+          p.bg.destroy(); p.txt?.destroy(); p.img?.destroy();
           return false;
         }
 
         if (p.bg.y > this.H + 80 || p.bg.x < -160 ||
             p.bg.x > this.W + 160 || p.bg.y < -80) {
-          p.bg.destroy(); p.txt.destroy();
+          p.bg.destroy(); p.txt?.destroy(); p.img?.destroy();
           return false;
         }
         return true;
@@ -815,15 +832,33 @@ const DidactiArcade = (() => {
       const colorFondo = esCorrecta ? 0x14532d : 0x7f1d1d;
       const colorBorde = esCorrecta ? 0x4ade80  : 0xf87171;
 
-      const txt = this.add.text(x, y, dato.texto, {
-        fontSize: '18px', fontFamily: '"Arial Black", Impact, sans-serif', color: '#ffffff',
-      }).setOrigin(0.5).setDepth(3);
+      const modoImg = palCfg.modo === 'imagenes';
+      const imgKey  = modoImg && dato.imagen ? (this._palImgKeys?.[dato.imagen]) : null;
 
-      const padX = 14, padY = 9;
-      const bg = this.add.rectangle(x, y, txt.width + padX * 2, txt.height + padY * 2, colorFondo)
-        .setOrigin(0.5).setDepth(2).setStrokeStyle(2, colorBorde);
+      let bg, txt, img;
 
-      this.palabras.push({ bg, txt, vx, vy, isCorrecta: esCorrecta, recolectada: false });
+      if (modoImg && imgKey) {
+        const sz = 64;
+        bg  = this.add.rectangle(x, y, sz + 16, sz + 16, colorFondo, 0.88)
+          .setOrigin(0.5).setDepth(2).setStrokeStyle(3, colorBorde);
+        img = this.add.image(x, y, imgKey).setDisplaySize(sz, sz).setDepth(3);
+        txt = dato.texto
+          ? this.add.text(x, y + sz / 2 + 10, dato.texto, {
+              fontSize: '11px', fontFamily: '"Arial Black", sans-serif',
+              color: '#f1f5f9', stroke: '#000000', strokeThickness: 2,
+            }).setOrigin(0.5).setDepth(3)
+          : null;
+      } else {
+        txt = this.add.text(x, y, dato.texto || '?', {
+          fontSize: '18px', fontFamily: '"Arial Black", Impact, sans-serif', color: '#ffffff',
+        }).setOrigin(0.5).setDepth(3);
+        const padX = 14, padY = 9;
+        bg = this.add.rectangle(x, y, txt.width + padX * 2, txt.height + padY * 2, colorFondo)
+          .setOrigin(0.5).setDepth(2).setStrokeStyle(2, colorBorde);
+        img = null;
+      }
+
+      this.palabras.push({ bg, txt, img, vx, vy, isCorrecta: esCorrecta, recolectada: false });
     }
 
     _crearFondoEstelar() {
@@ -879,6 +914,7 @@ const DidactiArcade = (() => {
           if (!this.textures.exists(key)) this.load.image(key, def.imagen);
         }
       });
+      this._precargarImgs();
     }
 
     init() { this._initEstado(); }
@@ -985,7 +1021,7 @@ const DidactiArcade = (() => {
         if (dx < jHW + pHW && dy < jHH + pHH) {
           p.recolectada = true;
           this._procesarColision(p);
-          p.bg.destroy(); p.txt.destroy();
+          p.bg.destroy(); p.txt?.destroy(); p.img?.destroy();
           return false;
         }
         return true;
@@ -1121,30 +1157,48 @@ const DidactiArcade = (() => {
       const colorFondo = esCorrecta ? 0x14532d : 0x7f1d1d;
       const colorBorde = esCorrecta ? 0x4ade80  : 0xf87171;
 
-      const txt = this.add.text(px, py, dato.texto, {
-        fontSize: '15px', fontFamily: '"Arial Black", Impact, sans-serif', color: '#ffffff',
-      }).setOrigin(0.5).setDepth(5);
+      const modoImg = palCfg.modo === 'imagenes';
+      const imgKey  = modoImg && dato.imagen ? (this._palImgKeys?.[dato.imagen]) : null;
 
-      const padX = 10, padY = 7;
-      const bg   = this.add.rectangle(px, py, txt.width + padX * 2, txt.height + padY * 2, colorFondo)
-        .setOrigin(0.5).setDepth(4).setStrokeStyle(2, colorBorde);
+      let bg, txt, img;
 
-      // Animación de bobbing
-      const baseY = py;
-      this.tweens.add({ targets: [bg, txt], y: baseY - 8, duration: 850, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+      if (modoImg && imgKey) {
+        const sz = 56;
+        bg  = this.add.rectangle(px, py, sz + 14, sz + 14, colorFondo, 0.88)
+          .setOrigin(0.5).setDepth(4).setStrokeStyle(3, colorBorde);
+        img = this.add.image(px, py, imgKey).setDisplaySize(sz, sz).setDepth(5);
+        txt = dato.texto
+          ? this.add.text(px, py + sz / 2 + 10, dato.texto, {
+              fontSize: '10px', fontFamily: '"Arial Black", sans-serif',
+              color: '#f1f5f9', stroke: '#000000', strokeThickness: 2,
+            }).setOrigin(0.5).setDepth(5)
+          : null;
+      } else {
+        txt = this.add.text(px, py, dato.texto || '?', {
+          fontSize: '15px', fontFamily: '"Arial Black", Impact, sans-serif', color: '#ffffff',
+        }).setOrigin(0.5).setDepth(5);
+        const padX = 10, padY = 7;
+        bg = this.add.rectangle(px, py, txt.width + padX * 2, txt.height + padY * 2, colorFondo)
+          .setOrigin(0.5).setDepth(4).setStrokeStyle(2, colorBorde);
+        img = null;
+      }
+
+      // Bobbing: mueve todos los elementos relativamente para preservar offsets
+      const bobbingTargets = [bg, img, txt].filter(Boolean);
+      this.tweens.add({ targets: bobbingTargets, y: '-=8', duration: 850, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
 
       // Auto-desaparecer en 9 s
       this.time.delayedCall(9000, () => {
         if (!bg.active) return;
-        this.tweens.killTweensOf([bg, txt]);
+        this.tweens.killTweensOf(bobbingTargets);
         this.tweens.add({
-          targets: [bg, txt], alpha: 0, duration: 350,
-          onComplete: () => { try { bg.destroy(); txt.destroy(); } catch {} },
+          targets: bobbingTargets, alpha: 0, duration: 350,
+          onComplete: () => { try { bg.destroy(); txt?.destroy(); img?.destroy(); } catch {} },
         });
         this.palabras = this.palabras.filter(p => p.bg !== bg);
       });
 
-      this.palabras.push({ bg, txt, vx: 0, vy: 0, isCorrecta: esCorrecta, recolectada: false });
+      this.palabras.push({ bg, txt, img, vx: 0, vy: 0, isCorrecta: esCorrecta, recolectada: false });
     }
 
     // ── Layer 2: objetos fijos (positivos / negativos) ────────────────────────
@@ -1248,6 +1302,325 @@ const DidactiArcade = (() => {
   Object.assign(ScenaPlataformero.prototype, arcadeShared);
 
   // ════════════════════════════════════════════════════════════════════════════
+  // ESCENA: Side Scroller — Corredor Infinito
+  // El personaje corre hacia la derecha. Objetos scrollean de derecha a izquierda.
+  // Jugador salta (↑/Space) y se mueve ← → para recoger correctos y esquivar incorrectos.
+  // ════════════════════════════════════════════════════════════════════════════
+  class ScenaSideScroller extends Phaser.Scene {
+    constructor() { super({ key: 'SideScroller' }); }
+
+    preload() {
+      const p = cfg?.personaje;
+      if (p?.spritesheet && !this.textures.exists('runner_ss')) {
+        this.load.spritesheet('runner_ss', p.spritesheet, {
+          frameWidth:  p.frameWidth  || 48,
+          frameHeight: p.frameHeight || 48,
+        });
+      }
+      (cfg?.objetos ?? []).forEach((def, i) => {
+        if (def.imagen && !this.textures.exists(`obj_ss_${i}`))
+          this.load.image(`obj_ss_${i}`, def.imagen);
+      });
+      this._precargarImgs();
+    }
+
+    init() { this._initEstado(); }
+
+    create() {
+      const { width: W, height: H } = this.scale;
+      this.W = W; this.H = H;
+      const tema = _getTema();
+
+      // ── Fondo ────────────────────────────────────────────────────────────────
+      this.add.rectangle(0, 0, W, H, tema.fondoTop).setOrigin(0);
+      this.add.rectangle(0, H * 0.5, W, H * 0.5, tema.fondoBot, 0.75).setOrigin(0);
+      this._crearParallaxSS();
+
+      // ── Ground ───────────────────────────────────────────────────────────────
+      const GROUND_Y  = Math.round(H * 0.86);
+      const GROUND_H  = 14;
+      this._groundY   = GROUND_Y;
+      this._ssScrollV = cfg.palabras?.velocidadMax ?? 260; // px/s base (escalado en update)
+
+      this.physics.world.gravity.y = 0;
+      this.physics.world.setBounds(0, 0, W, H);
+
+      if (!this.textures.exists('ss-px')) {
+        const gx = this.make.graphics({ add: false });
+        gx.fillStyle(0xffffff, 1); gx.fillRect(0, 0, 4, 4);
+        gx.generateTexture('ss-px', 4, 4); gx.destroy();
+      }
+      this.grupoSuelo = this.physics.add.staticGroup();
+      const groundBody = this.grupoSuelo.create(W / 2, GROUND_Y + GROUND_H / 2, 'ss-px');
+      groundBody.setDisplaySize(W * 4, GROUND_H).refreshBody();
+      groundBody.setAlpha(0);
+
+      // Suelo visual: tiles que scrollean
+      const TILE_W = 56;
+      const nTiles = Math.ceil(W / TILE_W) + 4;
+      this._groundTiles = [];
+      for (let i = 0; i < nTiles; i++) {
+        const tx = i * TILE_W + TILE_W / 2;
+        this._groundTiles.push({
+          r:    this.add.rectangle(tx, GROUND_Y,                   TILE_W - 2, GROUND_H, tema.suelo).setDepth(2),
+          edge: this.add.rectangle(tx, GROUND_Y - GROUND_H / 2 + 2, TILE_W - 4, 3, 0xffffff, 0.22).setDepth(3),
+          w:    TILE_W,
+        });
+      }
+
+      // ── Personaje ─────────────────────────────────────────────────────────────
+      this._generarTexturaRunnerSS();
+      this.jugador = this.physics.add.sprite(W * 0.22, GROUND_Y - 36, 'runner_ss');
+      this.jugador.setCollideWorldBounds(true);
+      this.jugador.body.setGravityY(isLandscape ? 360 : 480);
+      this.jugador.body.setSize(28, 36).setOffset(6, 4);
+      this._setupAnimaciones(this.jugador);
+      this.physics.add.collider(this.jugador, this.grupoSuelo);
+
+      // ── Input ─────────────────────────────────────────────────────────────────
+      this.cursores = this.input.keyboard.createCursorKeys();
+      this.wasd     = this.input.keyboard.addKeys({ up: 'W', left: 'A', right: 'D' });
+      this.teclaP   = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.P);
+      this.teclaEsc = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+      this.teclaEsp = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+      this._btnSaltoSS = false;
+      this._btnIzqSS   = false;
+      this._btnDerSS   = false;
+      this._crearBotonesTactilesSS();
+
+      // ── Spawn palabras ────────────────────────────────────────────────────────
+      const spawnRate = cfg.palabras?.spawnRate ?? 2000;
+      this.spawnTimer = this.time.addEvent({
+        delay: spawnRate, callback: this._spawnPalabra, callbackScope: this, loop: true,
+      });
+      this.time.delayedCall(700, this._spawnPalabra, [], this);
+
+      this._crearHUD();
+      this._crearPausaOverlay();
+      this._initPowerUps();
+
+      this.time.delayedCall(300, () => sintetizar(cfg.instruccion || ''));
+      this.tiempoInicio = this.time.now;
+      _iniciarMusica(cfg.musica);
+    }
+
+    update(time, delta) {
+      if (this.terminado) return;
+      if (Phaser.Input.Keyboard.JustDown(this.teclaP) ||
+          Phaser.Input.Keyboard.JustDown(this.teclaEsc)) this._togglePausa();
+      if (this.pausado) return;
+
+      const elapsed = clamp((time - this.tiempoInicio) / this.duracionMs, 0, 1);
+      this._speedFactor = 1 + elapsed * 0.9;
+
+      const dt      = delta / 1000;
+      const scrollV = this._ssScrollV * this._speedFactor * this._velBoost;
+      const velH    = (cfg.personaje?.velocidad ?? 220) * this._velBoost;
+
+      const enSuelo = this.jugador.body.blocked.down;
+
+      // Salto
+      const jumpDown = Phaser.Input.Keyboard.JustDown(this.cursores.up) ||
+                       Phaser.Input.Keyboard.JustDown(this.wasd.up)      ||
+                       Phaser.Input.Keyboard.JustDown(this.teclaEsp)     ||
+                       this._btnSaltoSS;
+      this._btnSaltoSS = false;
+      if (jumpDown && enSuelo) {
+        this.jugador.setVelocityY(isLandscape ? -310 : -420);
+        tono(380, 0.07);
+      }
+
+      // Movimiento horizontal
+      let vx = 0;
+      if (this.cursores.left.isDown  || this.wasd.left.isDown  || this._btnIzqSS) vx = -velH;
+      if (this.cursores.right.isDown || this.wasd.right.isDown || this._btnDerSS) vx =  velH;
+      this.jugador.setVelocityX(vx);
+
+      // Limitar zona (izquierda: borde; derecha: hasta 50% pantalla)
+      const maxX = this.W * 0.52;
+      if (this.jugador.x > maxX) { this.jugador.x = maxX; this.jugador.body.reset(maxX, this.jugador.y); }
+
+      if (!cfg.personaje?.spritesheet) {
+        if (vx < 0) this.jugador.setFlipX(true);
+        else        this.jugador.setFlipX(false);
+      }
+      // Siempre animar como "corriendo" cuando está en el suelo (mundo scrollea)
+      this._playAnimacion(this.jugador, vx !== 0 ? vx : 1, 0, enSuelo);
+
+      // Scrollear tiles del suelo
+      this._groundTiles.forEach(tile => {
+        tile.r.x    -= scrollV * dt;
+        tile.edge.x  = tile.r.x;
+        if (tile.r.x < -tile.w / 2) {
+          const maxTileX = Math.max(...this._groundTiles.map(t => t.r.x));
+          tile.r.x    = maxTileX + tile.w;
+          tile.edge.x = tile.r.x;
+        }
+      });
+
+      // Scrollear capas de parallax
+      this._ssParallaxLayers?.forEach(({ shapes, speed, margin, yMin, yMax }) => {
+        shapes.forEach(s => {
+          s.x -= scrollV * speed * dt;
+          if (s.x < -(margin ?? 60)) {
+            s.x = this.W + (margin ?? 60);
+            if (yMin !== undefined) s.y = rand(yMin, yMax);
+          }
+        });
+      });
+
+      // Mover palabras + colisión
+      const jx = this.jugador.x, jy = this.jugador.y;
+      const jHW = 14, jHH = 18;
+
+      this.palabras = this.palabras.filter(p => {
+        if (p.recolectada || !p.bg.active) return false;
+
+        p.bg.x -= scrollV * dt;
+        if (p.img) { p.img.x = p.bg.x; p.img.y = p.bg.y; }
+        if (p.txt) { p.txt.x = p.bg.x; p.txt.y = p.bg.y + (p.img ? 42 : 0); }
+
+        const pHW = p.bg.displayWidth  / 2 + 4;
+        const pHH = p.bg.displayHeight / 2 + 4;
+        const dx  = Math.abs(jx - p.bg.x);
+        const dy  = Math.abs(jy - p.bg.y);
+
+        if (dx < jHW + pHW && dy < jHH + pHH) {
+          p.recolectada = true;
+          this._procesarColision(p);
+          p.bg.destroy(); p.txt?.destroy(); p.img?.destroy();
+          return false;
+        }
+        if (p.bg.x < -160) {
+          p.bg.destroy(); p.txt?.destroy(); p.img?.destroy();
+          return false;
+        }
+        return true;
+      });
+
+      this._actualizarPowerUps(jx, jy, dt);
+
+      const restante = Math.max(0, this.duracionMs - (time - this.tiempoInicio));
+      this._actualizarTimer(restante);
+      if (restante <= 0) this._terminar();
+    }
+
+    _spawnPalabra() {
+      if (this.terminado || this.pausado) return;
+      const palCfg      = cfg.palabras ?? {};
+      const correctas   = palCfg.correctas   ?? [];
+      const incorrectas = palCfg.incorrectas ?? [];
+      if (!correctas.length && !incorrectas.length) return;
+
+      const esCorrecta = rand(0, 9) < 6 || !incorrectas.length;
+      const pool       = esCorrecta ? correctas : incorrectas;
+      const dato       = pool[rand(0, pool.length - 1)];
+      if (!dato) return;
+
+      // 3 niveles de altura: suelo / salto bajo / salto alto
+      const GY = this._groundY;
+      const heights = [GY - 28, GY - 88, GY - 168];
+      const y = heights[rand(0, 2)];
+      const x = this.W + 80;
+
+      const colorFondo = esCorrecta ? 0x14532d : 0x7f1d1d;
+      const colorBorde = esCorrecta ? 0x4ade80 : 0xf87171;
+      const modoImg = palCfg.modo === 'imagenes';
+      const imgKey  = modoImg && dato.imagen ? (this._palImgKeys?.[dato.imagen]) : null;
+
+      let bg, txt, img;
+
+      if (modoImg && imgKey) {
+        const sz = 56;
+        bg  = this.add.rectangle(x, y, sz + 14, sz + 14, colorFondo, 0.88)
+              .setOrigin(0.5).setDepth(4).setStrokeStyle(3, colorBorde);
+        img = this.add.image(x, y, imgKey).setDisplaySize(sz, sz).setDepth(5);
+        txt = dato.texto
+          ? this.add.text(x, y + sz / 2 + 10, dato.texto, {
+              fontSize: '10px', fontFamily: '"Arial Black", sans-serif',
+              color: '#f1f5f9', stroke: '#000000', strokeThickness: 2,
+            }).setOrigin(0.5).setDepth(5)
+          : null;
+      } else {
+        txt = this.add.text(x, y, dato.texto || '?', {
+          fontSize: '16px', fontFamily: '"Arial Black", Impact, sans-serif', color: '#ffffff',
+        }).setOrigin(0.5).setDepth(5);
+        const padX = 11, padY = 8;
+        bg  = this.add.rectangle(x, y, txt.width + padX * 2, txt.height + padY * 2, colorFondo)
+              .setOrigin(0.5).setDepth(4).setStrokeStyle(2, colorBorde);
+        img = null;
+      }
+
+      this.palabras.push({ bg, txt, img, vx: 0, vy: 0, isCorrecta: esCorrecta, recolectada: false });
+    }
+
+    // ── Parallax de fondo ─────────────────────────────────────────────────────
+    _crearParallaxSS() {
+      const { W, H } = this;
+      const tema  = _getTema();
+      const [aMin, aMax] = tema.particulaAlpha;
+      const GY = Math.round(H * 0.86);
+
+      this._ssParallaxLayers = [];
+
+      // Capa lejana: estrellas/partículas
+      const farShapes = [];
+      for (let i = 0; i < 65; i++) {
+        farShapes.push(
+          this.add.circle(rand(0, W), rand(0, GY - 10), randF(0.4, 1.8), tema.particula, randF(aMin, aMax)).setDepth(0)
+        );
+      }
+      this._ssParallaxLayers.push({ shapes: farShapes, speed: 0.06, margin: 12 });
+
+      // Capa media: siluetas de edificios/árboles
+      const midShapes = [];
+      for (let i = 0; i < 16; i++) {
+        const bw  = rand(16, 44);
+        const bh  = rand(25, 85);
+        const col = tema.plats[rand(0, tema.plats.length - 1)];
+        midShapes.push(
+          this.add.rectangle(rand(0, W), GY, bw, bh, col, 0.28).setOrigin(0.5, 1).setDepth(1)
+        );
+      }
+      this._ssParallaxLayers.push({ shapes: midShapes, speed: 0.24, margin: 55, yMin: GY, yMax: GY });
+    }
+
+    // ── Textura procedural del corredor ───────────────────────────────────────
+    _generarTexturaRunnerSS() {
+      if (this.textures.exists('runner_ss')) return;
+      const g = this.add.graphics();
+      g.fillStyle(0x7c3aed, 1); g.fillRoundedRect(6, 14, 28, 26, 5);
+      g.fillStyle(0xfde68a, 1); g.fillCircle(20, 12, 11);
+      g.fillStyle(0x1e1b4b, 1); g.fillCircle(15, 11, 2.2); g.fillCircle(24, 11, 2.2);
+      g.fillStyle(0x4c1d95, 1); g.fillRoundedRect(10, 2, 20, 7, 2);
+      g.generateTexture('runner_ss', 40, 42);
+      g.destroy();
+    }
+
+    // ── Botones táctiles ──────────────────────────────────────────────────────
+    _crearBotonesTactilesSS() {
+      const { W, H } = this;
+      const btnY = H - 38;
+      const izqX  = isLandscape ? 50  : 38;
+      const derX  = isLandscape ? 108 : 90;
+      const saltX = isLandscape ? W - 60 : W - 44;
+
+      const makeBtn = (x, label, onDown, onUp) => {
+        const bg = this.add.circle(x, btnY, 28, 0xffffff, 0.18).setDepth(30).setInteractive({ useHandCursor: true });
+        this.add.text(x, btnY, label, { fontSize: '20px', color: '#ffffff', fontFamily: 'Arial' }).setOrigin(0.5).setDepth(31);
+        bg.on('pointerdown', onDown);
+        bg.on('pointerup',   onUp);
+        bg.on('pointerout',  onUp);
+      };
+
+      makeBtn(izqX,  '←', () => { this._btnIzqSS   = true;  }, () => { this._btnIzqSS = false; });
+      makeBtn(derX,  '→', () => { this._btnDerSS   = true;  }, () => { this._btnDerSS = false; });
+      makeBtn(saltX, '↑', () => { this._btnSaltoSS = true;  }, () => {});
+    }
+  }
+  Object.assign(ScenaSideScroller.prototype, arcadeShared);
+
+  // ════════════════════════════════════════════════════════════════════════════
   // ESCENA: Resultado
   // ════════════════════════════════════════════════════════════════════════════
   class ScenaResultado extends Phaser.Scene {
@@ -1305,7 +1678,9 @@ const DidactiArcade = (() => {
       }
 
       // Rutar "Jugar de nuevo" a la mecánica correcta
-      const escenaJuego = d.submecanica === 'plataformero' ? 'Plataformero' : 'Juego';
+      const escenaJuego = d.submecanica === 'plataformero' ? 'Plataformero'
+                        : d.submecanica === 'side_scroller' ? 'SideScroller'
+                        : 'Juego';
       const b1 = this.add.rectangle(W / 2, H * 0.84, 195, 50, 0x7c3aed).setInteractive({ useHandCursor: true });
       this.add.text(W / 2, H * 0.84, '🔄  Jugar de nuevo', {
         fontSize: '16px', fontFamily: '"Arial Black"', color: '#fff',
@@ -1340,10 +1715,8 @@ const DidactiArcade = (() => {
 
       // Detectar orientación al momento de iniciar el juego
       isLandscape = window.innerWidth > window.innerHeight;
-      const GW = isLandscape ? 640 : 400;
-      const GH = isLandscape ? 400 : 640;
 
-      // Al rotar el dispositivo, recargar para recalcular canvas y layout
+      // Al rotar el dispositivo, recargar para recalcular el layout de plataformas
       let _reloadPending = false;
       window.addEventListener('orientationchange', () => {
         if (_reloadPending) return;
@@ -1351,22 +1724,23 @@ const DidactiArcade = (() => {
         setTimeout(() => window.location.reload(), 400);
       });
 
+      // Multiplicar canvas por DPR para renderizado nítido en pantallas de alta densidad
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
       const game = new Phaser.Game({
         type:            Phaser.AUTO,
         backgroundColor: '#030712',
+        roundPixels:     true,
         physics: {
           default: 'arcade',
           arcade:  { gravity: { y: 0 }, debug: false },
         },
-        scene:  [ScenaCarga, ScenaIntro, ScenaJuego, ScenaPlataformero, ScenaResultado],
+        scene:  [ScenaCarga, ScenaIntro, ScenaJuego, ScenaPlataformero, ScenaSideScroller, ScenaResultado],
         parent: 'dg-arcade',
         scale: {
-          mode:       Phaser.Scale.FIT,
+          mode:       Phaser.Scale.RESIZE,
           autoCenter: Phaser.Scale.CENTER_BOTH,
-          width:  GW,
-          height: GH,
-          min: { width: isLandscape ? 400 : 270, height: isLandscape ? 250 : 432 },
-          max: { width: isLandscape ? 960 : 520,  height: isLandscape ? 600 : 832 },
+          zoom:       dpr,
         },
         input: { activePointers: 2 },
       });
